@@ -1,0 +1,1282 @@
+[
+  {
+    "id": 148,
+    "invoiceNumber": "FTR-2026-0148",
+    "customerName": "Yılmaz Ticaret A.Ş.",
+    "issueDate": "2026-07-03",
+    "dueDate": "2026-08-02",
+    "amount": 8450.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 147,
+    "invoiceNumber": "FTR-2026-0147",
+    "customerName": "Demir İnşaat Ltd. Şti.",
+    "issueDate": "2026-07-02",
+    "dueDate": "2026-08-01",
+    "amount": 16364,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 146,
+    "invoiceNumber": "FTR-2026-0146",
+    "customerName": "Aksa Gıda San. A.Ş.",
+    "issueDate": "2026-07-01",
+    "dueDate": "2026-07-31",
+    "amount": 24277.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 145,
+    "invoiceNumber": "FTR-2026-0145",
+    "customerName": "Kaya Otomotiv",
+    "issueDate": "2026-06-30",
+    "dueDate": "2026-07-07",
+    "amount": 32191.5,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 144,
+    "invoiceNumber": "FTR-2026-0144",
+    "customerName": "Öztürk Tekstil Ltd.",
+    "issueDate": "2026-06-29",
+    "dueDate": "2026-07-29",
+    "amount": 40105.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 143,
+    "invoiceNumber": "FTR-2026-0143",
+    "customerName": "Mavi Lojistik A.Ş.",
+    "issueDate": "2026-06-28",
+    "dueDate": "2026-07-28",
+    "amount": 48019,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 142,
+    "invoiceNumber": "FTR-2026-0142",
+    "customerName": "Ege Elektronik",
+    "issueDate": "2026-06-27",
+    "dueDate": "2026-07-04",
+    "amount": 55932.75,
+    "type": "purchase",
+    "status": "overdue"
+  },
+  {
+    "id": 141,
+    "invoiceNumber": "FTR-2026-0141",
+    "customerName": "Anadolu Yazılım Ltd.",
+    "issueDate": "2026-06-26",
+    "dueDate": "2026-07-26",
+    "amount": 63846.5,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 140,
+    "invoiceNumber": "FTR-2026-0140",
+    "customerName": "Başkent Mobilya",
+    "issueDate": "2026-06-25",
+    "dueDate": "2026-07-25",
+    "amount": 71760.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 139,
+    "invoiceNumber": "FTR-2026-0139",
+    "customerName": "Güven Makine Sanayi",
+    "issueDate": "2026-06-24",
+    "dueDate": "2026-07-24",
+    "amount": 79674,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 138,
+    "invoiceNumber": "FTR-2026-0138",
+    "customerName": "Akdeniz Turizm A.Ş.",
+    "issueDate": "2026-06-23",
+    "dueDate": "2026-06-30",
+    "amount": 87587.75,
+    "type": "purchase",
+    "status": "overdue"
+  },
+  {
+    "id": 137,
+    "invoiceNumber": "FTR-2026-0137",
+    "customerName": "Marmara Kimya Ltd.",
+    "issueDate": "2026-06-22",
+    "dueDate": "2026-07-22",
+    "amount": 95501.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 136,
+    "invoiceNumber": "FTR-2026-0136",
+    "customerName": "Atlas Medikal",
+    "issueDate": "2026-06-21",
+    "dueDate": "2026-07-21",
+    "amount": 103415.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 135,
+    "invoiceNumber": "FTR-2026-0135",
+    "customerName": "Nova Teknoloji A.Ş.",
+    "issueDate": "2026-06-20",
+    "dueDate": "2026-07-20",
+    "amount": 111329,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 134,
+    "invoiceNumber": "FTR-2026-0134",
+    "customerName": "Pera Danışmanlık",
+    "issueDate": "2026-06-19",
+    "dueDate": "2026-07-19",
+    "amount": 119242.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 133,
+    "invoiceNumber": "FTR-2026-0133",
+    "customerName": "İnci Gıda Ltd.",
+    "issueDate": "2026-06-18",
+    "dueDate": "2026-07-18",
+    "amount": 127156.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 132,
+    "invoiceNumber": "FTR-2026-0132",
+    "customerName": "Yılmaz Ticaret A.Ş.",
+    "issueDate": "2026-06-17",
+    "dueDate": "2026-07-17",
+    "amount": 15070.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 131,
+    "invoiceNumber": "FTR-2026-0131",
+    "customerName": "Demir İnşaat Ltd. Şti.",
+    "issueDate": "2026-06-16",
+    "dueDate": "2026-06-23",
+    "amount": 22984,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 130,
+    "invoiceNumber": "FTR-2026-0130",
+    "customerName": "Aksa Gıda San. A.Ş.",
+    "issueDate": "2026-06-15",
+    "dueDate": "2026-07-15",
+    "amount": 30897.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 129,
+    "invoiceNumber": "FTR-2026-0129",
+    "customerName": "Kaya Otomotiv",
+    "issueDate": "2026-06-14",
+    "dueDate": "2026-07-14",
+    "amount": 38811.5,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 128,
+    "invoiceNumber": "FTR-2026-0128",
+    "customerName": "Öztürk Tekstil Ltd.",
+    "issueDate": "2026-06-13",
+    "dueDate": "2026-07-13",
+    "amount": 46725.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 127,
+    "invoiceNumber": "FTR-2026-0127",
+    "customerName": "Mavi Lojistik A.Ş.",
+    "issueDate": "2026-06-12",
+    "dueDate": "2026-07-12",
+    "amount": 54639,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 126,
+    "invoiceNumber": "FTR-2026-0126",
+    "customerName": "Ege Elektronik",
+    "issueDate": "2026-06-11",
+    "dueDate": "2026-07-11",
+    "amount": 62552.75,
+    "type": "purchase",
+    "status": "pending"
+  },
+  {
+    "id": 125,
+    "invoiceNumber": "FTR-2026-0125",
+    "customerName": "Anadolu Yazılım Ltd.",
+    "issueDate": "2026-06-10",
+    "dueDate": "2026-07-10",
+    "amount": 70466.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 124,
+    "invoiceNumber": "FTR-2026-0124",
+    "customerName": "Başkent Mobilya",
+    "issueDate": "2026-06-09",
+    "dueDate": "2026-06-16",
+    "amount": 78380.25,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 123,
+    "invoiceNumber": "FTR-2026-0123",
+    "customerName": "Güven Makine Sanayi",
+    "issueDate": "2026-06-08",
+    "dueDate": "2026-07-08",
+    "amount": 86294,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 122,
+    "invoiceNumber": "FTR-2026-0122",
+    "customerName": "Akdeniz Turizm A.Ş.",
+    "issueDate": "2026-06-07",
+    "dueDate": "2026-07-07",
+    "amount": 94207.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 121,
+    "invoiceNumber": "FTR-2026-0121",
+    "customerName": "Marmara Kimya Ltd.",
+    "issueDate": "2026-06-06",
+    "dueDate": "2026-07-06",
+    "amount": 102121.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 120,
+    "invoiceNumber": "FTR-2026-0120",
+    "customerName": "Atlas Medikal",
+    "issueDate": "2026-06-05",
+    "dueDate": "2026-06-12",
+    "amount": 110035.25,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 119,
+    "invoiceNumber": "FTR-2026-0119",
+    "customerName": "Nova Teknoloji A.Ş.",
+    "issueDate": "2026-06-04",
+    "dueDate": "2026-07-04",
+    "amount": 117949,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 118,
+    "invoiceNumber": "FTR-2026-0118",
+    "customerName": "Pera Danışmanlık",
+    "issueDate": "2026-06-03",
+    "dueDate": "2026-07-03",
+    "amount": 125862.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 117,
+    "invoiceNumber": "FTR-2026-0117",
+    "customerName": "İnci Gıda Ltd.",
+    "issueDate": "2026-06-02",
+    "dueDate": "2026-06-09",
+    "amount": 13776.5,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 116,
+    "invoiceNumber": "FTR-2026-0116",
+    "customerName": "Yılmaz Ticaret A.Ş.",
+    "issueDate": "2026-06-01",
+    "dueDate": "2026-07-01",
+    "amount": 21690.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 115,
+    "invoiceNumber": "FTR-2026-0115",
+    "customerName": "Demir İnşaat Ltd. Şti.",
+    "issueDate": "2026-05-31",
+    "dueDate": "2026-06-30",
+    "amount": 29604,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 114,
+    "invoiceNumber": "FTR-2026-0114",
+    "customerName": "Aksa Gıda San. A.Ş.",
+    "issueDate": "2026-05-30",
+    "dueDate": "2026-06-29",
+    "amount": 37517.75,
+    "type": "purchase",
+    "status": "pending"
+  },
+  {
+    "id": 113,
+    "invoiceNumber": "FTR-2026-0113",
+    "customerName": "Kaya Otomotiv",
+    "issueDate": "2026-05-29",
+    "dueDate": "2026-06-28",
+    "amount": 45431.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 112,
+    "invoiceNumber": "FTR-2026-0112",
+    "customerName": "Öztürk Tekstil Ltd.",
+    "issueDate": "2026-05-28",
+    "dueDate": "2026-06-27",
+    "amount": 53345.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 111,
+    "invoiceNumber": "FTR-2026-0111",
+    "customerName": "Mavi Lojistik A.Ş.",
+    "issueDate": "2026-05-27",
+    "dueDate": "2026-06-26",
+    "amount": 61259,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 110,
+    "invoiceNumber": "FTR-2026-0110",
+    "customerName": "Ege Elektronik",
+    "issueDate": "2026-05-26",
+    "dueDate": "2026-06-02",
+    "amount": 69172.75,
+    "type": "purchase",
+    "status": "overdue"
+  },
+  {
+    "id": 109,
+    "invoiceNumber": "FTR-2026-0109",
+    "customerName": "Anadolu Yazılım Ltd.",
+    "issueDate": "2026-05-25",
+    "dueDate": "2026-06-01",
+    "amount": 77086.5,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 108,
+    "invoiceNumber": "FTR-2026-0108",
+    "customerName": "Başkent Mobilya",
+    "issueDate": "2026-05-24",
+    "dueDate": "2026-06-23",
+    "amount": 85000.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 107,
+    "invoiceNumber": "FTR-2026-0107",
+    "customerName": "Güven Makine Sanayi",
+    "issueDate": "2026-05-23",
+    "dueDate": "2026-06-22",
+    "amount": 92914,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 106,
+    "invoiceNumber": "FTR-2026-0106",
+    "customerName": "Akdeniz Turizm A.Ş.",
+    "issueDate": "2026-05-22",
+    "dueDate": "2026-06-21",
+    "amount": 100827.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 105,
+    "invoiceNumber": "FTR-2026-0105",
+    "customerName": "Marmara Kimya Ltd.",
+    "issueDate": "2026-05-21",
+    "dueDate": "2026-06-20",
+    "amount": 108741.5,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 104,
+    "invoiceNumber": "FTR-2026-0104",
+    "customerName": "Atlas Medikal",
+    "issueDate": "2026-05-20",
+    "dueDate": "2026-06-19",
+    "amount": 116655.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 103,
+    "invoiceNumber": "FTR-2026-0103",
+    "customerName": "Nova Teknoloji A.Ş.",
+    "issueDate": "2026-05-19",
+    "dueDate": "2026-05-26",
+    "amount": 124569,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 102,
+    "invoiceNumber": "FTR-2026-0102",
+    "customerName": "Pera Danışmanlık",
+    "issueDate": "2026-05-18",
+    "dueDate": "2026-06-17",
+    "amount": 12482.75,
+    "type": "purchase",
+    "status": "pending"
+  },
+  {
+    "id": 101,
+    "invoiceNumber": "FTR-2026-0101",
+    "customerName": "İnci Gıda Ltd.",
+    "issueDate": "2026-05-17",
+    "dueDate": "2026-06-16",
+    "amount": 20396.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 100,
+    "invoiceNumber": "FTR-2026-0100",
+    "customerName": "Yılmaz Ticaret A.Ş.",
+    "issueDate": "2026-05-16",
+    "dueDate": "2026-06-15",
+    "amount": 28310.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 99,
+    "invoiceNumber": "FTR-2026-0099",
+    "customerName": "Demir İnşaat Ltd. Şti.",
+    "issueDate": "2026-05-15",
+    "dueDate": "2026-06-14",
+    "amount": 36224,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 98,
+    "invoiceNumber": "FTR-2026-0098",
+    "customerName": "Aksa Gıda San. A.Ş.",
+    "issueDate": "2026-05-14",
+    "dueDate": "2026-05-21",
+    "amount": 44137.75,
+    "type": "purchase",
+    "status": "overdue"
+  },
+  {
+    "id": 97,
+    "invoiceNumber": "FTR-2026-0097",
+    "customerName": "Kaya Otomotiv",
+    "issueDate": "2026-05-13",
+    "dueDate": "2026-06-12",
+    "amount": 52051.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 96,
+    "invoiceNumber": "FTR-2026-0096",
+    "customerName": "Öztürk Tekstil Ltd.",
+    "issueDate": "2026-05-12",
+    "dueDate": "2026-05-19",
+    "amount": 59965.25,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 95,
+    "invoiceNumber": "FTR-2026-0095",
+    "customerName": "Mavi Lojistik A.Ş.",
+    "issueDate": "2026-05-11",
+    "dueDate": "2026-06-10",
+    "amount": 67879,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 94,
+    "invoiceNumber": "FTR-2026-0094",
+    "customerName": "Ege Elektronik",
+    "issueDate": "2026-05-10",
+    "dueDate": "2026-06-09",
+    "amount": 75792.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 93,
+    "invoiceNumber": "FTR-2026-0093",
+    "customerName": "Anadolu Yazılım Ltd.",
+    "issueDate": "2026-05-09",
+    "dueDate": "2026-06-08",
+    "amount": 83706.5,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 92,
+    "invoiceNumber": "FTR-2026-0092",
+    "customerName": "Başkent Mobilya",
+    "issueDate": "2026-05-08",
+    "dueDate": "2026-06-07",
+    "amount": 91620.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 91,
+    "invoiceNumber": "FTR-2026-0091",
+    "customerName": "Güven Makine Sanayi",
+    "issueDate": "2026-05-07",
+    "dueDate": "2026-06-06",
+    "amount": 99534,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 90,
+    "invoiceNumber": "FTR-2026-0090",
+    "customerName": "Akdeniz Turizm A.Ş.",
+    "issueDate": "2026-05-06",
+    "dueDate": "2026-06-05",
+    "amount": 107447.75,
+    "type": "purchase",
+    "status": "pending"
+  },
+  {
+    "id": 89,
+    "invoiceNumber": "FTR-2026-0089",
+    "customerName": "Marmara Kimya Ltd.",
+    "issueDate": "2026-05-05",
+    "dueDate": "2026-05-12",
+    "amount": 115361.5,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 88,
+    "invoiceNumber": "FTR-2026-0088",
+    "customerName": "Atlas Medikal",
+    "issueDate": "2026-05-04",
+    "dueDate": "2026-06-03",
+    "amount": 123275.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 87,
+    "invoiceNumber": "FTR-2026-0087",
+    "customerName": "Nova Teknoloji A.Ş.",
+    "issueDate": "2026-05-03",
+    "dueDate": "2026-05-10",
+    "amount": 11189,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 86,
+    "invoiceNumber": "FTR-2026-0086",
+    "customerName": "Pera Danışmanlık",
+    "issueDate": "2026-05-02",
+    "dueDate": "2026-06-01",
+    "amount": 19102.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 85,
+    "invoiceNumber": "FTR-2026-0085",
+    "customerName": "İnci Gıda Ltd.",
+    "issueDate": "2026-05-01",
+    "dueDate": "2026-05-31",
+    "amount": 27016.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 84,
+    "invoiceNumber": "FTR-2026-0084",
+    "customerName": "Yılmaz Ticaret A.Ş.",
+    "issueDate": "2026-04-30",
+    "dueDate": "2026-05-30",
+    "amount": 34930.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 83,
+    "invoiceNumber": "FTR-2026-0083",
+    "customerName": "Demir İnşaat Ltd. Şti.",
+    "issueDate": "2026-04-29",
+    "dueDate": "2026-05-29",
+    "amount": 42844,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 82,
+    "invoiceNumber": "FTR-2026-0082",
+    "customerName": "Aksa Gıda San. A.Ş.",
+    "issueDate": "2026-04-28",
+    "dueDate": "2026-05-05",
+    "amount": 50757.75,
+    "type": "purchase",
+    "status": "overdue"
+  },
+  {
+    "id": 81,
+    "invoiceNumber": "FTR-2026-0081",
+    "customerName": "Kaya Otomotiv",
+    "issueDate": "2026-04-27",
+    "dueDate": "2026-05-27",
+    "amount": 58671.5,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 80,
+    "invoiceNumber": "FTR-2026-0080",
+    "customerName": "Öztürk Tekstil Ltd.",
+    "issueDate": "2026-04-26",
+    "dueDate": "2026-05-26",
+    "amount": 66585.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 79,
+    "invoiceNumber": "FTR-2026-0079",
+    "customerName": "Mavi Lojistik A.Ş.",
+    "issueDate": "2026-04-25",
+    "dueDate": "2026-05-25",
+    "amount": 74499,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 78,
+    "invoiceNumber": "FTR-2026-0078",
+    "customerName": "Ege Elektronik",
+    "issueDate": "2026-04-24",
+    "dueDate": "2026-05-24",
+    "amount": 82412.75,
+    "type": "purchase",
+    "status": "pending"
+  },
+  {
+    "id": 77,
+    "invoiceNumber": "FTR-2026-0077",
+    "customerName": "Anadolu Yazılım Ltd.",
+    "issueDate": "2026-04-23",
+    "dueDate": "2026-05-23",
+    "amount": 90326.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 76,
+    "invoiceNumber": "FTR-2026-0076",
+    "customerName": "Başkent Mobilya",
+    "issueDate": "2026-04-22",
+    "dueDate": "2026-04-29",
+    "amount": 98240.25,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 75,
+    "invoiceNumber": "FTR-2026-0075",
+    "customerName": "Güven Makine Sanayi",
+    "issueDate": "2026-04-21",
+    "dueDate": "2026-04-28",
+    "amount": 106154,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 74,
+    "invoiceNumber": "FTR-2026-0074",
+    "customerName": "Akdeniz Turizm A.Ş.",
+    "issueDate": "2026-04-20",
+    "dueDate": "2026-05-20",
+    "amount": 114067.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 73,
+    "invoiceNumber": "FTR-2026-0073",
+    "customerName": "Marmara Kimya Ltd.",
+    "issueDate": "2026-04-19",
+    "dueDate": "2026-05-19",
+    "amount": 121981.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 72,
+    "invoiceNumber": "FTR-2026-0072",
+    "customerName": "Atlas Medikal",
+    "issueDate": "2026-04-18",
+    "dueDate": "2026-05-18",
+    "amount": 9895.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 71,
+    "invoiceNumber": "FTR-2026-0071",
+    "customerName": "Nova Teknoloji A.Ş.",
+    "issueDate": "2026-04-17",
+    "dueDate": "2026-05-17",
+    "amount": 17809,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 70,
+    "invoiceNumber": "FTR-2026-0070",
+    "customerName": "Pera Danışmanlık",
+    "issueDate": "2026-04-16",
+    "dueDate": "2026-05-16",
+    "amount": 25722.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 69,
+    "invoiceNumber": "FTR-2026-0069",
+    "customerName": "İnci Gıda Ltd.",
+    "issueDate": "2026-04-15",
+    "dueDate": "2026-05-15",
+    "amount": 33636.5,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 68,
+    "invoiceNumber": "FTR-2026-0068",
+    "customerName": "Yılmaz Ticaret A.Ş.",
+    "issueDate": "2026-04-14",
+    "dueDate": "2026-04-21",
+    "amount": 41550.25,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 67,
+    "invoiceNumber": "FTR-2026-0067",
+    "customerName": "Demir İnşaat Ltd. Şti.",
+    "issueDate": "2026-04-13",
+    "dueDate": "2026-05-13",
+    "amount": 49464,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 66,
+    "invoiceNumber": "FTR-2026-0066",
+    "customerName": "Aksa Gıda San. A.Ş.",
+    "issueDate": "2026-04-12",
+    "dueDate": "2026-05-12",
+    "amount": 57377.75,
+    "type": "purchase",
+    "status": "pending"
+  },
+  {
+    "id": 65,
+    "invoiceNumber": "FTR-2026-0065",
+    "customerName": "Kaya Otomotiv",
+    "issueDate": "2026-04-11",
+    "dueDate": "2026-04-18",
+    "amount": 65291.5,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 64,
+    "invoiceNumber": "FTR-2026-0064",
+    "customerName": "Öztürk Tekstil Ltd.",
+    "issueDate": "2026-04-10",
+    "dueDate": "2026-05-10",
+    "amount": 73205.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 63,
+    "invoiceNumber": "FTR-2026-0063",
+    "customerName": "Mavi Lojistik A.Ş.",
+    "issueDate": "2026-04-09",
+    "dueDate": "2026-05-09",
+    "amount": 81119,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 62,
+    "invoiceNumber": "FTR-2026-0062",
+    "customerName": "Ege Elektronik",
+    "issueDate": "2026-04-08",
+    "dueDate": "2026-05-08",
+    "amount": 89032.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 61,
+    "invoiceNumber": "FTR-2026-0061",
+    "customerName": "Anadolu Yazılım Ltd.",
+    "issueDate": "2026-04-07",
+    "dueDate": "2026-04-14",
+    "amount": 96946.5,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 60,
+    "invoiceNumber": "FTR-2026-0060",
+    "customerName": "Başkent Mobilya",
+    "issueDate": "2026-04-06",
+    "dueDate": "2026-05-06",
+    "amount": 104860.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 59,
+    "invoiceNumber": "FTR-2026-0059",
+    "customerName": "Güven Makine Sanayi",
+    "issueDate": "2026-04-05",
+    "dueDate": "2026-05-05",
+    "amount": 112774,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 58,
+    "invoiceNumber": "FTR-2026-0058",
+    "customerName": "Akdeniz Turizm A.Ş.",
+    "issueDate": "2026-04-04",
+    "dueDate": "2026-05-04",
+    "amount": 120687.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 57,
+    "invoiceNumber": "FTR-2026-0057",
+    "customerName": "Marmara Kimya Ltd.",
+    "issueDate": "2026-04-03",
+    "dueDate": "2026-05-03",
+    "amount": 8601.5,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 56,
+    "invoiceNumber": "FTR-2026-0056",
+    "customerName": "Atlas Medikal",
+    "issueDate": "2026-04-02",
+    "dueDate": "2026-05-02",
+    "amount": 16515.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 55,
+    "invoiceNumber": "FTR-2026-0055",
+    "customerName": "Nova Teknoloji A.Ş.",
+    "issueDate": "2026-04-01",
+    "dueDate": "2026-05-01",
+    "amount": 24429,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 54,
+    "invoiceNumber": "FTR-2026-0054",
+    "customerName": "Pera Danışmanlık",
+    "issueDate": "2026-03-31",
+    "dueDate": "2026-04-07",
+    "amount": 32342.75,
+    "type": "purchase",
+    "status": "overdue"
+  },
+  {
+    "id": 53,
+    "invoiceNumber": "FTR-2026-0053",
+    "customerName": "İnci Gıda Ltd.",
+    "issueDate": "2026-03-30",
+    "dueDate": "2026-04-29",
+    "amount": 40256.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 52,
+    "invoiceNumber": "FTR-2026-0052",
+    "customerName": "Yılmaz Ticaret A.Ş.",
+    "issueDate": "2026-03-29",
+    "dueDate": "2026-04-28",
+    "amount": 48170.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 51,
+    "invoiceNumber": "FTR-2026-0051",
+    "customerName": "Demir İnşaat Ltd. Şti.",
+    "issueDate": "2026-03-28",
+    "dueDate": "2026-04-27",
+    "amount": 56084,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 50,
+    "invoiceNumber": "FTR-2026-0050",
+    "customerName": "Aksa Gıda San. A.Ş.",
+    "issueDate": "2026-03-27",
+    "dueDate": "2026-04-26",
+    "amount": 63997.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 49,
+    "invoiceNumber": "FTR-2026-0049",
+    "customerName": "Kaya Otomotiv",
+    "issueDate": "2026-03-26",
+    "dueDate": "2026-04-25",
+    "amount": 71911.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 48,
+    "invoiceNumber": "FTR-2026-0048",
+    "customerName": "Öztürk Tekstil Ltd.",
+    "issueDate": "2026-03-25",
+    "dueDate": "2026-04-24",
+    "amount": 79825.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 47,
+    "invoiceNumber": "FTR-2026-0047",
+    "customerName": "Mavi Lojistik A.Ş.",
+    "issueDate": "2026-03-24",
+    "dueDate": "2026-03-31",
+    "amount": 87739,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 46,
+    "invoiceNumber": "FTR-2026-0046",
+    "customerName": "Ege Elektronik",
+    "issueDate": "2026-03-23",
+    "dueDate": "2026-04-22",
+    "amount": 95652.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 45,
+    "invoiceNumber": "FTR-2026-0045",
+    "customerName": "Anadolu Yazılım Ltd.",
+    "issueDate": "2026-03-22",
+    "dueDate": "2026-04-21",
+    "amount": 103566.5,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 44,
+    "invoiceNumber": "FTR-2026-0044",
+    "customerName": "Başkent Mobilya",
+    "issueDate": "2026-03-21",
+    "dueDate": "2026-04-20",
+    "amount": 111480.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 43,
+    "invoiceNumber": "FTR-2026-0043",
+    "customerName": "Güven Makine Sanayi",
+    "issueDate": "2026-03-20",
+    "dueDate": "2026-03-27",
+    "amount": 119394,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 42,
+    "invoiceNumber": "FTR-2026-0042",
+    "customerName": "Akdeniz Turizm A.Ş.",
+    "issueDate": "2026-03-19",
+    "dueDate": "2026-04-18",
+    "amount": 127307.75,
+    "type": "purchase",
+    "status": "pending"
+  },
+  {
+    "id": 41,
+    "invoiceNumber": "FTR-2026-0041",
+    "customerName": "Marmara Kimya Ltd.",
+    "issueDate": "2026-03-18",
+    "dueDate": "2026-04-17",
+    "amount": 15221.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 40,
+    "invoiceNumber": "FTR-2026-0040",
+    "customerName": "Atlas Medikal",
+    "issueDate": "2026-03-17",
+    "dueDate": "2026-03-24",
+    "amount": 23135.25,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 39,
+    "invoiceNumber": "FTR-2026-0039",
+    "customerName": "Nova Teknoloji A.Ş.",
+    "issueDate": "2026-03-16",
+    "dueDate": "2026-04-15",
+    "amount": 31049,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 38,
+    "invoiceNumber": "FTR-2026-0038",
+    "customerName": "Pera Danışmanlık",
+    "issueDate": "2026-03-15",
+    "dueDate": "2026-04-14",
+    "amount": 38962.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 37,
+    "invoiceNumber": "FTR-2026-0037",
+    "customerName": "İnci Gıda Ltd.",
+    "issueDate": "2026-03-14",
+    "dueDate": "2026-04-13",
+    "amount": 46876.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 36,
+    "invoiceNumber": "FTR-2026-0036",
+    "customerName": "Yılmaz Ticaret A.Ş.",
+    "issueDate": "2026-03-13",
+    "dueDate": "2026-04-12",
+    "amount": 54790.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 35,
+    "invoiceNumber": "FTR-2026-0035",
+    "customerName": "Demir İnşaat Ltd. Şti.",
+    "issueDate": "2026-03-12",
+    "dueDate": "2026-04-11",
+    "amount": 62704,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 34,
+    "invoiceNumber": "FTR-2026-0034",
+    "customerName": "Aksa Gıda San. A.Ş.",
+    "issueDate": "2026-03-11",
+    "dueDate": "2026-04-10",
+    "amount": 70617.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 33,
+    "invoiceNumber": "FTR-2026-0033",
+    "customerName": "Kaya Otomotiv",
+    "issueDate": "2026-03-10",
+    "dueDate": "2026-03-17",
+    "amount": 78531.5,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 32,
+    "invoiceNumber": "FTR-2026-0032",
+    "customerName": "Öztürk Tekstil Ltd.",
+    "issueDate": "2026-03-09",
+    "dueDate": "2026-03-16",
+    "amount": 86445.25,
+    "type": "sale",
+    "status": "overdue"
+  },
+  {
+    "id": 31,
+    "invoiceNumber": "FTR-2026-0031",
+    "customerName": "Mavi Lojistik A.Ş.",
+    "issueDate": "2026-03-08",
+    "dueDate": "2026-04-07",
+    "amount": 94359,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 30,
+    "invoiceNumber": "FTR-2026-0030",
+    "customerName": "Ege Elektronik",
+    "issueDate": "2026-03-07",
+    "dueDate": "2026-04-06",
+    "amount": 102272.75,
+    "type": "purchase",
+    "status": "pending"
+  },
+  {
+    "id": 29,
+    "invoiceNumber": "FTR-2026-0029",
+    "customerName": "Anadolu Yazılım Ltd.",
+    "issueDate": "2026-03-06",
+    "dueDate": "2026-04-05",
+    "amount": 110186.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 28,
+    "invoiceNumber": "FTR-2026-0028",
+    "customerName": "Başkent Mobilya",
+    "issueDate": "2026-03-05",
+    "dueDate": "2026-04-04",
+    "amount": 118100.25,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 27,
+    "invoiceNumber": "FTR-2026-0027",
+    "customerName": "Güven Makine Sanayi",
+    "issueDate": "2026-03-04",
+    "dueDate": "2026-04-03",
+    "amount": 126014,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 26,
+    "invoiceNumber": "FTR-2026-0026",
+    "customerName": "Akdeniz Turizm A.Ş.",
+    "issueDate": "2026-03-03",
+    "dueDate": "2026-03-10",
+    "amount": 13927.75,
+    "type": "purchase",
+    "status": "overdue"
+  },
+  {
+    "id": 25,
+    "invoiceNumber": "FTR-2026-0025",
+    "customerName": "Marmara Kimya Ltd.",
+    "issueDate": "2026-03-02",
+    "dueDate": "2026-04-01",
+    "amount": 21841.5,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 24,
+    "invoiceNumber": "FTR-2026-0024",
+    "customerName": "Atlas Medikal",
+    "issueDate": "2026-03-01",
+    "dueDate": "2026-03-31",
+    "amount": 29755.25,
+    "type": "sale",
+    "status": "pending"
+  },
+  {
+    "id": 23,
+    "invoiceNumber": "FTR-2026-0023",
+    "customerName": "Nova Teknoloji A.Ş.",
+    "issueDate": "2026-02-28",
+    "dueDate": "2026-03-30",
+    "amount": 37669,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
+    "id": 22,
+    "invoiceNumber": "FTR-2026-0022",
+    "customerName": "Pera Danışmanlık",
+    "issueDate": "2026-02-27",
+    "dueDate": "2026-03-29",
+    "amount": 45582.75,
+    "type": "purchase",
+    "status": "paid"
+  },
+  {
+    "id": 21,
+    "invoiceNumber": "FTR-2026-0021",
+    "customerName": "İnci Gıda Ltd.",
+    "issueDate": "2026-02-26",
+    "dueDate": "2026-03-05",
+    "amount": 53496.5,
+    "type": "sale",
+    "status": "overdue"
+  }
+]

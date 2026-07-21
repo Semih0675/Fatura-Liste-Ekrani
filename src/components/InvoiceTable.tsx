@@ -1,24 +1,12 @@
 import classNames from 'classnames/bind';
+import type { Invoice, InvoiceStatus, InvoiceType } from '../models/invoice';
+import { formatDate, formatMoney } from '../utils/formatters';
 import styles from './InvoiceTable.module.scss';
 
 const cx = classNames.bind(styles);
 
-export type InvoiceStatus = 'paid' | 'pending' | 'overdue';
-export type InvoiceType = 'sale' | 'purchase';
-
-export interface StaticInvoice {
-  id: number;
-  invoiceNumber: string;
-  customer: string;
-  issueDate: string;
-  dueDate: string;
-  amount: string;
-  type: InvoiceType;
-  status: InvoiceStatus;
-}
-
 interface InvoiceTableProps {
-  invoices: StaticInvoice[];
+  invoices: Invoice[];
 }
 
 const statusLabels: Record<InvoiceStatus, string> = {
@@ -38,7 +26,7 @@ export function InvoiceTable({ invoices }: InvoiceTableProps) {
       <div className={styles.cardHeader}>
         <div>
           <h2>Faturalar</h2>
-          <p>Son oluşturulan faturalar</p>
+          <p>Mock JSON kaynağından getirilen faturalar</p>
         </div>
 
         <span className={styles.countBadge}>{invoices.length} kayıt</span>
@@ -46,7 +34,7 @@ export function InvoiceTable({ invoices }: InvoiceTableProps) {
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
-          <caption className={styles.srOnly}>Statik fatura listesi</caption>
+          <caption className={styles.srOnly}>Mock verilerden oluşturulan fatura listesi</caption>
 
           <thead>
             <tr>
@@ -67,10 +55,11 @@ export function InvoiceTable({ invoices }: InvoiceTableProps) {
                   <strong className={styles.invoiceNumber}>{invoice.invoiceNumber}</strong>
                 </td>
 
-                <td>{invoice.customer}</td>
-                <td>{invoice.issueDate}</td>
-                <td>{invoice.dueDate}</td>
-                <td className={styles.amount}>{invoice.amount}</td>
+                <td>{invoice.customerName}</td>
+                <td>{formatDate(invoice.issueDate)}</td>
+                <td>{formatDate(invoice.dueDate)}</td>
+                <td className={styles.amount}>{formatMoney(invoice.amount)}</td>
+
                 <td>
                   <span className={styles.type}>{typeLabels[invoice.type]}</span>
                 </td>

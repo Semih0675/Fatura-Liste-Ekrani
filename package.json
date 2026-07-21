@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier . --write",
-    "format:check": "prettier . --check"
+    "format:check": "prettier . --check",
+    "generate:mock": "node scripts/generate-invoices.mjs"
   },
   "dependencies": {
     "classnames": "^2.5.1",
