@@ -1,0 +1,62 @@
+@use '../styles/variables' as variables;
+
+.header {
+  color: variables.$color-surface;
+  background: variables.$color-primary-900;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: min(variables.$container-width, calc(100% - 40px));
+  min-height: 64px;
+  margin: 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  strong {
+    font-size: 17px;
+  }
+
+  span {
+    color: #cbd8e8;
+    font-size: 13px;
+  }
+}
+
+.button {
+  padding: 9px 14px;
+  border: 0;
+  border-radius: variables.$radius-small;
+  color: variables.$color-surface;
+  background: variables.$color-primary-600;
+  font-weight: 600;
+  transition:
+    background-color 150ms ease,
+    transform 150ms ease;
+
+  &:hover {
+    background: #245fc5;
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+@media (max-width: 640px) {
+  .content {
+    width: calc(100% - 24px);
+  }
+
+  .brand {
+    span {
+      display: none;
+    }
+  }
+}

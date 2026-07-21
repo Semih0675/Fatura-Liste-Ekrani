@@ -1,0 +1,138 @@
+@use '../styles/variables' as variables;
+
+.card {
+  overflow: hidden;
+  border: 1px solid variables.$color-border;
+  border-radius: variables.$radius-medium;
+  background: variables.$color-surface;
+  box-shadow: variables.$shadow-card;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+
+  h2 {
+    margin: 0;
+    color: variables.$color-primary-900;
+    font-size: 19px;
+  }
+
+  p {
+    margin: 5px 0 0;
+    color: variables.$color-muted;
+    font-size: 14px;
+  }
+}
+
+.countBadge {
+  padding: 6px 10px;
+  border-radius: variables.$radius-pill;
+  color: variables.$color-primary-700;
+  background: variables.$color-primary-100;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 14px 16px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  th {
+    color: variables.$color-surface;
+    background: variables.$color-primary-900;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  td {
+    border-bottom: 1px solid #e3e8f0;
+    color: variables.$color-text;
+    font-size: 13px;
+  }
+
+  tbody {
+    tr {
+      transition: background-color 120ms ease;
+
+      &:nth-child(even) {
+        background: variables.$color-row-alternate;
+      }
+
+      &:hover {
+        background: #edf3fc;
+      }
+
+      &:last-child {
+        td {
+          border-bottom: 0;
+        }
+      }
+    }
+  }
+}
+
+.invoiceNumber {
+  color: variables.$color-primary-600;
+  font-weight: 700;
+}
+
+.amount {
+  font-weight: 700;
+}
+
+.type {
+  color: variables.$color-muted;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 5px 9px;
+  border-radius: variables.$radius-pill;
+  font-size: 12px;
+  font-weight: 700;
+
+  &.paid {
+    color: variables.$color-success;
+    background: variables.$color-success-background;
+  }
+
+  &.pending {
+    color: variables.$color-warning;
+    background: variables.$color-warning-background;
+  }
+
+  &.overdue {
+    color: variables.$color-danger;
+    background: variables.$color-danger-background;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  margin: -1px;
+  border: 0;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}

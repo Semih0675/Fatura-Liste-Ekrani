@@ -1,53 +1,91 @@
-export interface TableColumn {
-  id: string;
-  label: string;
-}
+import classNames from 'classnames/bind';
+import styles from './InvoiceTable.module.scss';
 
-export interface PlaceholderRow {
-  id: string;
+const cx = classNames.bind(styles);
+
+export type InvoiceStatus = 'paid' | 'pending' | 'overdue';
+export type InvoiceType = 'sale' | 'purchase';
+
+export interface StaticInvoice {
+  id: number;
+  invoiceNumber: string;
+  customer: string;
+  issueDate: string;
+  dueDate: string;
+  amount: string;
+  type: InvoiceType;
+  status: InvoiceStatus;
 }
 
 interface InvoiceTableProps {
-  columns: TableColumn[];
-  rows: PlaceholderRow[];
+  invoices: StaticInvoice[];
 }
 
-export function InvoiceTable({ columns, rows }: InvoiceTableProps) {
+const statusLabels: Record<InvoiceStatus, string> = {
+  paid: 'Ödendi',
+  pending: 'Bekliyor',
+  overdue: 'Gecikmiş',
+};
+
+const typeLabels: Record<InvoiceType, string> = {
+  sale: 'Satış',
+  purchase: 'Alış',
+};
+
+export function InvoiceTable({ invoices }: InvoiceTableProps) {
   return (
-    <section className="table-card">
-      <div className="table-card-header">
+    <section className={styles.card}>
+      <div className={styles.cardHeader}>
         <div>
           <h2>Faturalar</h2>
-          <p>Gerçek fatura verileri sonraki adımlarda eklenecek.</p>
+          <p>Son oluşturulan faturalar</p>
         </div>
 
-        <span className="table-badge">Placeholder</span>
+        <span className={styles.countBadge}>{invoices.length} kayıt</span>
       </div>
 
-      <div className="table-scroll">
-        <table className="invoice-table">
-          <caption className="sr-only">
-            Fatura listesi yer tutucu tablosu
-          </caption>
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <caption className={styles.srOnly}>Statik fatura listesi</caption>
 
           <thead>
             <tr>
-              {columns.map((column) => (
-                <th key={column.id} scope="col">
-                  {column.label}
-                </th>
-              ))}
+              <th scope="col">Fatura No</th>
+              <th scope="col">Müşteri</th>
+              <th scope="col">Düzenleme Tarihi</th>
+              <th scope="col">Vade Tarihi</th>
+              <th scope="col">Tutar</th>
+              <th scope="col">Tip</th>
+              <th scope="col">Durum</th>
             </tr>
           </thead>
 
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.id}>
-                {columns.map((column) => (
-                  <td key={`${row.id}-${column.id}`}>
-                    <span className="table-placeholder" aria-hidden="true" />
-                  </td>
-                ))}
+            {invoices.map((invoice) => (
+              <tr key={invoice.id}>
+                <td>
+                  <strong className={styles.invoiceNumber}>{invoice.invoiceNumber}</strong>
+                </td>
+
+                <td>{invoice.customer}</td>
+                <td>{invoice.issueDate}</td>
+                <td>{invoice.dueDate}</td>
+                <td className={styles.amount}>{invoice.amount}</td>
+                <td>
+                  <span className={styles.type}>{typeLabels[invoice.type]}</span>
+                </td>
+
+                <td>
+                  <span
+                    className={cx('statusBadge', {
+                      paid: invoice.status === 'paid',
+                      pending: invoice.status === 'pending',
+                      overdue: invoice.status === 'overdue',
+                    })}
+                  >
+                    {statusLabels[invoice.status]}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

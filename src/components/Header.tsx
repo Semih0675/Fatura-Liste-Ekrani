@@ -1,3 +1,5 @@
+import styles from './Header.module.scss';
+
 interface HeaderProps {
   appName: string;
   pageName: string;
@@ -5,22 +7,17 @@ interface HeaderProps {
   onToggleTable: () => void;
 }
 
-export function Header({
-  appName,
-  pageName,
-  isTableVisible,
-  onToggleTable,
-}: HeaderProps) {
+export function Header({ appName, pageName, isTableVisible, onToggleTable }: HeaderProps) {
   return (
-    <header className="app-header">
-      <div className="header-content">
-        <div className="brand">
+    <header className={styles.header}>
+      <div className={styles.content}>
+        <div className={styles.brand}>
           <strong>{appName}</strong>
           <span>{pageName}</span>
         </div>
 
-        <button className="header-button" type="button" onClick={onToggleTable}>
-          {isTableVisible ? "Tabloyu Gizle" : "Tabloyu Göster"}
+        <button className={styles.button} type="button" onClick={onToggleTable}>
+          {isTableVisible ? 'Tabloyu Gizle' : 'Tabloyu Göster'}
         </button>
       </div>
     </header>
