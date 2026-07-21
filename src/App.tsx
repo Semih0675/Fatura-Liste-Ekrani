@@ -1,35 +1,97 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+import { useEffect, useState } from "react";
 import "./App.css";
+import { Header } from "./components/Header";
+import {
+  InvoiceTable,
+  type PlaceholderRow,
+  type TableColumn,
+} from "./components/InvoiceTable";
 
-function App() {
-  const [count, setCount] = useState(0);
+const invoiceColumns: TableColumn[] = [
+  {
+    id: "invoice-number",
+    label: "Fatura No",
+  },
+  {
+    id: "customer",
+    label: "Müşteri",
+  },
+  {
+    id: "issue-date",
+    label: "Düzenleme Tarihi",
+  },
+  {
+    id: "due-date",
+    label: "Vade Tarihi",
+  },
+  {
+    id: "amount",
+    label: "Tutar",
+  },
+  {
+    id: "type",
+    label: "Tip",
+  },
+  {
+    id: "status",
+    label: "Durum",
+  },
+];
+
+const placeholderRows: PlaceholderRow[] = Array.from(
+  { length: 6 },
+  (_, index) => ({
+    id: `placeholder-row-${index + 1}`,
+  }),
+);
+
+export default function App() {
+  const [isTableVisible, setIsTableVisible] = useState(true);
+
+  useEffect(() => {
+    document.title = isTableVisible
+      ? "PreAccounting | Fatura Listesi"
+      : "PreAccounting | Tablo Gizli";
+  }, [isTableVisible]);
+
+  function handleToggleTable() {
+    setIsTableVisible((currentValue) => !currentValue);
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="app">
+      <Header
+        appName="PreAccounting"
+        pageName="Fatura Listesi"
+        isTableVisible={isTableVisible}
+        onToggleTable={handleToggleTable}
+      />
+
+      <main className="page-content">
+        <section className="page-intro">
+          <div>
+            <p className="eyebrow">Fatura yönetimi</p>
+            <h1>Fatura Listesi</h1>
+            <p className="page-description">
+              Faturalarınızı görüntüleyebileceğiniz sayfanın temel React
+              iskeleti.
+            </p>
+          </div>
+
+          <button className="primary-button" type="button">
+            + Yeni Fatura
+          </button>
+        </section>
+
+        {isTableVisible ? (
+          <InvoiceTable columns={invoiceColumns} rows={placeholderRows} />
+        ) : (
+          <section className="empty-state">
+            <h2>Tablo gizlendi</h2>
+            <p>Fatura tablosunu tekrar görüntülemek için üstteki butona bas.</p>
+          </section>
+        )}
+      </main>
+    </div>
   );
 }
-
-export default App;
