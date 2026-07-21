@@ -12,3 +12,13 @@ export interface Invoice {
   type: InvoiceType;
   status: InvoiceStatus;
 }
+
+export type InvoiceSortKey =
+  'invoiceNumber' | 'customerName' | 'issueDate' | 'dueDate' | 'amount' | 'type' | 'status';
+
+export type SortDirection = 'ascending' | 'descending';
+
+export interface InvoiceSortConfig {
+  key: InvoiceSortKey;
+  direction: SortDirection;
+}

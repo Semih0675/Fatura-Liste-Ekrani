@@ -1,5 +1,6 @@
 import classNames from 'classnames/bind';
-import type { Invoice, InvoiceStatus, InvoiceType } from '../models/invoice';
+import { invoiceStatusLabels, invoiceTypeLabels } from '../constants/invoiceLabels';
+import type { Invoice, InvoiceSortConfig, InvoiceSortKey } from '../models/invoice';
 import { formatDate, formatMoney } from '../utils/formatters';
 import styles from './InvoiceTable.module.scss';
 
@@ -7,26 +8,64 @@ const cx = classNames.bind(styles);
 
 interface InvoiceTableProps {
   invoices: Invoice[];
+  sortConfig: InvoiceSortConfig;
+  onSort: (key: InvoiceSortKey) => void;
 }
 
-const statusLabels: Record<InvoiceStatus, string> = {
-  paid: 'Ödendi',
-  pending: 'Bekliyor',
-  overdue: 'Gecikmiş',
-};
+interface InvoiceColumn {
+  key: InvoiceSortKey;
+  label: string;
+}
 
-const typeLabels: Record<InvoiceType, string> = {
-  sale: 'Satış',
-  purchase: 'Alış',
-};
+const columns: InvoiceColumn[] = [
+  {
+    key: 'invoiceNumber',
+    label: 'Fatura No',
+  },
+  {
+    key: 'customerName',
+    label: 'Müşteri',
+  },
+  {
+    key: 'issueDate',
+    label: 'Düzenleme Tarihi',
+  },
+  {
+    key: 'dueDate',
+    label: 'Vade Tarihi',
+  },
+  {
+    key: 'amount',
+    label: 'Tutar',
+  },
+  {
+    key: 'type',
+    label: 'Tip',
+  },
+  {
+    key: 'status',
+    label: 'Durum',
+  },
+];
 
-export function InvoiceTable({ invoices }: InvoiceTableProps) {
+function getAriaSort(
+  columnKey: InvoiceSortKey,
+  sortConfig: InvoiceSortConfig,
+): 'ascending' | 'descending' | 'none' {
+  if (sortConfig.key !== columnKey) {
+    return 'none';
+  }
+
+  return sortConfig.direction;
+}
+
+export function InvoiceTable({ invoices, sortConfig, onSort }: InvoiceTableProps) {
   return (
     <section className={styles.card}>
       <div className={styles.cardHeader}>
         <div>
           <h2>Faturalar</h2>
-          <p>Mock JSON kaynağından getirilen faturalar</p>
+          <p>Kolon başlıklarına tıklayarak sıralayabilirsiniz.</p>
         </div>
 
         <span className={styles.countBadge}>{invoices.length} kayıt</span>
@@ -34,49 +73,76 @@ export function InvoiceTable({ invoices }: InvoiceTableProps) {
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
-          <caption className={styles.srOnly}>Mock verilerden oluşturulan fatura listesi</caption>
+          <caption className={styles.srOnly}>Aranabilir ve sıralanabilir fatura listesi</caption>
 
           <thead>
             <tr>
-              <th scope="col">Fatura No</th>
-              <th scope="col">Müşteri</th>
-              <th scope="col">Düzenleme Tarihi</th>
-              <th scope="col">Vade Tarihi</th>
-              <th scope="col">Tutar</th>
-              <th scope="col">Tip</th>
-              <th scope="col">Durum</th>
+              {columns.map((column) => {
+                const isActive = sortConfig.key === column.key;
+
+                return (
+                  <th key={column.key} scope="col" aria-sort={getAriaSort(column.key, sortConfig)}>
+                    <button
+                      className={styles.sortButton}
+                      type="button"
+                      onClick={() => onSort(column.key)}
+                    >
+                      <span>{column.label}</span>
+
+                      <span
+                        className={cx('sortIndicator', {
+                          active: isActive,
+                        })}
+                        aria-hidden="true"
+                      >
+                        {isActive ? (sortConfig.direction === 'ascending' ? '▲' : '▼') : '↕'}
+                      </span>
+                    </button>
+                  </th>
+                );
+              })}
             </tr>
           </thead>
 
           <tbody>
-            {invoices.map((invoice) => (
-              <tr key={invoice.id}>
-                <td>
-                  <strong className={styles.invoiceNumber}>{invoice.invoiceNumber}</strong>
-                </td>
+            {invoices.length > 0 ? (
+              invoices.map((invoice) => (
+                <tr key={invoice.id}>
+                  <td>
+                    <strong className={styles.invoiceNumber}>{invoice.invoiceNumber}</strong>
+                  </td>
 
-                <td>{invoice.customerName}</td>
-                <td>{formatDate(invoice.issueDate)}</td>
-                <td>{formatDate(invoice.dueDate)}</td>
-                <td className={styles.amount}>{formatMoney(invoice.amount)}</td>
+                  <td>{invoice.customerName}</td>
+                  <td>{formatDate(invoice.issueDate)}</td>
+                  <td>{formatDate(invoice.dueDate)}</td>
 
-                <td>
-                  <span className={styles.type}>{typeLabels[invoice.type]}</span>
-                </td>
+                  <td className={styles.amount}>{formatMoney(invoice.amount)}</td>
 
-                <td>
-                  <span
-                    className={cx('statusBadge', {
-                      paid: invoice.status === 'paid',
-                      pending: invoice.status === 'pending',
-                      overdue: invoice.status === 'overdue',
-                    })}
-                  >
-                    {statusLabels[invoice.status]}
-                  </span>
+                  <td>
+                    <span className={styles.type}>{invoiceTypeLabels[invoice.type]}</span>
+                  </td>
+
+                  <td>
+                    <span
+                      className={cx('statusBadge', {
+                        paid: invoice.status === 'paid',
+                        pending: invoice.status === 'pending',
+                        overdue: invoice.status === 'overdue',
+                      })}
+                    >
+                      {invoiceStatusLabels[invoice.status]}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className={styles.emptyRow} colSpan={columns.length}>
+                  <strong>Fatura bulunamadı</strong>
+                  <span>Arama ifadenizi değiştirerek tekrar deneyin.</span>
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
