@@ -1,25 +1,23 @@
 import { useEffect, useState } from 'react';
 import styles from './App.module.scss';
+import { FilterForm } from './components/FilterForm';
 import { Header } from './components/Header';
 import { InvoiceTable } from './components/InvoiceTable';
-import { InvoiceToolbar } from './components/InvoiceToolbar';
 import { SummaryCards, type SummaryCard } from './components/SummaryCards';
-import type { InvoiceSortKey } from './models/invoice';
+import type { InvoiceFilterValues, InvoiceSortKey } from './models/invoice';
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import {
-  selectInvoiceSearchTerm,
-  selectInvoiceSortConfig,
+  selectInvoiceFilters,
   selectInvoiceSummary,
   selectVisibleInvoices,
 } from './store/selectors/invoiceSelectors';
-import { setSearchTerm, toggleSort } from './store/slices/invoiceSlice';
+import { applyFilters, resetFilters, toggleSort } from './store/slices/invoiceSlice';
 import { formatMoney } from './utils/formatters';
 
 export default function App() {
   const dispatch = useAppDispatch();
 
-  const searchTerm = useAppSelector(selectInvoiceSearchTerm);
-  const sortConfig = useAppSelector(selectInvoiceSortConfig);
+  const filters = useAppSelector(selectInvoiceFilters);
   const visibleInvoices = useAppSelector(selectVisibleInvoices);
   const invoiceSummary = useAppSelector(selectInvoiceSummary);
 
@@ -59,8 +57,12 @@ export default function App() {
     setIsTableVisible((currentValue) => !currentValue);
   }
 
-  function handleSearchChange(value: string) {
-    dispatch(setSearchTerm(value));
+  function handleApplyFilters(filterValues: InvoiceFilterValues) {
+    dispatch(applyFilters(filterValues));
+  }
+
+  function handleResetFilters() {
+    dispatch(resetFilters());
   }
 
   function handleSort(sortKey: InvoiceSortKey) {
@@ -93,14 +95,19 @@ export default function App() {
 
         {isTableVisible ? (
           <div className={styles.tableArea}>
-            <InvoiceToolbar
-              searchTerm={searchTerm}
+            <FilterForm
+              initialFilters={filters}
               resultCount={visibleInvoices.length}
               totalCount={invoiceSummary.totalCount}
-              onSearchChange={handleSearchChange}
+              onApply={handleApplyFilters}
+              onReset={handleResetFilters}
             />
 
-            <InvoiceTable invoices={visibleInvoices} sortConfig={sortConfig} onSort={handleSort} />
+            <InvoiceTable
+              invoices={visibleInvoices}
+              sortConfig={filters.sortConfig}
+              onSort={handleSort}
+            />
           </div>
         ) : (
           <section className={styles.emptyState}>

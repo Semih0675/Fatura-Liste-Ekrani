@@ -1,26 +1,36 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import invoiceData from '../../data/invoices.json';
-import type { Invoice, InvoiceSortConfig, InvoiceSortKey } from '../../models/invoice';
-
-export interface InvoiceFiltersState {
-  searchTerm: string;
-  sortConfig: InvoiceSortConfig;
-}
+import type {
+  Invoice,
+  InvoiceFiltersState,
+  InvoiceFilterValues,
+  InvoiceSortKey,
+} from '../../models/invoice';
 
 export interface InvoiceState {
   items: Invoice[];
   filters: InvoiceFiltersState;
 }
 
-const initialState: InvoiceState = {
-  items: invoiceData as Invoice[],
-  filters: {
+function createInitialFilters(): InvoiceFiltersState {
+  return {
     searchTerm: '',
+    type: null,
+    statuses: [],
+    issueDateFrom: null,
+    issueDateTo: null,
+    minAmount: null,
+    maxAmount: null,
     sortConfig: {
       key: 'invoiceNumber',
       direction: 'descending',
     },
-  },
+  };
+}
+
+const initialState: InvoiceState = {
+  items: invoiceData as Invoice[],
+  filters: createInitialFilters(),
 };
 
 const invoiceSlice = createSlice({
@@ -31,12 +41,20 @@ const invoiceSlice = createSlice({
       state.items = action.payload;
     },
 
-    setSearchTerm(state, action: PayloadAction<string>) {
-      state.filters.searchTerm = action.payload;
+    applyFilters(state, action: PayloadAction<InvoiceFilterValues>) {
+      const currentSortConfig = {
+        ...state.filters.sortConfig,
+      };
+
+      state.filters = {
+        ...action.payload,
+        statuses: [...action.payload.statuses],
+        sortConfig: currentSortConfig,
+      };
     },
 
-    clearSearchTerm(state) {
-      state.filters.searchTerm = '';
+    resetFilters(state) {
+      state.filters = createInitialFilters();
     },
 
     toggleSort(state, action: PayloadAction<InvoiceSortKey>) {
@@ -54,20 +72,9 @@ const invoiceSlice = createSlice({
         direction: 'ascending',
       };
     },
-
-    resetFilters(state) {
-      state.filters = {
-        searchTerm: '',
-        sortConfig: {
-          key: 'invoiceNumber',
-          direction: 'descending',
-        },
-      };
-    },
   },
 });
 
-export const { replaceInvoices, setSearchTerm, clearSearchTerm, toggleSort, resetFilters } =
-  invoiceSlice.actions;
+export const { replaceInvoices, applyFilters, resetFilters, toggleSort } = invoiceSlice.actions;
 
 export default invoiceSlice.reducer;

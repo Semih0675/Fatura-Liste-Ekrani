@@ -22,3 +22,17 @@ export interface InvoiceSortConfig {
   key: InvoiceSortKey;
   direction: SortDirection;
 }
+
+export interface InvoiceFilterValues {
+  searchTerm: string;
+  type: InvoiceType | null;
+  statuses: InvoiceStatus[];
+  issueDateFrom: string | null;
+  issueDateTo: string | null;
+  minAmount: number | null;
+  maxAmount: number | null;
+}
+
+export interface InvoiceFiltersState extends InvoiceFilterValues {
+  sortConfig: InvoiceSortConfig;
+}

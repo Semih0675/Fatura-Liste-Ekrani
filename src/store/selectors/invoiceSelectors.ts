@@ -56,37 +56,61 @@ function compareInvoices(
 
 export const selectInvoiceItems = (state: RootState) => state.invoices.items;
 
-export const selectInvoiceSearchTerm = (state: RootState) => state.invoices.filters.searchTerm;
-
-export const selectInvoiceSortConfig = (state: RootState) => state.invoices.filters.sortConfig;
+export const selectInvoiceFilters = (state: RootState) => state.invoices.filters;
 
 export const selectVisibleInvoices = createSelector(
-  [selectInvoiceItems, selectInvoiceSearchTerm, selectInvoiceSortConfig],
-  (invoices, searchTerm, sortConfig) => {
-    const normalizedSearchTerm = normalizeSearchValue(searchTerm.trim());
+  [selectInvoiceItems, selectInvoiceFilters],
+  (invoices, filters) => {
+    const normalizedSearchTerm = normalizeSearchValue(filters.searchTerm.trim());
 
-    const filteredInvoices = normalizedSearchTerm
-      ? invoices.filter((invoice) => {
-          const searchableText = [
-            invoice.invoiceNumber,
-            invoice.customerName,
-            formatDate(invoice.issueDate),
-            formatDate(invoice.dueDate),
-            formatMoney(invoice.amount),
-            invoiceTypeLabels[invoice.type],
-            invoiceStatusLabels[invoice.status],
-          ]
-            .join(' ')
-            .toLocaleLowerCase('tr-TR');
+    const filteredInvoices = invoices.filter((invoice) => {
+      const searchableText = [
+        invoice.invoiceNumber,
+        invoice.customerName,
+        formatDate(invoice.issueDate),
+        formatDate(invoice.dueDate),
+        formatMoney(invoice.amount),
+        invoiceTypeLabels[invoice.type],
+        invoiceStatusLabels[invoice.status],
+      ]
+        .join(' ')
+        .toLocaleLowerCase('tr-TR');
 
-          return searchableText.includes(normalizedSearchTerm);
-        })
-      : invoices;
+      const matchesSearch =
+        normalizedSearchTerm.length === 0 || searchableText.includes(normalizedSearchTerm);
+
+      const matchesType = filters.type === null || invoice.type === filters.type;
+
+      const matchesStatus =
+        filters.statuses.length === 0 || filters.statuses.includes(invoice.status);
+
+      const matchesStartDate =
+        filters.issueDateFrom === null || invoice.issueDate >= filters.issueDateFrom;
+
+      const matchesEndDate =
+        filters.issueDateTo === null || invoice.issueDate <= filters.issueDateTo;
+
+      const matchesMinimumAmount =
+        filters.minAmount === null || invoice.amount >= filters.minAmount;
+
+      const matchesMaximumAmount =
+        filters.maxAmount === null || invoice.amount <= filters.maxAmount;
+
+      return (
+        matchesSearch &&
+        matchesType &&
+        matchesStatus &&
+        matchesStartDate &&
+        matchesEndDate &&
+        matchesMinimumAmount &&
+        matchesMaximumAmount
+      );
+    });
 
     return [...filteredInvoices].sort((firstInvoice, secondInvoice) => {
-      const comparisonResult = compareInvoices(firstInvoice, secondInvoice, sortConfig.key);
+      const comparisonResult = compareInvoices(firstInvoice, secondInvoice, filters.sortConfig.key);
 
-      return sortConfig.direction === 'ascending' ? comparisonResult : -comparisonResult;
+      return filters.sortConfig.direction === 'ascending' ? comparisonResult : -comparisonResult;
     });
   },
 );

@@ -1,0 +1,259 @@
+@use '../styles/variables' as variables;
+
+.panel {
+  border: 1px solid variables.$color-border;
+  border-radius: variables.$radius-medium;
+  background: variables.$color-surface;
+  box-shadow: variables.$shadow-card;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 20px;
+  border-bottom: 1px solid variables.$color-border;
+
+  h2 {
+    margin: 0;
+    color: variables.$color-primary-900;
+    font-size: 18px;
+  }
+
+  p {
+    margin: 5px 0 0;
+    color: variables.$color-muted;
+    font-size: 13px;
+  }
+}
+
+.resultCount {
+  flex-shrink: 0;
+  margin: 0 !important;
+
+  strong {
+    color: variables.$color-primary-900;
+  }
+}
+
+.form {
+  padding: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+
+  label {
+    margin-bottom: 7px;
+    color: variables.$color-primary-900;
+    font-size: 13px;
+    font-weight: 700;
+  }
+}
+
+.searchField {
+  grid-column: span 2;
+}
+
+.input {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid variables.$color-border;
+  border-radius: variables.$radius-small;
+  color: variables.$color-text;
+  background: variables.$color-surface;
+  outline: none;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+
+  &::placeholder {
+    color: #98a2b3;
+  }
+
+  &:focus {
+    border-color: variables.$color-primary-600;
+    box-shadow: 0 0 0 3px rgb(49 113 224 / 14%);
+  }
+
+  &.hasError {
+    border-color: variables.$color-danger;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgb(217 45 32 / 12%);
+    }
+  }
+}
+
+.error {
+  margin-top: 6px;
+  color: variables.$color-danger;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.selectContainer {
+  :global(.filterSelect__control) {
+    min-height: 42px;
+    border-color: variables.$color-border;
+    border-radius: variables.$radius-small;
+    box-shadow: none;
+    cursor: pointer;
+
+    &:hover {
+      border-color: variables.$color-primary-600;
+    }
+  }
+
+  :global(.filterSelect__control--is-focused) {
+    border-color: variables.$color-primary-600;
+    box-shadow: 0 0 0 3px rgb(49 113 224 / 14%);
+  }
+
+  :global(.filterSelect__placeholder) {
+    color: #98a2b3;
+    font-size: 14px;
+  }
+
+  :global(.filterSelect__single-value) {
+    color: variables.$color-text;
+    font-size: 14px;
+  }
+
+  :global(.filterSelect__multi-value) {
+    border-radius: 4px;
+    background: variables.$color-primary-100;
+  }
+
+  :global(.filterSelect__multi-value__label) {
+    color: variables.$color-primary-700;
+    font-weight: 600;
+  }
+
+  :global(.filterSelect__multi-value__remove) {
+    color: variables.$color-primary-700;
+
+    &:hover {
+      color: variables.$color-surface;
+      background: variables.$color-danger;
+    }
+  }
+
+  :global(.filterSelect__menu) {
+    z-index: 30;
+    font-size: 14px;
+  }
+
+  :global(.filterSelect__option--is-selected) {
+    background: variables.$color-primary-600;
+  }
+
+  :global(.filterSelect__option--is-focused) {
+    color: variables.$color-primary-900;
+    background: variables.$color-primary-100;
+  }
+}
+
+.datePickerWrapper {
+  width: 100%;
+
+  :global(.react-datepicker__input-container) {
+    width: 100%;
+  }
+}
+
+:global(.react-datepicker-popper) {
+  z-index: 40;
+}
+
+:global(.react-datepicker__day--selected),
+:global(.react-datepicker__day--keyboard-selected) {
+  background: variables.$color-primary-600;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 20px;
+  margin-top: 20px;
+  border-top: 1px solid variables.$color-border;
+}
+
+.resetButton,
+.submitButton {
+  min-height: 42px;
+  padding: 9px 16px;
+  border-radius: variables.$radius-small;
+  font-weight: 700;
+}
+
+.resetButton {
+  border: 1px solid variables.$color-border;
+  color: variables.$color-primary-700;
+  background: variables.$color-surface;
+
+  &:hover {
+    background: variables.$color-primary-100;
+  }
+}
+
+.submitButton {
+  border: 1px solid variables.$color-primary-600;
+  color: variables.$color-surface;
+  background: variables.$color-primary-600;
+
+  &:hover {
+    background: #245fc5;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+  }
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .panelHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .resultCount {
+    align-self: flex-end;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .searchField {
+    grid-column: auto;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .resetButton,
+  .submitButton {
+    width: 100%;
+  }
+}
