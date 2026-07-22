@@ -1,5 +1,15 @@
 [
   {
+    "id": 149,
+    "invoiceNumber": "FTR-2026-0149",
+    "customerName": "Semih Tırpancı A.Ş.",
+    "issueDate": "2026-07-04",
+    "dueDate": "2026-08-03",
+    "amount": 99999.99,
+    "type": "sale",
+    "status": "paid"
+  },
+  {
     "id": 148,
     "invoiceNumber": "FTR-2026-0148",
     "customerName": "Yılmaz Ticaret A.Ş.",
