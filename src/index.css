@@ -37,3 +37,7 @@ textarea {
 button {
   cursor: pointer;
 }
+
+body.ReactModal__Body--open {
+  overflow: hidden;
+}

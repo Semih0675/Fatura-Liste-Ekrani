@@ -1,0 +1,47 @@
+@use '../styles/variables' as variables;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 300px;
+  padding: 40px;
+  border: 1px solid variables.$color-border;
+  border-radius: variables.$radius-medium;
+  background: variables.$color-surface;
+  box-shadow: variables.$shadow-card;
+
+  strong {
+    margin-top: 8px;
+    color: variables.$color-primary-900;
+    font-size: 16px;
+  }
+
+  span:last-child {
+    color: variables.$color-muted;
+    font-size: 13px;
+  }
+}
+
+.spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid variables.$color-primary-100;
+  border-top-color: variables.$color-primary-600;
+  border-radius: 50%;
+  animation: spin 750ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1500ms;
+  }
+}

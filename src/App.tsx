@@ -1,27 +1,68 @@
 import { useEffect, useState } from 'react';
 import styles from './App.module.scss';
+import { ApiErrorState } from './components/ApiErrorState';
 import { FilterForm } from './components/FilterForm';
 import { Header } from './components/Header';
+import { InvoiceDetailModal } from './components/InvoiceDetailModal';
 import { InvoiceTable } from './components/InvoiceTable';
+import { LoadingSpinner } from './components/LoadingSpinner';
+import { Pagination } from './components/Pagination';
 import { SummaryCards, type SummaryCard } from './components/SummaryCards';
-import type { InvoiceFilterValues, InvoiceSortKey } from './models/invoice';
+import type {
+  Invoice,
+  InvoiceFilterValues,
+  InvoicePageSize,
+  InvoiceSortKey,
+} from './models/invoice';
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import {
-  selectInvoiceFilters,
+  selectInvoiceError,
+  selectInvoiceFilterValues,
+  selectInvoicePaginationMeta,
+  selectInvoiceRequestStatus,
+  selectInvoiceSortConfig,
   selectInvoiceSummary,
-  selectVisibleInvoices,
+  selectInvoiceTotalCount,
+  selectPaginatedInvoices,
 } from './store/selectors/invoiceSelectors';
-import { applyFilters, resetFilters, toggleSort } from './store/slices/invoiceSlice';
+import {
+  applyFilters,
+  fetchInvoices,
+  resetFilters,
+  setCurrentPage,
+  setPageSize,
+  toggleSort,
+} from './store/slices/invoiceSlice';
 import { formatMoney } from './utils/formatters';
 
 export default function App() {
   const dispatch = useAppDispatch();
 
-  const filters = useAppSelector(selectInvoiceFilters);
-  const visibleInvoices = useAppSelector(selectVisibleInvoices);
+  const filterValues = useAppSelector(selectInvoiceFilterValues);
+
+  const sortConfig = useAppSelector(selectInvoiceSortConfig);
+
+  const pageInvoices = useAppSelector(selectPaginatedInvoices);
+
+  const pagination = useAppSelector(selectInvoicePaginationMeta);
+
   const invoiceSummary = useAppSelector(selectInvoiceSummary);
 
+  const invoiceTotalCount = useAppSelector(selectInvoiceTotalCount);
+
+  const requestStatus = useAppSelector(selectInvoiceRequestStatus);
+
+  const requestError = useAppSelector(selectInvoiceError);
+
   const [isTableVisible, setIsTableVisible] = useState(true);
+
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  useEffect(() => {
+    if (requestStatus === 'idle') {
+      void dispatch(fetchInvoices());
+    }
+  }, [dispatch, requestStatus]);
 
   useEffect(() => {
     document.title = isTableVisible
@@ -31,24 +72,24 @@ export default function App() {
 
   const summaryCards: SummaryCard[] = [
     {
-      id: 'total-invoices',
-      label: 'Toplam Fatura',
+      id: 'filtered-invoices',
+      label: 'Filtrelenen Fatura',
       value: `${invoiceSummary.totalCount} adet`,
-      helperText: 'Redux store kaydı',
+      helperText: `${invoiceTotalCount} toplam kayıt`,
       variant: 'primary',
     },
     {
-      id: 'total-amount',
-      label: 'Toplam Tutar',
+      id: 'filtered-total',
+      label: 'Filtrelenen Tutar',
       value: formatMoney(invoiceSummary.totalAmount),
-      helperText: 'KDV dahil',
+      helperText: 'Aktif filtre sonuçları',
       variant: 'info',
     },
     {
-      id: 'overdue-amount',
+      id: 'overdue-total',
       label: 'Geciken Tutar',
       value: formatMoney(invoiceSummary.overdueAmount),
-      helperText: `${invoiceSummary.overdueCount} fatura vadesi geçmiş`,
+      helperText: `${invoiceSummary.overdueCount} gecikmiş fatura`,
       variant: 'danger',
     },
   ];
@@ -57,8 +98,8 @@ export default function App() {
     setIsTableVisible((currentValue) => !currentValue);
   }
 
-  function handleApplyFilters(filterValues: InvoiceFilterValues) {
-    dispatch(applyFilters(filterValues));
+  function handleApplyFilters(newFilterValues: InvoiceFilterValues) {
+    dispatch(applyFilters(newFilterValues));
   }
 
   function handleResetFilters() {
@@ -68,6 +109,30 @@ export default function App() {
   function handleSort(sortKey: InvoiceSortKey) {
     dispatch(toggleSort(sortKey));
   }
+
+  function handlePageChange(page: number) {
+    dispatch(setCurrentPage(page));
+  }
+
+  function handlePageSizeChange(pageSize: InvoicePageSize) {
+    dispatch(setPageSize(pageSize));
+  }
+
+  function handleOpenInvoice(invoice: Invoice) {
+    setSelectedInvoice(invoice);
+  }
+
+  function handleCloseInvoice() {
+    setSelectedInvoice(null);
+  }
+
+  function handleRetry() {
+    void dispatch(fetchInvoices());
+  }
+
+  const isLoading = requestStatus === 'idle' || requestStatus === 'loading';
+
+  const hasError = requestStatus === 'failed';
 
   return (
     <div className={styles.app}>
@@ -82,40 +147,72 @@ export default function App() {
         <section className={styles.intro}>
           <div>
             <p className={styles.eyebrow}>Fatura yönetimi</p>
+
             <h1>Fatura Listesi</h1>
+
             <p>Faturalarınızı görüntüleyin ve finansal durumunuzu takip edin.</p>
           </div>
 
-          <button className={styles.primaryButton} type="button">
+          <button
+            className={styles.primaryButton}
+            type="button"
+            disabled={requestStatus !== 'succeeded'}
+          >
             + Yeni Fatura
           </button>
         </section>
 
-        <SummaryCards cards={summaryCards} />
-
-        {isTableVisible ? (
-          <div className={styles.tableArea}>
-            <FilterForm
-              initialFilters={filters}
-              resultCount={visibleInvoices.length}
-              totalCount={invoiceSummary.totalCount}
-              onApply={handleApplyFilters}
-              onReset={handleResetFilters}
-            />
-
-            <InvoiceTable
-              invoices={visibleInvoices}
-              sortConfig={filters.sortConfig}
-              onSort={handleSort}
-            />
-          </div>
+        {isLoading ? (
+          <LoadingSpinner />
+        ) : hasError ? (
+          <ApiErrorState
+            message={requestError ?? 'Fatura verileri alınamadı.'}
+            onRetry={handleRetry}
+          />
         ) : (
-          <section className={styles.emptyState}>
-            <h2>Tablo gizlendi</h2>
-            <p>Tabloyu yeniden görüntülemek için header’daki butona bas.</p>
-          </section>
+          <>
+            <SummaryCards cards={summaryCards} />
+
+            {isTableVisible ? (
+              <div className={styles.tableArea}>
+                <FilterForm
+                  initialFilters={filterValues}
+                  resultCount={pagination.totalItems}
+                  totalCount={invoiceTotalCount}
+                  onApply={handleApplyFilters}
+                  onReset={handleResetFilters}
+                />
+
+                <InvoiceTable
+                  invoices={pageInvoices}
+                  sortConfig={sortConfig}
+                  onSort={handleSort}
+                  onInvoiceSelect={handleOpenInvoice}
+                />
+
+                <Pagination
+                  currentPage={pagination.currentPage}
+                  pageSize={pagination.pageSize}
+                  totalItems={pagination.totalItems}
+                  totalPages={pagination.totalPages}
+                  startItem={pagination.startItem}
+                  endItem={pagination.endItem}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                />
+              </div>
+            ) : (
+              <section className={styles.emptyState}>
+                <h2>Tablo gizlendi</h2>
+
+                <p>Tabloyu yeniden görüntülemek için header’daki butona bas.</p>
+              </section>
+            )}
+          </>
         )}
       </main>
+
+      <InvoiceDetailModal invoice={selectedInvoice} onClose={handleCloseInvoice} />
     </div>
   );
 }

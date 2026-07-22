@@ -1,0 +1,60 @@
+@use '../styles/variables' as variables;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 300px;
+  padding: 40px 24px;
+  border: 1px solid variables.$color-danger;
+  border-radius: variables.$radius-medium;
+  text-align: center;
+  background: variables.$color-danger-background;
+  box-shadow: variables.$shadow-card;
+
+  h2 {
+    margin: 16px 0 8px;
+    color: variables.$color-danger;
+    font-size: 20px;
+  }
+
+  p {
+    max-width: 520px;
+    margin: 0;
+    color: variables.$color-text;
+    line-height: 1.6;
+  }
+
+  button {
+    margin-top: 22px;
+    padding: 10px 18px;
+    border: 1px solid variables.$color-danger;
+    border-radius: variables.$radius-small;
+    color: variables.$color-surface;
+    background: variables.$color-danger;
+    font-weight: 700;
+
+    &:hover {
+      opacity: 0.88;
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgb(217 45 32 / 20%);
+      outline-offset: 3px;
+    }
+  }
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  color: variables.$color-surface;
+  background: variables.$color-danger;
+  font-size: 26px;
+  font-weight: 800;
+}

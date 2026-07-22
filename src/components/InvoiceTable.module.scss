@@ -188,3 +188,23 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
+
+.detailButton {
+  padding: 6px 11px;
+  border: 1px solid variables.$color-primary-600;
+  border-radius: variables.$radius-small;
+  color: variables.$color-primary-700;
+  background: variables.$color-surface;
+  font-size: 12px;
+  font-weight: 700;
+
+  &:hover {
+    color: variables.$color-surface;
+    background: variables.$color-primary-600;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgb(49 113 224 / 18%);
+    outline-offset: 2px;
+  }
+}

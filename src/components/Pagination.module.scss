@@ -1,0 +1,120 @@
+@use '../styles/variables' as variables;
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 20px;
+  border: 1px solid variables.$color-border;
+  border-radius: variables.$radius-medium;
+  background: variables.$color-surface;
+  box-shadow: variables.$shadow-card;
+}
+
+.summary {
+  color: variables.$color-muted;
+  font-size: 14px;
+
+  strong {
+    color: variables.$color-primary-900;
+  }
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.pageSize {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: variables.$color-muted;
+  font-size: 13px;
+
+  select {
+    min-height: 36px;
+    padding: 5px 28px 5px 9px;
+    border: 1px solid variables.$color-border;
+    border-radius: variables.$radius-small;
+    color: variables.$color-text;
+    background: variables.$color-surface;
+    cursor: pointer;
+
+    &:focus {
+      border-color: variables.$color-primary-600;
+      outline: 3px solid rgb(49 113 224 / 14%);
+    }
+  }
+}
+
+.pageButtons {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pageButton,
+.activePage,
+.navigationButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 9px;
+  border: 1px solid variables.$color-border;
+  border-radius: variables.$radius-small;
+  font-weight: 700;
+}
+
+.pageButton,
+.navigationButton {
+  color: variables.$color-primary-700;
+  background: variables.$color-surface;
+
+  &:hover:not(:disabled) {
+    border-color: variables.$color-primary-600;
+    background: variables.$color-primary-100;
+  }
+}
+
+.activePage {
+  border-color: variables.$color-primary-600;
+  color: variables.$color-surface;
+  background: variables.$color-primary-600;
+}
+
+.navigationButton {
+  font-size: 21px;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+}
+
+.ellipsis {
+  min-width: 26px;
+  color: variables.$color-muted;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .controls {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pageButtons {
+    flex-wrap: wrap;
+  }
+}

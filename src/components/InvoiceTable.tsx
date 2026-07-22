@@ -10,6 +10,7 @@ interface InvoiceTableProps {
   invoices: Invoice[];
   sortConfig: InvoiceSortConfig;
   onSort: (key: InvoiceSortKey) => void;
+  onInvoiceSelect: (invoice: Invoice) => void;
 }
 
 interface InvoiceColumn {
@@ -59,7 +60,7 @@ function getAriaSort(
   return sortConfig.direction;
 }
 
-export function InvoiceTable({ invoices, sortConfig, onSort }: InvoiceTableProps) {
+export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: InvoiceTableProps) {
   return (
     <section className={styles.card}>
       <div className={styles.cardHeader}>
@@ -68,12 +69,12 @@ export function InvoiceTable({ invoices, sortConfig, onSort }: InvoiceTableProps
           <p>Kolon başlıklarına tıklayarak sıralayabilirsiniz.</p>
         </div>
 
-        <span className={styles.countBadge}>{invoices.length} kayıt</span>
+        <span className={styles.countBadge}>{invoices.length} satır</span>
       </div>
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
-          <caption className={styles.srOnly}>Aranabilir ve sıralanabilir fatura listesi</caption>
+          <caption className={styles.srOnly}>Sayfalanmış fatura listesi</caption>
 
           <thead>
             <tr>
@@ -101,6 +102,8 @@ export function InvoiceTable({ invoices, sortConfig, onSort }: InvoiceTableProps
                   </th>
                 );
               })}
+
+              <th scope="col">İşlem</th>
             </tr>
           </thead>
 
@@ -133,13 +136,23 @@ export function InvoiceTable({ invoices, sortConfig, onSort }: InvoiceTableProps
                       {invoiceStatusLabels[invoice.status]}
                     </span>
                   </td>
+
+                  <td>
+                    <button
+                      className={styles.detailButton}
+                      type="button"
+                      onClick={() => onInvoiceSelect(invoice)}
+                    >
+                      Detay
+                    </button>
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className={styles.emptyRow} colSpan={columns.length}>
+                <td className={styles.emptyRow} colSpan={columns.length + 1}>
                   <strong>Fatura bulunamadı</strong>
-                  <span>Arama ifadenizi değiştirerek tekrar deneyin.</span>
+                  <span>Filtrelerinizi değiştirerek tekrar deneyin.</span>
                 </td>
               </tr>
             )}

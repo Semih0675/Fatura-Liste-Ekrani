@@ -1,15 +1,23 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import invoiceData from '../../data/invoices.json';
+import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { getHttpErrorMessage } from '../../api/http';
+import { invoiceResource } from '../../api/resources/invoice';
 import type {
   Invoice,
   InvoiceFiltersState,
   InvoiceFilterValues,
+  InvoicePageSize,
+  InvoicePaginationState,
   InvoiceSortKey,
 } from '../../models/invoice';
+
+export type InvoiceRequestStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
 
 export interface InvoiceState {
   items: Invoice[];
   filters: InvoiceFiltersState;
+  pagination: InvoicePaginationState;
+  requestStatus: InvoiceRequestStatus;
+  error: string | null;
 }
 
 function createInitialFilters(): InvoiceFiltersState {
@@ -28,19 +36,40 @@ function createInitialFilters(): InvoiceFiltersState {
   };
 }
 
+function createInitialPagination(): InvoicePaginationState {
+  return {
+    currentPage: 1,
+    pageSize: 10,
+  };
+}
+
 const initialState: InvoiceState = {
-  items: invoiceData as Invoice[],
+  items: [],
   filters: createInitialFilters(),
+  pagination: createInitialPagination(),
+  requestStatus: 'idle',
+  error: null,
 };
+
+export const fetchInvoices = createAsyncThunk<
+  Invoice[],
+  void,
+  {
+    rejectValue: string;
+  }
+>('invoices/fetchInvoices', async (_, { rejectWithValue, signal }) => {
+  try {
+    return await invoiceResource.getAll(signal);
+  } catch (error) {
+    return rejectWithValue(getHttpErrorMessage(error));
+  }
+});
 
 const invoiceSlice = createSlice({
   name: 'invoices',
   initialState,
-  reducers: {
-    replaceInvoices(state, action: PayloadAction<Invoice[]>) {
-      state.items = action.payload;
-    },
 
+  reducers: {
     applyFilters(state, action: PayloadAction<InvoiceFilterValues>) {
       const currentSortConfig = {
         ...state.filters.sortConfig,
@@ -51,10 +80,13 @@ const invoiceSlice = createSlice({
         statuses: [...action.payload.statuses],
         sortConfig: currentSortConfig,
       };
+
+      state.pagination.currentPage = 1;
     },
 
     resetFilters(state) {
       state.filters = createInitialFilters();
+      state.pagination.currentPage = 1;
     },
 
     toggleSort(state, action: PayloadAction<InvoiceSortKey>) {
@@ -64,6 +96,7 @@ const invoiceSlice = createSlice({
       if (currentSort.key === selectedKey) {
         currentSort.direction = currentSort.direction === 'ascending' ? 'descending' : 'ascending';
 
+        state.pagination.currentPage = 1;
         return;
       }
 
@@ -71,10 +104,42 @@ const invoiceSlice = createSlice({
         key: selectedKey,
         direction: 'ascending',
       };
+
+      state.pagination.currentPage = 1;
     },
+
+    setCurrentPage(state, action: PayloadAction<number>) {
+      state.pagination.currentPage = Math.max(1, Math.trunc(action.payload));
+    },
+
+    setPageSize(state, action: PayloadAction<InvoicePageSize>) {
+      state.pagination.pageSize = action.payload;
+      state.pagination.currentPage = 1;
+    },
+  },
+
+  extraReducers(builder) {
+    builder
+      .addCase(fetchInvoices.pending, (state) => {
+        state.requestStatus = 'loading';
+        state.error = null;
+      })
+
+      .addCase(fetchInvoices.fulfilled, (state, action) => {
+        state.requestStatus = 'succeeded';
+        state.items = action.payload;
+        state.error = null;
+        state.pagination.currentPage = 1;
+      })
+
+      .addCase(fetchInvoices.rejected, (state, action) => {
+        state.requestStatus = 'failed';
+        state.error = action.payload ?? 'Fatura verileri alınırken bir hata oluştu.';
+      });
   },
 });
 
-export const { replaceInvoices, applyFilters, resetFilters, toggleSort } = invoiceSlice.actions;
+export const { applyFilters, resetFilters, toggleSort, setCurrentPage, setPageSize } =
+  invoiceSlice.actions;
 
 export default invoiceSlice.reducer;
