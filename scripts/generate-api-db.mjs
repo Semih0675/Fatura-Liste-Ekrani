@@ -24,6 +24,3 @@ await mkdir(dirname(databasePath), {
 });
 
 await writeFile(databasePath, `${JSON.stringify(database, null, 2)}\n`, 'utf8');
-
-console.log(`${invoices.length} fatura API veritabanına yazıldı.`);
-console.log(`Dosya: ${databasePath}`);

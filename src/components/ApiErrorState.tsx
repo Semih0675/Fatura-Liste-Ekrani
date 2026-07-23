@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import styles from './ApiErrorState.module.scss';
 
 interface ApiErrorStateProps {
@@ -6,17 +7,15 @@ interface ApiErrorStateProps {
 }
 
 export function ApiErrorState({ message, onRetry }: ApiErrorStateProps) {
+  const { t } = useTranslation();
+
   return (
     <section className={styles.container} role="alert">
-      <div className={styles.icon} aria-hidden="true">
-        !
-      </div>
-
-      <h2>Fatura verileri yüklenemedi</h2>
+      <h2>{t('error.title')}</h2>
       <p>{message}</p>
 
       <button type="button" onClick={onRetry}>
-        Tekrar Dene
+        {t('actions.retry')}
       </button>
     </section>
   );

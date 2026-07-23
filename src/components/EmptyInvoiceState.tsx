@@ -1,15 +1,17 @@
+import { useTranslation } from 'react-i18next';
 import styles from './EmptyInvoiceState.module.scss';
 
 export function EmptyInvoiceState() {
+  const { t } = useTranslation();
+
   return (
     <section className={styles.container}>
       <div className={styles.icon} aria-hidden="true">
         0
       </div>
 
-      <h2>Henüz fatura bulunmuyor</h2>
-
-      <p>API başarıyla yanıt verdi ancak görüntülenecek bir fatura kaydı bulunamadı.</p>
+      <h2>{t('empty.title')}</h2>
+      <p>{t('empty.description')}</p>
     </section>
   );
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { InvoicePageSize } from '../models/invoice';
 import styles from './Pagination.module.scss';
 
@@ -14,7 +15,7 @@ interface PaginationProps {
   onPageSizeChange: (pageSize: InvoicePageSize) => void;
 }
 
-const pageSizeOptions: InvoicePageSize[] = [10, 20, 50];
+const pageSizeOptions: InvoicePageSize[] = [10, 25, 50];
 
 function createPaginationItems(currentPage: number, totalPages: number): PaginationItem[] {
   if (totalPages <= 7) {
@@ -55,6 +56,8 @@ export function Pagination({
   onPageChange,
   onPageSizeChange,
 }: PaginationProps) {
+  const { t } = useTranslation();
+
   if (totalItems === 0) {
     return null;
   }
@@ -62,17 +65,18 @@ export function Pagination({
   const paginationItems = createPaginationItems(currentPage, totalPages);
 
   return (
-    <nav className={styles.pagination} aria-label="Fatura sayfalaması">
+    <nav className={styles.pagination} aria-label={t('pagination.ariaLabel')}>
       <div className={styles.summary}>
-        <strong>
-          {startItem}-{endItem}
-        </strong>{' '}
-        / {totalItems} kayıt
+        {t('pagination.summary', {
+          startItem,
+          endItem,
+          totalItems,
+        })}
       </div>
 
       <div className={styles.controls}>
         <label className={styles.pageSize}>
-          <span>Sayfa başına</span>
+          <span>{t('pagination.pageSize')}</span>
 
           <select
             value={pageSize}
@@ -94,7 +98,7 @@ export function Pagination({
             type="button"
             disabled={currentPage === 1}
             onClick={() => onPageChange(currentPage - 1)}
-            aria-label="Önceki sayfa"
+            aria-label={t('pagination.previous')}
           >
             ‹
           </button>
@@ -117,7 +121,9 @@ export function Pagination({
                 type="button"
                 onClick={() => onPageChange(item)}
                 aria-current={isActive ? 'page' : undefined}
-                aria-label={`${item}. sayfaya git`}
+                aria-label={t('pagination.goToPage', {
+                  page: item,
+                })}
               >
                 {item}
               </button>
@@ -129,7 +135,7 @@ export function Pagination({
             type="button"
             disabled={currentPage === totalPages}
             onClick={() => onPageChange(currentPage + 1)}
-            aria-label="Sonraki sayfa"
+            aria-label={t('pagination.next')}
           >
             ›
           </button>

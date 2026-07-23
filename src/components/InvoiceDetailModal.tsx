@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
+import { useTranslation } from 'react-i18next';
 import Modal from 'react-modal';
-import { invoiceStatusLabels, invoiceTypeLabels } from '../constants/invoiceLabels';
 import type { Invoice } from '../models/invoice';
 import { formatDate, formatMoney } from '../utils/formatters';
 import styles from './InvoiceDetailModal.module.scss';
@@ -13,6 +13,10 @@ interface InvoiceDetailModalProps {
 }
 
 export function InvoiceDetailModal({ invoice, onClose }: InvoiceDetailModalProps) {
+  const { t, i18n } = useTranslation();
+
+  const locale = i18n.resolvedLanguage?.startsWith('en') ? 'en-US' : 'tr-TR';
+
   return (
     <Modal
       isOpen={invoice !== null}
@@ -30,7 +34,7 @@ export function InvoiceDetailModal({ invoice, onClose }: InvoiceDetailModalProps
         <>
           <header className={styles.header}>
             <div>
-              <p className={styles.eyebrow}>Fatura detayı</p>
+              <p className={styles.eyebrow}>{t('modal.title')}</p>
 
               <h2 id="invoice-detail-title">{invoice.invoiceNumber}</h2>
             </div>
@@ -39,52 +43,60 @@ export function InvoiceDetailModal({ invoice, onClose }: InvoiceDetailModalProps
               className={styles.closeButton}
               type="button"
               onClick={onClose}
-              aria-label="Fatura detay penceresini kapat"
+              aria-label={t('modal.closeAriaLabel')}
             >
               ×
             </button>
           </header>
 
           <div className={styles.amountSection}>
-            <span>Fatura tutarı</span>
-            <strong>{formatMoney(invoice.amount)}</strong>
+            <span>{t('modal.amount')}</span>
+
+            <strong>{formatMoney(invoice.amount, locale)}</strong>
           </div>
 
           <div className={styles.detailsGrid}>
             <div className={cx('detailItem', 'wide')}>
-              <span>Müşteri</span>
+              <span>{t('modal.customer')}</span>
               <strong>{invoice.customerName}</strong>
             </div>
 
             <div className={styles.detailItem}>
-              <span>Düzenleme tarihi</span>
-              <strong>{formatDate(invoice.issueDate)}</strong>
+              <span>{t('modal.issueDate')}</span>
+
+              <strong>{formatDate(invoice.issueDate, locale)}</strong>
             </div>
 
             <div className={styles.detailItem}>
-              <span>Vade tarihi</span>
-              <strong>{formatDate(invoice.dueDate)}</strong>
+              <span>{t('modal.dueDate')}</span>
+
+              <strong>{formatDate(invoice.dueDate, locale)}</strong>
             </div>
 
             <div className={styles.detailItem}>
-              <span>Fatura tipi</span>
-              <strong>{invoiceTypeLabels[invoice.type]}</strong>
+              <span>{t('modal.type')}</span>
+
+              <strong>{t(`invoiceType.${invoice.type}`)}</strong>
             </div>
 
             <div className={styles.detailItem}>
-              <span>Durum</span>
+              <span>{t('modal.status')}</span>
 
               <strong className={cx('statusBadge', invoice.status)}>
-                {invoiceStatusLabels[invoice.status]}
+                {t(`invoiceStatus.${invoice.status}`)}
               </strong>
             </div>
           </div>
 
           <footer className={styles.footer}>
-            <span>Fatura ID: {invoice.id}</span>
+            <span>
+              {t('modal.invoiceId', {
+                id: invoice.id,
+              })}
+            </span>
 
             <button className={styles.closeFooterButton} type="button" onClick={onClose}>
-              Kapat
+              {t('actions.close')}
             </button>
           </footer>
         </>

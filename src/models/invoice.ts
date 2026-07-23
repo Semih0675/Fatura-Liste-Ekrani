@@ -37,7 +37,7 @@ export interface InvoiceFiltersState extends InvoiceFilterValues {
   sortConfig: InvoiceSortConfig;
 }
 
-export type InvoicePageSize = 10 | 20 | 50;
+export type InvoicePageSize = 10 | 25 | 50;
 
 export interface InvoicePaginationState {
   currentPage: number;

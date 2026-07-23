@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import styles from './App.module.scss';
 import { ApiErrorState } from './components/ApiErrorState';
+import { EmptyInvoiceState } from './components/EmptyInvoiceState';
 import { FilterForm } from './components/FilterForm';
 import { Header } from './components/Header';
 import { InvoiceDetailModal } from './components/InvoiceDetailModal';
@@ -8,7 +10,6 @@ import { InvoiceTable } from './components/InvoiceTable';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { Pagination } from './components/Pagination';
 import { SummaryCards, type SummaryCard } from './components/SummaryCards';
-import { EmptyInvoiceState } from './components/EmptyInvoiceState';
 import type {
   Invoice,
   InvoiceFilterValues,
@@ -37,27 +38,26 @@ import {
 import { formatMoney } from './utils/formatters';
 
 export default function App() {
+  const { t, i18n } = useTranslation();
   const dispatch = useAppDispatch();
 
   const filterValues = useAppSelector(selectInvoiceFilterValues);
-
   const sortConfig = useAppSelector(selectInvoiceSortConfig);
-
   const pageInvoices = useAppSelector(selectPaginatedInvoices);
-
   const pagination = useAppSelector(selectInvoicePaginationMeta);
-
   const invoiceSummary = useAppSelector(selectInvoiceSummary);
-
   const invoiceTotalCount = useAppSelector(selectInvoiceTotalCount);
-
   const requestStatus = useAppSelector(selectInvoiceRequestStatus);
-
   const requestError = useAppSelector(selectInvoiceError);
 
   const [isTableVisible, setIsTableVisible] = useState(true);
 
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  const isEnglish = i18n.resolvedLanguage?.startsWith('en') ?? false;
+
+  const locale = isEnglish ? 'en-US' : 'tr-TR';
+  const language = isEnglish ? 'en' : 'tr';
 
   useEffect(() => {
     if (requestStatus === 'idle') {
@@ -66,31 +66,37 @@ export default function App() {
   }, [dispatch, requestStatus]);
 
   useEffect(() => {
-    document.title = isTableVisible
-      ? 'PreAccounting | Fatura Listesi'
-      : 'PreAccounting | Tablo Gizli';
-  }, [isTableVisible]);
+    document.documentElement.lang = language;
+
+    document.title = isTableVisible ? t('document.invoiceList') : t('document.tableHidden');
+  }, [isTableVisible, language, t]);
 
   const summaryCards: SummaryCard[] = [
     {
       id: 'filtered-invoices',
-      label: 'Filtrelenen Fatura',
-      value: `${invoiceSummary.totalCount} adet`,
-      helperText: `${invoiceTotalCount} toplam kayıt`,
+      label: t('summary.filteredInvoiceLabel'),
+      value: t('summary.invoiceCountValue', {
+        count: invoiceSummary.totalCount,
+      }),
+      helperText: t('summary.totalRecordCount', {
+        count: invoiceTotalCount,
+      }),
       variant: 'primary',
     },
     {
       id: 'filtered-total',
-      label: 'Filtrelenen Tutar',
-      value: formatMoney(invoiceSummary.totalAmount),
-      helperText: 'Aktif filtre sonuçları',
+      label: t('summary.filteredAmountLabel'),
+      value: formatMoney(invoiceSummary.totalAmount, locale),
+      helperText: t('summary.activeFilterResults'),
       variant: 'info',
     },
     {
       id: 'overdue-total',
-      label: 'Geciken Tutar',
-      value: formatMoney(invoiceSummary.overdueAmount),
-      helperText: `${invoiceSummary.overdueCount} gecikmiş fatura`,
+      label: t('summary.overdueAmountLabel'),
+      value: formatMoney(invoiceSummary.overdueAmount, locale),
+      helperText: t('summary.overdueInvoiceCount', {
+        count: invoiceSummary.overdueCount,
+      }),
       variant: 'danger',
     },
   ];
@@ -141,37 +147,17 @@ export default function App() {
     <div className={styles.app}>
       <Header
         appName="PreAccounting"
-        pageName="Fatura Listesi"
+        pageName={t('title')}
         isTableVisible={isTableVisible}
+        isNewInvoiceDisabled={requestStatus !== 'succeeded'}
         onToggleTable={handleToggleTable}
       />
 
       <main className={styles.page}>
-        <section className={styles.intro}>
-          <div>
-            <p className={styles.eyebrow}>Fatura yönetimi</p>
-
-            <h1>Fatura Listesi</h1>
-
-            <p>Faturalarınızı görüntüleyin ve finansal durumunuzu takip edin.</p>
-          </div>
-
-          <button
-            className={styles.primaryButton}
-            type="button"
-            disabled={requestStatus !== 'succeeded'}
-          >
-            + Yeni Fatura
-          </button>
-        </section>
-
         {isLoading ? (
           <LoadingSpinner />
         ) : hasError ? (
-          <ApiErrorState
-            message={requestError ?? 'Fatura verileri alınamadı.'}
-            onRetry={handleRetry}
-          />
+          <ApiErrorState message={requestError ?? t('errors.invoiceFetch')} onRetry={handleRetry} />
         ) : hasNoInvoices ? (
           <EmptyInvoiceState />
         ) : (
@@ -208,9 +194,8 @@ export default function App() {
               </div>
             ) : (
               <section className={styles.emptyState}>
-                <h2>Tablo gizlendi</h2>
-
-                <p>Tabloyu yeniden görüntülemek için header’daki butona bas.</p>
+                <h2>{t('table.hiddenTitle')}</h2>
+                <p>{t('table.hiddenDescription')}</p>
               </section>
             )}
           </>

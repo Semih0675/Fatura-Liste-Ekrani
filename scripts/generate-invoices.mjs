@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
 
+const outputPath = resolve(currentDirectory, '../src/data/invoices.json');
+
 const customerNames = [
   'Yılmaz Ticaret A.Ş.',
   'Demir İnşaat Ltd. Şti.',
@@ -23,8 +25,8 @@ const customerNames = [
   'İnci Gıda Ltd.',
 ];
 
-const recordCount = 128;
-const firstInvoiceNumber = 148;
+const recordCount = 10_000;
+const firstInvoiceNumber = 1;
 const anchorDate = new Date('2026-07-03T00:00:00.000Z');
 
 function addDays(date, numberOfDays) {
@@ -62,15 +64,15 @@ function getAmount(index) {
 }
 
 const invoices = Array.from({ length: recordCount }, (_, index) => {
-  const invoiceSequence = firstInvoiceNumber - index;
-  const issueDate = addDays(anchorDate, -index);
+  const invoiceSequence = firstInvoiceNumber + index;
+  const issueDate = addDays(anchorDate, -(index % 730));
   const status = getStatus(index);
 
   const dueDate = status === 'overdue' ? addDays(issueDate, 7) : addDays(issueDate, 30);
 
   return {
     id: invoiceSequence,
-    invoiceNumber: `FTR-2026-${String(invoiceSequence).padStart(4, '0')}`,
+    invoiceNumber: `FTR-2026-${String(invoiceSequence).padStart(5, '0')}`,
     customerName: customerNames[index % customerNames.length],
     issueDate: toIsoDate(issueDate),
     dueDate: toIsoDate(dueDate),
@@ -81,4 +83,7 @@ const invoices = Array.from({ length: recordCount }, (_, index) => {
 });
 
 await mkdir(dirname(outputPath), { recursive: true });
+
 await writeFile(outputPath, `${JSON.stringify(invoices, null, 2)}\n`, 'utf8');
+
+console.log(`${invoices.length} fatura oluşturuldu.`);

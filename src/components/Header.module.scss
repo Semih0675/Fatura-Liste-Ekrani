@@ -60,3 +60,77 @@
     }
   }
 }
+
+.toggleButton {
+  padding: 10px 18px;
+  border: 1px solid rgb(255 255 255 / 40%);
+  border-radius: 6px;
+  color: #ffffff;
+  background: rgb(255 255 255 / 12%);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+
+  &:hover {
+    border-color: rgb(255 255 255 / 70%);
+    background: rgb(255 255 255 / 22%);
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.newInvoiceButton,
+.toggleButton {
+  padding: 9px 14px;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 6px;
+  color: #ffffff;
+  background: rgb(255 255 255 / 12%);
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: rgb(255 255 255 / 22%);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.newInvoiceButton {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.languageSwitcher {
+  display: flex;
+  gap: 4px;
+}
+
+.languageButton,
+.activeLanguageButton {
+  min-width: 38px;
+  padding: 8px 9px;
+  border: 1px solid rgb(255 255 255 / 45%);
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.languageButton {
+  color: #ffffff;
+  background: transparent;
+}
+
+.activeLanguageButton {
+  color: #244c7a;
+  background: #ffffff;
+}

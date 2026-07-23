@@ -1,7 +1,9 @@
 import { useMemo } from 'react';
 import classNames from 'classnames/bind';
 import { tr } from 'date-fns/locale';
+import type { TFunction } from 'i18next';
 import { useFormik } from 'formik';
+import { useTranslation } from 'react-i18next';
 import DatePicker, { registerLocale } from 'react-datepicker';
 import Select from 'react-select';
 import * as yup from 'yup';
@@ -39,52 +41,24 @@ interface FilterFormProps {
   onReset: () => void;
 }
 
-const typeOptions: InvoiceTypeOption[] = [
-  {
-    value: 'sale',
-    label: 'Satış',
-  },
-  {
-    value: 'purchase',
-    label: 'Alış',
-  },
-];
+function createValidationSchema(t: TFunction) {
+  return yup.object({
+    searchTerm: yup.string().trim().max(100, t('validation.searchMax')),
 
-const statusOptions: InvoiceStatusOption[] = [
-  {
-    value: 'paid',
-    label: 'Ödendi',
-  },
-  {
-    value: 'pending',
-    label: 'Bekliyor',
-  },
-  {
-    value: 'overdue',
-    label: 'Gecikmiş',
-  },
-];
+    type: yup.mixed<InvoiceType>().oneOf(['sale', 'purchase']).nullable(),
 
-const validationSchema = yup.object({
-  searchTerm: yup.string().trim().max(100, 'Arama metni en fazla 100 karakter olabilir.'),
+    statuses: yup
+      .array()
+      .of(yup.mixed<InvoiceStatus>().oneOf(['paid', 'pending', 'overdue']).required())
+      .required(),
 
-  type: yup.mixed<InvoiceType>().oneOf(['sale', 'purchase']).nullable(),
+    issueDateFrom: yup.date().nullable().typeError(t('validation.invalidDate')),
 
-  statuses: yup
-    .array()
-    .of(yup.mixed<InvoiceStatus>().oneOf(['paid', 'pending', 'overdue']).required())
-    .required(),
-
-  issueDateFrom: yup.date().nullable().typeError('Geçerli bir başlangıç tarihi seçin.'),
-
-  issueDateTo: yup
-    .date()
-    .nullable()
-    .typeError('Geçerli bir bitiş tarihi seçin.')
-    .test(
-      'date-order',
-      'Bitiş tarihi başlangıç tarihinden önce olamaz.',
-      function validateDateOrder(value) {
+    issueDateTo: yup
+      .date()
+      .nullable()
+      .typeError(t('validation.invalidDate'))
+      .test('date-order', t('validation.endDateBeforeStart'), function validateDateOrder(value) {
         const { issueDateFrom } = this.parent as InvoiceFilterFormValues;
 
         if (!value || !issueDateFrom) {
@@ -92,34 +66,30 @@ const validationSchema = yup.object({
         }
 
         return value.getTime() >= issueDateFrom.getTime();
-      },
-    ),
+      }),
 
-  minAmount: yup
-    .number()
-    .nullable()
-    .typeError('Minimum tutar sayı olmalıdır.')
-    .min(0, 'Minimum tutar negatif olamaz.'),
+    minAmount: yup
+      .number()
+      .nullable()
+      .typeError(t('validation.invalidAmount'))
+      .min(0, t('validation.negativeAmount')),
 
-  maxAmount: yup
-    .number()
-    .nullable()
-    .typeError('Maksimum tutar sayı olmalıdır.')
-    .min(0, 'Maksimum tutar negatif olamaz.')
-    .test(
-      'amount-order',
-      'Maksimum tutar minimum tutardan küçük olamaz.',
-      function validateAmountOrder(value) {
+    maxAmount: yup
+      .number()
+      .nullable()
+      .typeError(t('validation.invalidAmount'))
+      .min(0, t('validation.negativeAmount'))
+      .test('amount-order', t('validation.maxLessThanMin'), function validateAmountOrder(value) {
         const { minAmount } = this.parent as InvoiceFilterFormValues;
 
-        if (value === null || value === undefined || minAmount === null) {
+        if (value == null || minAmount == null) {
           return true;
         }
 
         return value >= minAmount;
-      },
-    ),
-});
+      }),
+  });
+}
 
 function parseIsoDate(isoDate: string | null): Date | null {
   if (!isoDate) {
@@ -198,6 +168,44 @@ export function FilterForm({
   onApply,
   onReset,
 }: FilterFormProps) {
+  const { t, i18n } = useTranslation();
+
+  const isEnglish = i18n.resolvedLanguage?.startsWith('en') ?? false;
+
+  const typeOptions = useMemo<InvoiceTypeOption[]>(
+    () => [
+      {
+        value: 'sale',
+        label: t('invoiceType.sale'),
+      },
+      {
+        value: 'purchase',
+        label: t('invoiceType.purchase'),
+      },
+    ],
+    [t],
+  );
+
+  const statusOptions = useMemo<InvoiceStatusOption[]>(
+    () => [
+      {
+        value: 'paid',
+        label: t('invoiceStatus.paid'),
+      },
+      {
+        value: 'pending',
+        label: t('invoiceStatus.pending'),
+      },
+      {
+        value: 'overdue',
+        label: t('invoiceStatus.overdue'),
+      },
+    ],
+    [t],
+  );
+
+  const validationSchema = useMemo(() => createValidationSchema(t), [t]);
+
   const initialValues = useMemo(() => createFormValues(initialFilters), [initialFilters]);
 
   const formik = useFormik<InvoiceFilterFormValues>({
@@ -239,19 +247,22 @@ export function FilterForm({
     <section className={styles.panel}>
       <div className={styles.panelHeader}>
         <div>
-          <h2>Fatura Filtreleri</h2>
-          <p>Listeyi bir veya birden fazla alana göre filtreleyin.</p>
+          <h2>{t('filters.title')}</h2>
+          <p>{t('filters.description')}</p>
         </div>
 
         <p className={styles.resultCount} aria-live="polite">
-          <strong>{resultCount}</strong> / {totalCount} kayıt
+          {t('filters.resultCount', {
+            resultCount,
+            totalCount,
+          })}
         </p>
       </div>
 
       <form className={styles.form} onSubmit={formik.handleSubmit} noValidate>
         <div className={styles.grid}>
           <div className={cx('field', 'searchField')}>
-            <label htmlFor="searchTerm">Metin arama</label>
+            <label htmlFor="searchTerm">{t('filters.search')}</label>
 
             <input
               id="searchTerm"
@@ -261,7 +272,7 @@ export function FilterForm({
               })}
               type="search"
               value={formik.values.searchTerm}
-              placeholder="Fatura no, müşteri, durum veya tutar..."
+              placeholder={t('filters.searchPlaceholder')}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               aria-invalid={Boolean(searchError)}
@@ -271,7 +282,7 @@ export function FilterForm({
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="invoice-type">Fatura tipi</label>
+            <label htmlFor="invoice-type">{t('filters.type')}</label>
 
             <div className={styles.selectContainer}>
               <Select<InvoiceTypeOption, false>
@@ -279,10 +290,10 @@ export function FilterForm({
                 classNamePrefix="filterSelect"
                 options={typeOptions}
                 value={selectedType}
-                placeholder="Tüm tipler"
+                placeholder={t('filters.allTypes')}
                 isClearable
                 isSearchable={false}
-                noOptionsMessage={() => 'Seçenek bulunamadı'}
+                noOptionsMessage={() => t('filters.noOptions')}
                 onChange={(option) => {
                   void formik.setFieldValue('type', option?.value ?? null);
                 }}
@@ -294,7 +305,7 @@ export function FilterForm({
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="invoice-statuses">Durum</label>
+            <label htmlFor="invoice-statuses">{t('filters.status')}</label>
 
             <div className={styles.selectContainer}>
               <Select<InvoiceStatusOption, true>
@@ -302,11 +313,11 @@ export function FilterForm({
                 classNamePrefix="filterSelect"
                 options={statusOptions}
                 value={selectedStatuses}
-                placeholder="Tüm durumlar"
+                placeholder={t('filters.allStatuses')}
                 isMulti
                 isClearable
                 closeMenuOnSelect={false}
-                noOptionsMessage={() => 'Seçenek bulunamadı'}
+                noOptionsMessage={() => t('filters.noOptions')}
                 onChange={(options) => {
                   void formik.setFieldValue(
                     'statuses',
@@ -321,7 +332,7 @@ export function FilterForm({
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="issueDateFrom">Düzenleme tarihi başlangıç</label>
+            <label htmlFor="issueDateFrom">{t('filters.issueDateFrom')}</label>
 
             <DatePicker
               id="issueDateFrom"
@@ -332,9 +343,9 @@ export function FilterForm({
               })}
               selected={formik.values.issueDateFrom}
               maxDate={formik.values.issueDateTo ?? undefined}
-              dateFormat="dd.MM.yyyy"
-              locale="tr"
-              placeholderText="Başlangıç tarihi"
+              dateFormat={isEnglish ? 'MM/dd/yyyy' : 'dd.MM.yyyy'}
+              locale={isEnglish ? undefined : 'tr'}
+              placeholderText={t('filters.startDatePlaceholder')}
               isClearable
               showMonthDropdown
               showYearDropdown
@@ -352,7 +363,7 @@ export function FilterForm({
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="issueDateTo">Düzenleme tarihi bitiş</label>
+            <label htmlFor="issueDateTo">{t('filters.issueDateTo')}</label>
 
             <DatePicker
               id="issueDateTo"
@@ -363,9 +374,9 @@ export function FilterForm({
               })}
               selected={formik.values.issueDateTo}
               minDate={formik.values.issueDateFrom ?? undefined}
-              dateFormat="dd.MM.yyyy"
-              locale="tr"
-              placeholderText="Bitiş tarihi"
+              dateFormat={isEnglish ? 'MM/dd/yyyy' : 'dd.MM.yyyy'}
+              locale={isEnglish ? undefined : 'tr'}
+              placeholderText={t('filters.endDatePlaceholder')}
               isClearable
               showMonthDropdown
               showYearDropdown
@@ -383,7 +394,7 @@ export function FilterForm({
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="minAmount">Minimum tutar</label>
+            <label htmlFor="minAmount">{t('filters.minAmount')}</label>
 
             <input
               id="minAmount"
@@ -395,7 +406,7 @@ export function FilterForm({
               min="0"
               step="0.01"
               value={formik.values.minAmount ?? ''}
-              placeholder="0,00"
+              placeholder="0.00"
               onChange={(event) => {
                 void formik.setFieldValue('minAmount', parseAmountInput(event.target.value));
               }}
@@ -407,7 +418,7 @@ export function FilterForm({
           </div>
 
           <div className={styles.field}>
-            <label htmlFor="maxAmount">Maksimum tutar</label>
+            <label htmlFor="maxAmount">{t('filters.maxAmount')}</label>
 
             <input
               id="maxAmount"
@@ -419,7 +430,7 @@ export function FilterForm({
               min="0"
               step="0.01"
               value={formik.values.maxAmount ?? ''}
-              placeholder="100.000,00"
+              placeholder="100000.00"
               onChange={(event) => {
                 void formik.setFieldValue('maxAmount', parseAmountInput(event.target.value));
               }}
@@ -433,11 +444,11 @@ export function FilterForm({
 
         <div className={styles.actions}>
           <button className={styles.resetButton} type="button" onClick={handleReset}>
-            Filtreleri Temizle
+            {t('filters.clear')}
           </button>
 
           <button className={styles.submitButton} type="submit" disabled={formik.isSubmitting}>
-            Filtreleri Uygula
+            {t('filters.apply')}
           </button>
         </div>
       </form>

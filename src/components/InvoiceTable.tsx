@@ -1,5 +1,5 @@
 import classNames from 'classnames/bind';
-import { invoiceStatusLabels, invoiceTypeLabels } from '../constants/invoiceLabels';
+import { useTranslation } from 'react-i18next';
 import type { Invoice, InvoiceSortConfig, InvoiceSortKey } from '../models/invoice';
 import { formatDate, formatMoney } from '../utils/formatters';
 import styles from './InvoiceTable.module.scss';
@@ -18,37 +18,6 @@ interface InvoiceColumn {
   label: string;
 }
 
-const columns: InvoiceColumn[] = [
-  {
-    key: 'invoiceNumber',
-    label: 'Fatura No',
-  },
-  {
-    key: 'customerName',
-    label: 'Müşteri',
-  },
-  {
-    key: 'issueDate',
-    label: 'Düzenleme Tarihi',
-  },
-  {
-    key: 'dueDate',
-    label: 'Vade Tarihi',
-  },
-  {
-    key: 'amount',
-    label: 'Tutar',
-  },
-  {
-    key: 'type',
-    label: 'Tip',
-  },
-  {
-    key: 'status',
-    label: 'Durum',
-  },
-];
-
 function getAriaSort(
   columnKey: InvoiceSortKey,
   sortConfig: InvoiceSortConfig,
@@ -61,20 +30,59 @@ function getAriaSort(
 }
 
 export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: InvoiceTableProps) {
+  const { t, i18n } = useTranslation();
+
+  const locale = i18n.resolvedLanguage?.startsWith('en') ? 'en-US' : 'tr-TR';
+
+  const columns: InvoiceColumn[] = [
+    {
+      key: 'invoiceNumber',
+      label: t('table.invoiceNumber'),
+    },
+    {
+      key: 'customerName',
+      label: t('table.customer'),
+    },
+    {
+      key: 'issueDate',
+      label: t('table.issueDate'),
+    },
+    {
+      key: 'dueDate',
+      label: t('table.dueDate'),
+    },
+    {
+      key: 'amount',
+      label: t('table.amount'),
+    },
+    {
+      key: 'type',
+      label: t('table.type'),
+    },
+    {
+      key: 'status',
+      label: t('table.status'),
+    },
+  ];
+
   return (
     <section className={styles.card}>
       <div className={styles.cardHeader}>
         <div>
-          <h2>Faturalar</h2>
-          <p>Kolon başlıklarına tıklayarak sıralayabilirsiniz.</p>
+          <h2>{t('table.title')}</h2>
+          <p>{t('table.description')}</p>
         </div>
 
-        <span className={styles.countBadge}>{invoices.length} satır</span>
+        <span className={styles.countBadge}>
+          {t('table.rowCount', {
+            count: invoices.length,
+          })}
+        </span>
       </div>
 
       <div className={styles.tableWrapper}>
         <table className={styles.table}>
-          <caption className={styles.srOnly}>Sayfalanmış fatura listesi</caption>
+          <caption className={styles.srOnly}>{t('table.caption')}</caption>
 
           <thead>
             <tr>
@@ -103,26 +111,28 @@ export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: 
                 );
               })}
 
-              <th scope="col">İşlem</th>
+              <th scope="col">{t('table.action')}</th>
             </tr>
           </thead>
 
           <tbody>
             {invoices.length > 0 ? (
               invoices.map((invoice) => (
-                <tr key={invoice.id}>
+                <tr key={invoice.id} onClick={() => onInvoiceSelect(invoice)}>
                   <td>
                     <strong className={styles.invoiceNumber}>{invoice.invoiceNumber}</strong>
                   </td>
 
                   <td>{invoice.customerName}</td>
-                  <td>{formatDate(invoice.issueDate)}</td>
-                  <td>{formatDate(invoice.dueDate)}</td>
 
-                  <td className={styles.amount}>{formatMoney(invoice.amount)}</td>
+                  <td>{formatDate(invoice.issueDate, locale)}</td>
+
+                  <td>{formatDate(invoice.dueDate, locale)}</td>
+
+                  <td className={styles.amount}>{formatMoney(invoice.amount, locale)}</td>
 
                   <td>
-                    <span className={styles.type}>{invoiceTypeLabels[invoice.type]}</span>
+                    <span className={styles.type}>{t(`invoiceType.${invoice.type}`)}</span>
                   </td>
 
                   <td>
@@ -133,7 +143,7 @@ export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: 
                         overdue: invoice.status === 'overdue',
                       })}
                     >
-                      {invoiceStatusLabels[invoice.status]}
+                      {t(`invoiceStatus.${invoice.status}`)}
                     </span>
                   </td>
 
@@ -141,9 +151,12 @@ export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: 
                     <button
                       className={styles.detailButton}
                       type="button"
-                      onClick={() => onInvoiceSelect(invoice)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onInvoiceSelect(invoice);
+                      }}
                     >
-                      Detay
+                      {t('actions.details')}
                     </button>
                   </td>
                 </tr>
@@ -151,8 +164,8 @@ export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: 
             ) : (
               <tr>
                 <td className={styles.emptyRow} colSpan={columns.length + 1}>
-                  <strong>Fatura bulunamadı</strong>
-                  <span>Filtrelerinizi değiştirerek tekrar deneyin.</span>
+                  <strong>{t('table.emptyTitle')}</strong>
+                  <span>{t('table.emptyDescription')}</span>
                 </td>
               </tr>
             )}
