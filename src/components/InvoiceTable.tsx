@@ -110,8 +110,6 @@ export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: 
                   </th>
                 );
               })}
-
-              <th scope="col">{t('table.action')}</th>
             </tr>
           </thead>
 
@@ -146,24 +144,11 @@ export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: 
                       {t(`invoiceStatus.${invoice.status}`)}
                     </span>
                   </td>
-
-                  <td>
-                    <button
-                      className={styles.detailButton}
-                      type="button"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        onInvoiceSelect(invoice);
-                      }}
-                    >
-                      {t('actions.details')}
-                    </button>
-                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className={styles.emptyRow} colSpan={columns.length + 1}>
+                <td className={styles.emptyRow} colSpan={columns.length}>
                   <strong>{t('table.emptyTitle')}</strong>
                   <span>{t('table.emptyDescription')}</span>
                 </td>
