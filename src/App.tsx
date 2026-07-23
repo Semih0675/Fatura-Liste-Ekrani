@@ -8,6 +8,7 @@ import { InvoiceTable } from './components/InvoiceTable';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { Pagination } from './components/Pagination';
 import { SummaryCards, type SummaryCard } from './components/SummaryCards';
+import { EmptyInvoiceState } from './components/EmptyInvoiceState';
 import type {
   Invoice,
   InvoiceFilterValues,
@@ -134,6 +135,8 @@ export default function App() {
 
   const hasError = requestStatus === 'failed';
 
+  const hasNoInvoices = requestStatus === 'succeeded' && invoiceTotalCount === 0;
+
   return (
     <div className={styles.app}>
       <Header
@@ -169,6 +172,8 @@ export default function App() {
             message={requestError ?? 'Fatura verileri alınamadı.'}
             onRetry={handleRetry}
           />
+        ) : hasNoInvoices ? (
+          <EmptyInvoiceState />
         ) : (
           <>
             <SummaryCards cards={summaryCards} />

@@ -1,0 +1,39 @@
+@use '../styles/variables' as variables;
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  min-height: 300px;
+  padding: 40px 24px;
+  border: 1px dashed variables.$color-border;
+  border-radius: variables.$radius-medium;
+  text-align: center;
+  background: variables.$color-surface;
+
+  h2 {
+    margin: 16px 0 8px;
+    color: variables.$color-primary-900;
+  }
+
+  p {
+    max-width: 520px;
+    margin: 0;
+    color: variables.$color-muted;
+    line-height: 1.6;
+  }
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: variables.$color-primary-700;
+  background: variables.$color-primary-100;
+  font-size: 20px;
+  font-weight: 800;
+}

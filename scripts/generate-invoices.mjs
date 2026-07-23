@@ -3,7 +3,6 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const currentDirectory = dirname(fileURLToPath(import.meta.url));
-const outputPath = resolve(currentDirectory, '../src/data/invoices.json');
 
 const customerNames = [
   'Yılmaz Ticaret A.Ş.',
@@ -83,6 +82,3 @@ const invoices = Array.from({ length: recordCount }, (_, index) => {
 
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(outputPath, `${JSON.stringify(invoices, null, 2)}\n`, 'utf8');
-
-console.log(`${invoices.length} adet fatura kaydı oluşturuldu.`);
-console.log(`Dosya: ${outputPath}`);
