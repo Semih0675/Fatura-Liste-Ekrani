@@ -38,6 +38,7 @@ import {
   setCurrentPage,
   setPageSize,
   toggleSort,
+  deleteInvoice,
 } from './store/slices/invoiceSlice';
 import { formatMoney } from './utils/formatters';
 
@@ -150,6 +151,15 @@ export default function App() {
     setIsCreateInvoiceOpen(false);
   }
 
+  async function handleDeleteInvoice(id: number) {
+    try {
+      await dispatch(deleteInvoice(id)).unwrap();
+      setSelectedInvoice(null);
+    } catch {
+      // Redux hata mesajını tutuyor.
+    }
+  }
+
   async function handleCreateInvoice(invoice: CreateInvoiceInput) {
     await dispatch(createInvoice(invoice)).unwrap();
   }
@@ -220,7 +230,11 @@ export default function App() {
         )}
       </main>
 
-      <InvoiceDetailModal invoice={selectedInvoice} onClose={handleCloseInvoice} />
+      <InvoiceDetailModal
+        invoice={selectedInvoice}
+        onClose={handleCloseInvoice}
+        onDelete={handleDeleteInvoice}
+      />
       <CreateInvoiceModal
         isOpen={isCreateInvoiceOpen}
         onClose={handleCloseCreateInvoice}

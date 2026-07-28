@@ -10,9 +10,10 @@ const cx = classNames.bind(styles);
 interface InvoiceDetailModalProps {
   invoice: Invoice | null;
   onClose: () => void;
+  onDelete: (id: number) => Promise<void>;
 }
 
-export function InvoiceDetailModal({ invoice, onClose }: InvoiceDetailModalProps) {
+export function InvoiceDetailModal({ invoice, onClose, onDelete }: InvoiceDetailModalProps) {
   const { t, i18n } = useTranslation();
 
   const locale = i18n.resolvedLanguage?.startsWith('en') ? 'en-US' : 'tr-TR';
@@ -38,7 +39,17 @@ export function InvoiceDetailModal({ invoice, onClose }: InvoiceDetailModalProps
 
               <h2 id="invoice-detail-title">{invoice.invoiceNumber}</h2>
             </div>
-
+            <button
+              className={styles.deleteButton}
+              type="button"
+              onClick={() => {
+                if (invoice && window.confirm(t('modal.deleteConfirm'))) {
+                  void onDelete(invoice.id);
+                }
+              }}
+            >
+              {t('actions.delete')}
+            </button>
             <button
               className={styles.closeButton}
               type="button"

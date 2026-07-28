@@ -21,6 +21,7 @@ const resources = {
         details: 'Detay',
         close: 'Kapat',
         retry: 'Tekrar Dene',
+        delete: 'Sil',
       },
 
       invoiceType: {
@@ -112,6 +113,7 @@ const resources = {
         status: 'Durum',
         invoiceId: 'Fatura ID: {{id}}',
         closeAriaLabel: 'Fatura detay penceresini kapat',
+        deleteConfirm: 'Bu faturayı silmek istediğinize emin misiniz?',
       },
 
       loading: {
@@ -181,6 +183,7 @@ const resources = {
         details: 'Details',
         close: 'Close',
         retry: 'Try Again',
+        delete: 'Delete',
       },
 
       invoiceType: {
@@ -273,6 +276,7 @@ const resources = {
         status: 'Status',
         invoiceId: 'Invoice ID: {{id}}',
         closeAriaLabel: 'Close invoice details window',
+        deleteConfirm: 'Are you sure you want to delete this invoice?',
       },
 
       loading: {

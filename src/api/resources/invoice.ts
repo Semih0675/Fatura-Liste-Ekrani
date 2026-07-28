@@ -19,8 +19,13 @@ async function create(invoice: CreateInvoiceInput): Promise<Invoice> {
   return http.post<Invoice>(invoiceEndpoint, invoice);
 }
 
+async function remove(id: number): Promise<void> {
+  await http.delete<void>(`${invoiceEndpoint}/${id}`);
+}
+
 export const invoiceResource = {
   getAll,
   getById,
   create,
+  remove,
 };

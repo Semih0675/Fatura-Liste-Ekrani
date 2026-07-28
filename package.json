@@ -12,7 +12,6 @@
     "format:check": "prettier . --check",
     "generate:mock": "node scripts/generate-invoices.mjs",
     "api:seed": "node scripts/generate-api-db.mjs",
-    "preapi": "npm run api:seed",
     "api": "json-server mock-api/db.json --port 3001",
     "check": "npm run format:check && npm run lint && npm run build",
     "verify": "npm run api:seed && npm run check"

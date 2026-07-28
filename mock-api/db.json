@@ -100003,12 +100003,12 @@
     {
       "invoiceNumber": "FTR-2026-10001",
       "customerName": "Semih Tırpancı Ltd.",
-      "issueDate": "2026-07-01",
+      "issueDate": "2026-06-29",
       "dueDate": "2026-08-11",
-      "amount": 99999,
+      "amount": 999999,
       "type": "sale",
-      "status": "paid",
-      "id": "LOZbvj_jHAw"
+      "status": "pending",
+      "id": "s8irEtJAEVY"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"
