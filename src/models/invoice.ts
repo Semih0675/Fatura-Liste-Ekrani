@@ -13,6 +13,8 @@ export interface Invoice {
   status: InvoiceStatus;
 }
 
+export type CreateInvoiceInput = Omit<Invoice, 'id'>;
+
 export type InvoiceSortKey =
   'invoiceNumber' | 'customerName' | 'issueDate' | 'dueDate' | 'amount' | 'type' | 'status';
 

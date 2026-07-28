@@ -10,12 +10,15 @@ import { InvoiceTable } from './components/InvoiceTable';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { Pagination } from './components/Pagination';
 import { SummaryCards, type SummaryCard } from './components/SummaryCards';
+import { CreateInvoiceModal } from './components/CreateInvoiceModal';
 import type {
+  CreateInvoiceInput,
   Invoice,
   InvoiceFilterValues,
   InvoicePageSize,
   InvoiceSortKey,
 } from './models/invoice';
+
 import { useAppDispatch, useAppSelector } from './store/hooks';
 import {
   selectInvoiceError,
@@ -28,6 +31,7 @@ import {
   selectPaginatedInvoices,
 } from './store/selectors/invoiceSelectors';
 import {
+  createInvoice,
   applyFilters,
   fetchInvoices,
   resetFilters,
@@ -58,6 +62,7 @@ export default function App() {
 
   const locale = isEnglish ? 'en-US' : 'tr-TR';
   const language = isEnglish ? 'en' : 'tr';
+  const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
 
   useEffect(() => {
     if (requestStatus === 'idle') {
@@ -137,6 +142,18 @@ export default function App() {
     void dispatch(fetchInvoices());
   }
 
+  function handleOpenCreateInvoice() {
+    setIsCreateInvoiceOpen(true);
+  }
+
+  function handleCloseCreateInvoice() {
+    setIsCreateInvoiceOpen(false);
+  }
+
+  async function handleCreateInvoice(invoice: CreateInvoiceInput) {
+    await dispatch(createInvoice(invoice)).unwrap();
+  }
+
   const isLoading = requestStatus === 'idle' || requestStatus === 'loading';
 
   const hasError = requestStatus === 'failed';
@@ -150,6 +167,7 @@ export default function App() {
         pageName={t('title')}
         isTableVisible={isTableVisible}
         isNewInvoiceDisabled={requestStatus !== 'succeeded'}
+        onCreateInvoice={handleOpenCreateInvoice}
         onToggleTable={handleToggleTable}
       />
 
@@ -203,6 +221,11 @@ export default function App() {
       </main>
 
       <InvoiceDetailModal invoice={selectedInvoice} onClose={handleCloseInvoice} />
+      <CreateInvoiceModal
+        isOpen={isCreateInvoiceOpen}
+        onClose={handleCloseCreateInvoice}
+        onSubmit={handleCreateInvoice}
+      />
     </div>
   );
 }

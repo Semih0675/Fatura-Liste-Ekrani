@@ -7,17 +7,20 @@ interface HeaderProps {
   isTableVisible: boolean;
   isNewInvoiceDisabled: boolean;
   onToggleTable: () => void;
+  onCreateInvoice: () => void;
 }
 
 export function Header({
   appName,
   pageName,
   isNewInvoiceDisabled,
+  onCreateInvoice,
+  onToggleTable,
+  isTableVisible,
 }: HeaderProps) {
   const { t, i18n } = useTranslation();
 
-  const isEnglish =
-    i18n.resolvedLanguage?.startsWith('en') ?? false;
+  const isEnglish = i18n.resolvedLanguage?.startsWith('en') ?? false;
 
   return (
     <header className={styles.header}>
@@ -32,19 +35,18 @@ export function Header({
             className={styles.newInvoiceButton}
             type="button"
             disabled={isNewInvoiceDisabled}
+            onClick={onCreateInvoice}
           >
             + {t('actions.newInvoice')}
           </button>
-          <div
-            className={styles.languageSwitcher}
-            aria-label={t('language.selector')}
-          >
+
+          <button className={styles.toggleButton} type="button" onClick={onToggleTable}>
+            {isTableVisible ? t('header.hideTable') : t('header.showTable')}
+          </button>
+
+          <div className={styles.languageSwitcher} aria-label={t('language.selector')}>
             <button
-              className={
-                !isEnglish
-                  ? styles.activeLanguageButton
-                  : styles.languageButton
-              }
+              className={!isEnglish ? styles.activeLanguageButton : styles.languageButton}
               type="button"
               onClick={() => void i18n.changeLanguage('tr')}
               aria-pressed={!isEnglish}
@@ -53,11 +55,7 @@ export function Header({
             </button>
 
             <button
-              className={
-                isEnglish
-                  ? styles.activeLanguageButton
-                  : styles.languageButton
-              }
+              className={isEnglish ? styles.activeLanguageButton : styles.languageButton}
               type="button"
               onClick={() => void i18n.changeLanguage('en')}
               aria-pressed={isEnglish}

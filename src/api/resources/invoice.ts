@@ -1,4 +1,4 @@
-import type { Invoice } from '../../models/invoice';
+import type { CreateInvoiceInput, Invoice } from '../../models/invoice';
 import { http } from '../http';
 
 const invoiceEndpoint = '/invoices';
@@ -15,7 +15,12 @@ async function getById(id: number, signal?: AbortSignal): Promise<Invoice> {
   });
 }
 
+async function create(invoice: CreateInvoiceInput): Promise<Invoice> {
+  return http.post<Invoice>(invoiceEndpoint, invoice);
+}
+
 export const invoiceResource = {
   getAll,
   getById,
+  create,
 };

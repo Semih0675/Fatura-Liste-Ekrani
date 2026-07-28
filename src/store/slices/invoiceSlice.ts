@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/tool
 import { getHttpErrorMessage } from '../../api/http';
 import { invoiceResource } from '../../api/resources/invoice';
 import type {
+  CreateInvoiceInput,
   Invoice,
   InvoiceFiltersState,
   InvoiceFilterValues,
@@ -60,6 +61,20 @@ export const fetchInvoices = createAsyncThunk<
 >('invoices/fetchInvoices', async (_, { rejectWithValue, signal }) => {
   try {
     return await invoiceResource.getAll(signal);
+  } catch (error) {
+    return rejectWithValue(getHttpErrorMessage(error));
+  }
+});
+
+export const createInvoice = createAsyncThunk<
+  Invoice,
+  CreateInvoiceInput,
+  {
+    rejectValue: string;
+  }
+>('invoices/createInvoice', async (invoice, { rejectWithValue }) => {
+  try {
+    return await invoiceResource.create(invoice);
   } catch (error) {
     return rejectWithValue(getHttpErrorMessage(error));
   }
@@ -135,6 +150,11 @@ const invoiceSlice = createSlice({
       .addCase(fetchInvoices.rejected, (state, action) => {
         state.requestStatus = 'failed';
         state.error = action.payload ?? 'Fatura verileri alınırken bir hata oluştu.';
+      })
+
+      .addCase(createInvoice.fulfilled, (state, action) => {
+        state.items.unshift(action.payload);
+        state.pagination.currentPage = 1;
       });
   },
 });
