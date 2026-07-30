@@ -1,0 +1,229 @@
+.panel {
+  position: relative;
+  width: 430px;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex: 0 0 430px;
+  margin-top: 0;
+  padding: 28px 14px 14px;
+  border: 2px solid #3978f6;
+  border-radius: 7px;
+  background: #ffffff;
+  box-shadow: 0 3px 10px rgb(15 23 42 / 10%);
+  z-index: 1;
+  overflow: visible;
+}
+
+.panelOpen {
+  z-index: 100;
+}
+
+.tabs {
+  position: absolute;
+  top: -20px;
+  left: 18px;
+  display: flex;
+  align-items: flex-end;
+  height: 39px;
+  padding: 0 6px;
+  background: #ffffff;
+}
+
+.tab {
+  height: 39px;
+  padding: 0 14px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #475569;
+  background: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+
+  &:hover {
+    color: #2563eb;
+  }
+}
+
+.activeTab {
+  border-bottom-color: #2563eb;
+  color: #2563eb;
+}
+
+.toggleButton {
+  position: absolute;
+  top: -15px;
+  right: 14px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  place-items: center;
+  border: 2px solid #3978f6;
+  border-radius: 50%;
+  color: #2563eb;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.arrow {
+  display: block;
+  margin-top: -4px;
+  font-size: 21px;
+  line-height: 1;
+  transition: transform 220ms ease;
+}
+
+.arrowOpen {
+  margin-top: 4px;
+  transform: rotate(180deg);
+}
+
+.previewGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+
+  span {
+    color: #475569;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 9px;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    color: #334155;
+    background: #ffffff;
+    font: inherit;
+    font-size: 12px;
+    outline: none;
+
+    &:focus {
+      border-color: #3978f6;
+      box-shadow: 0 0 0 2px rgb(57 120 246 / 12%);
+    }
+  }
+
+  input,
+  select {
+    height: 35px;
+  }
+
+  textarea {
+    min-height: 70px;
+    resize: vertical;
+  }
+}
+
+.expandable {
+  position: absolute;
+  top: calc(100% - 2px);
+  right: -2px;
+  left: -2px;
+  z-index: 110;
+
+  display: grid;
+  overflow: hidden;
+  grid-template-rows: 0fr;
+
+  border: 0 solid #3978f6;
+  border-radius: 0 0 7px 7px;
+  background: #ffffff;
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    grid-template-rows 250ms ease,
+    opacity 200ms ease;
+}
+
+.expandableOpen {
+  grid-template-rows: 1fr;
+  border-width: 0 2px 2px;
+  box-shadow: 0 12px 25px rgb(15 23 42 / 18%);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.expandableInner {
+  min-height: 0;
+  padding: 0 14px 14px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #dbe4f0;
+}
+
+.lookupButtons {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+
+  button {
+    flex: 1;
+    height: 35px;
+    padding: 5px 7px;
+    border: 1px solid #3978f6;
+    border-radius: 3px;
+    color: #2563eb;
+    background: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+
+    &:hover {
+      color: #ffffff;
+      background: #2563eb;
+    }
+  }
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 920px) {
+  .panel {
+    width: 100%;
+    flex-basis: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  .tabs {
+    left: 8px;
+  }
+
+  .tab {
+    padding-inline: 8px;
+    font-size: 11px;
+  }
+
+  .previewGrid,
+  .detailsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth {
+    grid-column: auto;
+  }
+}

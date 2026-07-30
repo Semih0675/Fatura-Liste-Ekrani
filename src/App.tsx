@@ -11,6 +11,9 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { Pagination } from './components/Pagination';
 import { SummaryCards, type SummaryCard } from './components/SummaryCards';
 import { CreateInvoiceModal } from './components/CreateInvoiceModal';
+import { CustomerAddressCard } from './components/CustomerAddressCard';
+import { DocumentInfoBar } from './components/DocumentInfoBar';
+
 import type {
   CreateInvoiceInput,
   Invoice,
@@ -194,6 +197,10 @@ export default function App() {
 
             {isTableVisible ? (
               <div className={styles.tableArea}>
+                <div className={styles.topPanels}>
+                  <CustomerAddressCard />
+                  <DocumentInfoBar />
+                </div>
                 <FilterForm
                   initialFilters={filterValues}
                   resultCount={pagination.totalItems}

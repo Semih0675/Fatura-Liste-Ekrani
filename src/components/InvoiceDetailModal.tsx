@@ -40,17 +40,6 @@ export function InvoiceDetailModal({ invoice, onClose, onDelete }: InvoiceDetail
               <h2 id="invoice-detail-title">{invoice.invoiceNumber}</h2>
             </div>
             <button
-              className={styles.deleteButton}
-              type="button"
-              onClick={() => {
-                if (invoice && window.confirm(t('modal.deleteConfirm'))) {
-                  void onDelete(invoice.id);
-                }
-              }}
-            >
-              {t('actions.delete')}
-            </button>
-            <button
               className={styles.closeButton}
               type="button"
               onClick={onClose}
@@ -98,7 +87,6 @@ export function InvoiceDetailModal({ invoice, onClose, onDelete }: InvoiceDetail
               </strong>
             </div>
           </div>
-
           <footer className={styles.footer}>
             <span>
               {t('modal.invoiceId', {
@@ -106,9 +94,23 @@ export function InvoiceDetailModal({ invoice, onClose, onDelete }: InvoiceDetail
               })}
             </span>
 
-            <button className={styles.closeFooterButton} type="button" onClick={onClose}>
-              {t('actions.close')}
-            </button>
+            <div className={styles.footerActions}>
+              <button
+                className={styles.deleteButton}
+                type="button"
+                onClick={() => {
+                  if (window.confirm(t('modal.deleteConfirm'))) {
+                    void onDelete(invoice.id);
+                  }
+                }}
+              >
+                {t('actions.delete')}
+              </button>
+
+              <button className={styles.closeFooterButton} type="button" onClick={onClose}>
+                {t('actions.close')}
+              </button>
+            </div>
           </footer>
         </>
       ) : null}

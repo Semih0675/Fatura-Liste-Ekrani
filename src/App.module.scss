@@ -135,3 +135,20 @@
   border-color: #2563eb;
   background: #2563eb;
 }
+
+.topPanels {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  width: 100%;
+  overflow: visible;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 920px) {
+  .topPanels {
+    flex-direction: column;
+  }
+}
