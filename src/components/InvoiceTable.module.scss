@@ -2,10 +2,12 @@
 
 .card {
   overflow: hidden;
-  border: 1px solid variables.$color-border;
-  border-radius: variables.$radius-medium;
-  background: variables.$color-surface;
-  box-shadow: variables.$shadow-card;
+  border: 1px solid #d8e1ee;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 4%),
+    0 12px 32px rgb(15 23 42 / 7%);
 }
 
 .cardHeader {

@@ -13,6 +13,7 @@ import { SummaryCards, type SummaryCard } from './components/SummaryCards';
 import { CreateInvoiceModal } from './components/CreateInvoiceModal';
 import { CustomerAddressCard } from './components/CustomerAddressCard';
 import { DocumentInfoBar } from './components/DocumentInfoBar';
+import { InvoiceItemsTable } from './components/InvoiceItemsTable';
 
 import type {
   CreateInvoiceInput,
@@ -201,6 +202,7 @@ export default function App() {
                   <CustomerAddressCard />
                   <DocumentInfoBar />
                 </div>
+                <InvoiceItemsTable />
                 <FilterForm
                   initialFilters={filterValues}
                   resultCount={pagination.totalItems}
@@ -209,23 +211,25 @@ export default function App() {
                   onReset={handleResetFilters}
                 />
 
-                <InvoiceTable
-                  invoices={pageInvoices}
-                  sortConfig={sortConfig}
-                  onSort={handleSort}
-                  onInvoiceSelect={handleOpenInvoice}
-                />
+                <div className={styles.invoiceListBlock}>
+                  <InvoiceTable
+                    invoices={pageInvoices}
+                    sortConfig={sortConfig}
+                    onSort={handleSort}
+                    onInvoiceSelect={handleOpenInvoice}
+                  />
 
-                <Pagination
-                  currentPage={pagination.currentPage}
-                  pageSize={pagination.pageSize}
-                  totalItems={pagination.totalItems}
-                  totalPages={pagination.totalPages}
-                  startItem={pagination.startItem}
-                  endItem={pagination.endItem}
-                  onPageChange={handlePageChange}
-                  onPageSizeChange={handlePageSizeChange}
-                />
+                  <Pagination
+                    currentPage={pagination.currentPage}
+                    pageSize={pagination.pageSize}
+                    totalItems={pagination.totalItems}
+                    totalPages={pagination.totalPages}
+                    startItem={pagination.startItem}
+                    endItem={pagination.endItem}
+                    onPageChange={handlePageChange}
+                    onPageSizeChange={handlePageSizeChange}
+                  />
+                </div>
               </div>
             ) : (
               <section className={styles.emptyState}>

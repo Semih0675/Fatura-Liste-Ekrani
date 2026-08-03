@@ -1,51 +1,53 @@
-@use '../styles/variables' as variables;
-
 .pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding: 16px 20px;
-  border: 1px solid variables.$color-border;
-  border-radius: variables.$radius-medium;
-  background: variables.$color-surface;
-  box-shadow: variables.$shadow-card;
+  gap: 16px;
+  padding: 12px 18px 16px;
+  border-top: 1px solid #e7edf5;
+  background: #f4f7fb;
 }
 
 .summary {
-  color: variables.$color-muted;
-  font-size: 14px;
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
 
   strong {
-    color: variables.$color-primary-900;
+    color: #334155;
+    font-weight: 700;
   }
 }
 
 .controls {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 12px;
+  margin-left: auto;
 }
 
 .pageSize {
   display: flex;
   align-items: center;
-  gap: 8px;
-  color: variables.$color-muted;
-  font-size: 13px;
+  gap: 6px;
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
 
   select {
-    min-height: 36px;
-    padding: 5px 28px 5px 9px;
-    border: 1px solid variables.$color-border;
-    border-radius: variables.$radius-small;
-    color: variables.$color-text;
-    background: variables.$color-surface;
-    cursor: pointer;
+    width: 58px;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid #d7dee8;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 12px;
+    outline: none;
 
     &:focus {
-      border-color: variables.$color-primary-600;
-      outline: 3px solid rgb(49 113 224 / 14%);
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgb(37 99 235 / 10%);
     }
   }
 }
@@ -53,7 +55,12 @@
 .pageButtons {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid #dbe7f5;
+  border-radius: 999px;
+  background: #f8fbff;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 80%);
 }
 
 .pageButton,
@@ -62,59 +69,67 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 36px;
-  height: 36px;
-  padding: 0 9px;
-  border: 1px solid variables.$color-border;
-  border-radius: variables.$radius-small;
-  font-weight: 700;
-}
-
-.pageButton,
-.navigationButton {
-  color: variables.$color-primary-700;
-  background: variables.$color-surface;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #475569;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
 
   &:hover:not(:disabled) {
-    border-color: variables.$color-primary-600;
-    background: variables.$color-primary-100;
+    background: #e8f1ff;
+    color: #2563eb;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 }
 
 .activePage {
-  border-color: variables.$color-primary-600;
-  color: variables.$color-surface;
-  background: variables.$color-primary-600;
+  background: #2563eb;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgb(37 99 235 / 22%);
 }
 
 .navigationButton {
-  font-size: 21px;
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.4;
-  }
+  font-size: 15px;
+  font-weight: 700;
 }
 
 .ellipsis {
-  min-width: 26px;
-  color: variables.$color-muted;
-  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 30px;
+  color: #94a3b8;
+  font-size: 13px;
 }
 
-@media (max-width: 760px) {
+@media (max-width: 900px) {
   .pagination {
-    align-items: stretch;
+    align-items: flex-start;
     flex-direction: column;
   }
 
   .controls {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .pageButtons {
+    width: 100%;
     flex-wrap: wrap;
+    justify-content: space-between;
+    margin-left: 0;
   }
 }
