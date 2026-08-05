@@ -22,6 +22,7 @@ const resources = {
         close: 'Kapat',
         retry: 'Tekrar Dene',
         delete: 'Sil',
+        cancel: 'Vazgeç',
       },
 
       invoiceType: {
@@ -92,6 +93,7 @@ const resources = {
         action: 'İşlem',
         emptyTitle: 'Fatura bulunamadı',
         emptyDescription: 'Filtrelerinizi değiştirerek tekrar deneyin.',
+        createFromInvoice: 'Bu faturadan yeni fatura oluştur',
       },
 
       pagination: {
@@ -129,6 +131,14 @@ const resources = {
         invoiceList: 'PreAccounting | Fatura Listesi',
         tableHidden: 'PreAccounting | Tablo Gizli',
       },
+      navigation: {
+        managementPanel: 'Yönetim Paneli',
+        invoiceList: 'Fatura Listesi',
+        createInvoice: 'Yeni Fatura',
+        invoiceOperations: 'Fatura İşlemleri',
+        collapseMenu: 'Menüyü daralt',
+        expandMenu: 'Menüyü genişlet',
+      },
 
       createInvoice: {
         title: 'Yeni Fatura',
@@ -141,6 +151,11 @@ const resources = {
         status: 'Durum',
         save: 'Faturayı Kaydet',
         close: 'Yeni fatura penceresini kapat',
+        pageEyebrow: 'Fatura İşlemleri',
+        pageTitle: 'Yeni Fatura Oluştur',
+        pageDescription: 'Cari, belge ve fatura kalemi bilgilerini doldurun.',
+        saveInvoice: 'Faturayı Kaydet',
+        prefilledFrom: '{{invoiceNumber}} numaralı faturadan bilgiler aktarıldı.',
 
         validation: {
           searchMax: 'Arama metni en fazla 100 karakter olabilir.',
@@ -309,6 +324,15 @@ const resources = {
         close: 'Close',
         retry: 'Try Again',
         delete: 'Delete',
+        cancel: 'Cancel',
+      },
+      navigation: {
+        managementPanel: 'Management Panel',
+        invoiceList: 'Invoice List',
+        createInvoice: 'New Invoice',
+        invoiceOperations: 'Invoice Operations',
+        collapseMenu: 'Collapse menu',
+        expandMenu: 'Expand menu',
       },
 
       invoiceType: {
@@ -380,6 +404,7 @@ const resources = {
         action: 'Action',
         emptyTitle: 'No invoices found',
         emptyDescription: 'Change your filters and try again.',
+        createFromInvoice: 'Create a new invoice from this invoice',
       },
 
       pagination: {
@@ -428,6 +453,11 @@ const resources = {
         status: 'Status',
         save: 'Save Invoice',
         close: 'Close new invoice window',
+        pageEyebrow: 'Invoice Operations',
+        pageTitle: 'Create New Invoice',
+        pageDescription: 'Complete the account, document and invoice item information.',
+        saveInvoice: 'Save Invoice',
+        prefilledFrom: 'Information was copied from invoice {{invoiceNumber}}.',
 
         validation: {
           invoiceNumber: 'Invoice number is required.',

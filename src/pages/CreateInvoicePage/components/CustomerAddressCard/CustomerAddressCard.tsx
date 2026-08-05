@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './CustomerAddressCard.module.scss';
 
-export function CustomerAddressCard() {
+interface CustomerAddressCardProps {
+  initialCustomerName?: string;
+}
+
+export function CustomerAddressCard({ initialCustomerName = '' }: CustomerAddressCardProps) {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -43,14 +47,25 @@ export function CustomerAddressCard() {
         <label className={styles.field}>
           <span>{t('customerAddress.customerName')}</span>
 
-          <select defaultValue="">
+          <select defaultValue={initialCustomerName}>
+            <input
+              type="text"
+              defaultValue={initialCustomerName}
+              placeholder={t('customerAddress.titleNamePlaceholder')}
+            />
             <option value="" disabled>
               {t('customerAddress.selectCustomer')}
             </option>
 
-            <option value="yilmaz">Yılmaz Ticaret A.Ş.</option>
-            <option value="demir">Demir İnşaat Ltd. Şti.</option>
-            <option value="aksa">Aksa Gıda San. A.Ş.</option>
+            {initialCustomerName ? (
+              <option value={initialCustomerName}>{initialCustomerName}</option>
+            ) : null}
+
+            <option value="Yılmaz Ticaret A.Ş.">Yılmaz Ticaret A.Ş.</option>
+
+            <option value="Demir İnşaat Ltd. Şti.">Demir İnşaat Ltd. Şti.</option>
+
+            <option value="Aksa Gıda San. A.Ş.">Aksa Gıda San. A.Ş.</option>
           </select>
         </label>
 

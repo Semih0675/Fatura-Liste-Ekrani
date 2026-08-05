@@ -2,6 +2,36 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './DocumentInfoBar.module.scss';
 
+interface DocumentInfoBarProps {
+  initialInvoiceNumber?: string;
+  initialIssueDate?: string;
+}
+
+function splitInvoiceNumber(invoiceNumber: string) {
+  const match = invoiceNumber.match(/^([A-Za-zÇĞİÖŞÜçğıöşü]+)[-\s/]?(.+)$/);
+
+  return {
+    series: match?.[1] ?? '',
+    number: match?.[2] ?? invoiceNumber,
+  };
+}
+
+function toDateTimeLocal(value: string) {
+  if (!value) {
+    return '';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const timezoneOffset = date.getTimezoneOffset();
+
+  return new Date(date.getTime() - timezoneOffset * 60_000).toISOString().slice(0, 16);
+}
+
 type DocumentTab = 'general' | 'source';
 type Currency = 'TRY' | 'USD' | 'EUR';
 
@@ -29,8 +59,13 @@ function createSourceDocument(): SourceDocument {
   };
 }
 
-export function DocumentInfoBar() {
+export function DocumentInfoBar({
+  initialInvoiceNumber = '',
+  initialIssueDate = '',
+}: DocumentInfoBarProps) {
   const { t } = useTranslation();
+
+  const initialDocument = splitInvoiceNumber(initialInvoiceNumber);
 
   const [activeTab, setActiveTab] = useState<DocumentTab>('general');
 
@@ -132,8 +167,12 @@ export function DocumentInfoBar() {
             <label className={styles.field}>
               <span>{t('documentInfo.series')}</span>
 
-              <select defaultValue="">
+              <select defaultValue={initialDocument.series}>
                 <option value="">{t('documentInfo.select')}</option>
+
+                {initialDocument.series && !['A', 'B', 'FTR'].includes(initialDocument.series) ? (
+                  <option value={initialDocument.series}>{initialDocument.series}</option>
+                ) : null}
 
                 <option value="A">A</option>
                 <option value="B">B</option>
@@ -143,7 +182,7 @@ export function DocumentInfoBar() {
 
             <label className={styles.field}>
               <span>{t('documentInfo.number')}</span>
-              <input type="text" />
+              <input type="text" defaultValue={initialDocument.number} />
             </label>
           </div>
 
@@ -159,7 +198,7 @@ export function DocumentInfoBar() {
                 <label className={styles.field}>
                   <span>{t('documentInfo.dateTime')}</span>
 
-                  <input type="datetime-local" />
+                  <input type="datetime-local" defaultValue={toDateTimeLocal(initialIssueDate)} />
                 </label>
 
                 <label className={styles.field}>

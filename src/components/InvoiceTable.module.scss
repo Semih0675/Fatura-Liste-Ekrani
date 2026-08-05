@@ -190,3 +190,47 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
+
+.invoiceNumberCell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  span {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+}
+
+.transferButton {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid #93c5fd;
+  border-radius: 50%;
+  color: #2563eb;
+  background: #eff6ff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    color 160ms ease,
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+
+  &:hover {
+    color: #ffffff;
+    background: #2563eb;
+    box-shadow: 0 6px 14px rgb(37 99 235 / 25%);
+    transform: translateX(2px) scale(1.06);
+  }
+
+  &:active {
+    transform: scale(0.92);
+  }
+}

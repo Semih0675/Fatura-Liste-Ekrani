@@ -6,6 +6,10 @@ type ItemType = 'product' | 'service';
 type ItemUnit = 'piece' | 'kg' | 'meter' | 'hour';
 type Currency = 'TRY' | 'USD' | 'EUR';
 
+interface InvoiceItemsTableProps {
+  initialAmount?: number;
+}
+
 interface InvoiceItemRow {
   id: string;
   type: ItemType;
@@ -26,7 +30,7 @@ const products = [
   { id: 'product-4', name: 'Kargo Hizmeti' },
 ];
 
-function createEmptyRow(): InvoiceItemRow {
+function createEmptyRow(initialAmount = 0): InvoiceItemRow {
   return {
     id: crypto.randomUUID(),
     type: 'product',
@@ -34,9 +38,9 @@ function createEmptyRow(): InvoiceItemRow {
     description: '',
     quantity: 1,
     unit: 'piece',
-    unitPrice: 0,
+    unitPrice: initialAmount,
     discountRate: 0,
-    vatRate: 20,
+    vatRate: 0,
     currency: 'TRY',
   };
 }
@@ -52,12 +56,10 @@ function calculateRowTotal(row: InvoiceItemRow) {
 
   return discountedAmount + vatAmount;
 }
-
-export function InvoiceItemsTable() {
+export function InvoiceItemsTable({ initialAmount = 0 }: InvoiceItemsTableProps) {
   const { t, i18n } = useTranslation();
 
-  const [rows, setRows] = useState<InvoiceItemRow[]>([createEmptyRow()]);
-
+  const [rows, setRows] = useState<InvoiceItemRow[]>(() => [createEmptyRow(initialAmount)]);
   const locale = i18n.resolvedLanguage?.startsWith('en') ? 'en-US' : 'tr-TR';
 
   const totalsByCurrency = useMemo(() => {

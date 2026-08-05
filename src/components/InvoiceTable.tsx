@@ -9,8 +9,9 @@ const cx = classNames.bind(styles);
 interface InvoiceTableProps {
   invoices: Invoice[];
   sortConfig: InvoiceSortConfig;
-  onSort: (key: InvoiceSortKey) => void;
+  onSort: (sortKey: InvoiceSortKey) => void;
   onInvoiceSelect: (invoice: Invoice) => void;
+  onCreateFromInvoice: (invoice: Invoice) => void;
 }
 
 interface InvoiceColumn {
@@ -29,7 +30,13 @@ function getAriaSort(
   return sortConfig.direction;
 }
 
-export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: InvoiceTableProps) {
+export function InvoiceTable({
+  invoices,
+  sortConfig,
+  onSort,
+  onInvoiceSelect,
+  onCreateFromInvoice,
+}: InvoiceTableProps) {
   const { t, i18n } = useTranslation();
 
   const locale = i18n.resolvedLanguage?.startsWith('en') ? 'en-US' : 'tr-TR';
@@ -118,7 +125,22 @@ export function InvoiceTable({ invoices, sortConfig, onSort, onInvoiceSelect }: 
               invoices.map((invoice) => (
                 <tr key={invoice.id} onClick={() => onInvoiceSelect(invoice)}>
                   <td>
-                    <strong className={styles.invoiceNumber}>{invoice.invoiceNumber}</strong>
+                    <div className={styles.invoiceNumberCell}>
+                      <span>{invoice.invoiceNumber}</span>
+
+                      <button
+                        type="button"
+                        className={styles.transferButton}
+                        title={t('table.createFromInvoice')}
+                        aria-label={t('table.createFromInvoice')}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          onCreateFromInvoice(invoice);
+                        }}
+                      >
+                        ➜
+                      </button>
+                    </div>
                   </td>
 
                   <td>{invoice.customerName}</td>
