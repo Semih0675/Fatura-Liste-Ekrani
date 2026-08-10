@@ -1,14 +1,29 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+
+import type { InvoiceCustomer } from '../../../../models/invoice';
 import styles from './CustomerAddressCard.module.scss';
 
 interface CustomerAddressCardProps {
+  initialCustomer?: InvoiceCustomer;
   initialCustomerName?: string;
 }
 
-export function CustomerAddressCard({ initialCustomerName = '' }: CustomerAddressCardProps) {
+export function CustomerAddressCard({
+  initialCustomer,
+  initialCustomerName = '',
+}: CustomerAddressCardProps) {
   const { t } = useTranslation();
+
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const customerName = initialCustomer?.name ?? initialCustomerName;
+
+  const address = initialCustomer?.address;
+
+  const knownCustomers = ['Yılmaz Ticaret A.Ş.', 'Demir İnşaat Ltd. Şti.', 'Aksa Gıda San. A.Ş.'];
+
+  const knownCities = ['Ankara', 'İstanbul', 'İzmir'];
 
   function handleToggle() {
     setIsExpanded((current) => !current);
@@ -47,32 +62,31 @@ export function CustomerAddressCard({ initialCustomerName = '' }: CustomerAddres
         <label className={styles.field}>
           <span>{t('customerAddress.customerName')}</span>
 
-          <select defaultValue={initialCustomerName}>
-            <input
-              type="text"
-              defaultValue={initialCustomerName}
-              placeholder={t('customerAddress.titleNamePlaceholder')}
-            />
+          <select defaultValue={customerName}>
             <option value="" disabled>
               {t('customerAddress.selectCustomer')}
             </option>
 
-            {initialCustomerName ? (
-              <option value={initialCustomerName}>{initialCustomerName}</option>
+            {customerName && !knownCustomers.includes(customerName) ? (
+              <option value={customerName}>{customerName}</option>
             ) : null}
 
-            <option value="Yılmaz Ticaret A.Ş.">Yılmaz Ticaret A.Ş.</option>
-
-            <option value="Demir İnşaat Ltd. Şti.">Demir İnşaat Ltd. Şti.</option>
-
-            <option value="Aksa Gıda San. A.Ş.">Aksa Gıda San. A.Ş.</option>
+            {knownCustomers.map((customer) => (
+              <option key={customer} value={customer}>
+                {customer}
+              </option>
+            ))}
           </select>
         </label>
 
         <label className={styles.field}>
           <span>{t('customerAddress.titleName')}</span>
 
-          <input type="text" placeholder={t('customerAddress.titleNamePlaceholder')} />
+          <input
+            type="text"
+            defaultValue={initialCustomer?.titleName ?? customerName}
+            placeholder={t('customerAddress.titleNamePlaceholder')}
+          />
         </label>
       </div>
 
@@ -89,6 +103,7 @@ export function CustomerAddressCard({ initialCustomerName = '' }: CustomerAddres
               <input
                 type="text"
                 inputMode="numeric"
+                defaultValue={initialCustomer?.taxNumber ?? ''}
                 placeholder={t('customerAddress.taxNumberPlaceholder')}
               />
             </label>
@@ -102,13 +117,21 @@ export function CustomerAddressCard({ initialCustomerName = '' }: CustomerAddres
             <label className={styles.field}>
               <span>{t('customerAddress.taxOfficeCode')}</span>
 
-              <input type="text" placeholder={t('customerAddress.taxOfficeCodePlaceholder')} />
+              <input
+                type="text"
+                defaultValue={initialCustomer?.taxOfficeCode ?? ''}
+                placeholder={t('customerAddress.taxOfficeCodePlaceholder')}
+              />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.taxOfficeName')}</span>
 
-              <input type="text" placeholder={t('customerAddress.taxOfficeNamePlaceholder')} />
+              <input
+                type="text"
+                defaultValue={initialCustomer?.taxOfficeName ?? ''}
+                placeholder={t('customerAddress.taxOfficeNamePlaceholder')}
+              />
             </label>
 
             <div className={`${styles.sectionTitle} ${styles.fullWidth}`}>
@@ -118,73 +141,103 @@ export function CustomerAddressCard({ initialCustomerName = '' }: CustomerAddres
             <label className={`${styles.field} ${styles.fullWidth}`}>
               <span>{t('customerAddress.addressName')}</span>
 
-              <input type="text" placeholder={t('customerAddress.addressNamePlaceholder')} />
+              <input
+                type="text"
+                defaultValue={address?.addressName ?? ''}
+                placeholder={t('customerAddress.addressNamePlaceholder')}
+              />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.country')}</span>
 
-              <select defaultValue="turkey">
-                <option value="turkey">{t('customerAddress.turkey')}</option>
+              <select defaultValue={address?.country ?? 'Türkiye'}>
+                <option value="Türkiye">{t('customerAddress.turkey')}</option>
               </select>
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.city')}</span>
 
-              <select defaultValue="">
+              <select defaultValue={address?.city ?? ''}>
                 <option value="" disabled>
                   {t('customerAddress.select')}
                 </option>
 
-                <option value="ankara">Ankara</option>
-                <option value="istanbul">İstanbul</option>
-                <option value="izmir">İzmir</option>
+                {address?.city && !knownCities.includes(address.city) ? (
+                  <option value={address.city}>{address.city}</option>
+                ) : null}
+
+                {knownCities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
               </select>
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.district')}</span>
 
-              <input type="text" placeholder={t('customerAddress.select')} />
+              <input
+                type="text"
+                defaultValue={address?.district ?? ''}
+                placeholder={t('customerAddress.select')}
+              />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.neighborhood')}</span>
 
-              <input type="text" placeholder={t('customerAddress.neighborhoodPlaceholder')} />
+              <input
+                type="text"
+                defaultValue={address?.neighborhood ?? ''}
+                placeholder={t('customerAddress.neighborhoodPlaceholder')}
+              />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.avenue')}</span>
 
-              <input type="text" placeholder={t('customerAddress.avenuePlaceholder')} />
+              <input
+                type="text"
+                defaultValue={address?.avenue ?? ''}
+                placeholder={t('customerAddress.avenuePlaceholder')}
+              />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.street')}</span>
 
-              <input type="text" placeholder={t('customerAddress.streetPlaceholder')} />
+              <input
+                type="text"
+                defaultValue={address?.street ?? ''}
+                placeholder={t('customerAddress.streetPlaceholder')}
+              />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.buildingNumber')}</span>
-              <input type="text" />
+
+              <input type="text" defaultValue={address?.buildingNumber ?? ''} />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.apartmentNumber')}</span>
-              <input type="text" />
+
+              <input type="text" defaultValue={address?.apartmentNumber ?? ''} />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.postalCode')}</span>
-              <input type="text" inputMode="numeric" />
+
+              <input type="text" inputMode="numeric" defaultValue={address?.postalCode ?? ''} />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.addressCode')}</span>
-              <input type="text" />
+
+              <input type="text" defaultValue={address?.addressCode ?? ''} />
             </label>
 
             <label className={`${styles.field} ${styles.fullWidth}`}>
@@ -192,6 +245,7 @@ export function CustomerAddressCard({ initialCustomerName = '' }: CustomerAddres
 
               <textarea
                 rows={3}
+                defaultValue={address?.additionalDescription ?? ''}
                 placeholder={t('customerAddress.additionalDescriptionPlaceholder')}
               />
             </label>

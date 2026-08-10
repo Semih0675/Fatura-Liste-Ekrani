@@ -1,16 +1,15 @@
 .panel {
   position: relative;
-  width: 560px;
-  max-width: 100%;
+  z-index: 1;
+  width: 100%;
+  max-width: none;
   box-sizing: border-box;
-  flex: 0 0 430px;
   margin-top: 0;
   padding: 28px 14px 14px;
   border: 2px solid #3978f6;
   border-radius: 7px;
   background: #ffffff;
   box-shadow: 0 3px 10px rgb(15 23 42 / 10%);
-  z-index: 1;
   overflow: visible;
 }
 

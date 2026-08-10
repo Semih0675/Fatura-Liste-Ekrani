@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './DocumentInfoBar.module.scss';
+import type { InvoiceDocument, InvoiceSourceDocument } from '../../../../models/invoice';
 
 interface DocumentInfoBarProps {
+  initialDocument?: InvoiceDocument;
+  initialSourceDocuments?: InvoiceSourceDocument[];
   initialInvoiceNumber?: string;
   initialIssueDate?: string;
 }
@@ -60,20 +63,32 @@ function createSourceDocument(): SourceDocument {
 }
 
 export function DocumentInfoBar({
+  initialDocument,
+  initialSourceDocuments,
   initialInvoiceNumber = '',
   initialIssueDate = '',
 }: DocumentInfoBarProps) {
   const { t } = useTranslation();
 
-  const initialDocument = splitInvoiceNumber(initialInvoiceNumber);
+  const fallbackDocument = splitInvoiceNumber(initialInvoiceNumber);
+
+  const initialSeries = initialDocument?.series ?? fallbackDocument.series;
+
+  const initialNumber = initialDocument?.number ?? fallbackDocument.number;
 
   const [activeTab, setActiveTab] = useState<DocumentTab>('general');
 
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const [sourceDocuments, setSourceDocuments] = useState<SourceDocument[]>([
-    createSourceDocument(),
-  ]);
+  const [sourceDocuments, setSourceDocuments] = useState<SourceDocument[]>(() => {
+    if (initialSourceDocuments && initialSourceDocuments.length > 0) {
+      return initialSourceDocuments.map((document) => ({
+        ...document,
+      }));
+    }
+
+    return [createSourceDocument()];
+  });
 
   function handleGeneralTab() {
     if (activeTab === 'general') {
@@ -167,11 +182,11 @@ export function DocumentInfoBar({
             <label className={styles.field}>
               <span>{t('documentInfo.series')}</span>
 
-              <select defaultValue={initialDocument.series}>
+              <select defaultValue={initialSeries}>
                 <option value="">{t('documentInfo.select')}</option>
 
-                {initialDocument.series && !['A', 'B', 'FTR'].includes(initialDocument.series) ? (
-                  <option value={initialDocument.series}>{initialDocument.series}</option>
+                {initialSeries && !['A', 'B', 'FTR'].includes(initialSeries) ? (
+                  <option value={initialSeries}>{initialSeries}</option>
                 ) : null}
 
                 <option value="A">A</option>
@@ -182,7 +197,7 @@ export function DocumentInfoBar({
 
             <label className={styles.field}>
               <span>{t('documentInfo.number')}</span>
-              <input type="text" defaultValue={initialDocument.number} />
+              <input type="text" defaultValue={initialNumber} />
             </label>
           </div>
 
@@ -191,20 +206,31 @@ export function DocumentInfoBar({
               <label className={`${styles.field} ${styles.descriptionField}`}>
                 <span>{t('documentInfo.description')}</span>
 
-                <input type="text" placeholder={t('documentInfo.descriptionPlaceholder')} />
+                <input
+                  type="text"
+                  defaultValue={initialDocument?.description ?? ''}
+                  placeholder={t('documentInfo.descriptionPlaceholder')}
+                />
               </label>
 
               <div className={styles.detailsGrid}>
                 <label className={styles.field}>
                   <span>{t('documentInfo.dateTime')}</span>
 
-                  <input type="datetime-local" defaultValue={toDateTimeLocal(initialIssueDate)} />
+                  <input
+                    type="datetime-local"
+                    defaultValue={
+                      initialDocument?.dateTime
+                        ? toDateTimeLocal(initialDocument.dateTime)
+                        : toDateTimeLocal(initialIssueDate)
+                    }
+                  />
                 </label>
 
                 <label className={styles.field}>
                   <span>{t('documentInfo.scenario')}</span>
 
-                  <select defaultValue="eArchive">
+                  <select defaultValue={initialDocument?.scenario ?? 'eArchive'}>
                     <option value="eArchive">{t('documentInfo.eArchiveInvoice')}</option>
 
                     <option value="eInvoice">{t('documentInfo.eInvoice')}</option>
@@ -218,7 +244,7 @@ export function DocumentInfoBar({
                 <label className={styles.field}>
                   <span>{t('documentInfo.eType')}</span>
 
-                  <select defaultValue="sale">
+                  <select defaultValue={initialDocument?.eType ?? 'sale'}>
                     <option value="sale">{t('documentInfo.sale')}</option>
 
                     <option value="return">{t('documentInfo.return')}</option>
@@ -232,7 +258,7 @@ export function DocumentInfoBar({
                 <label className={styles.field}>
                   <span>{t('documentInfo.currency')}</span>
 
-                  <select defaultValue="TRY">
+                  <select defaultValue={initialDocument?.currency ?? 'TRY'}>
                     <option value="TRY">TRY</option>
                     <option value="USD">USD</option>
                     <option value="EUR">EUR</option>
@@ -241,13 +267,14 @@ export function DocumentInfoBar({
 
                 <label className={`${styles.field} ${styles.fullWidth}`}>
                   <span>{t('documentInfo.ettn')}</span>
-                  <input type="text" />
+
+                  <input type="text" defaultValue={initialDocument?.ettn ?? ''} />
                 </label>
 
                 <label className={styles.field}>
                   <span>{t('documentInfo.cashier')}</span>
 
-                  <select defaultValue="">
+                  <select defaultValue={initialDocument?.cashier ?? ''}>
                     <option value="">{t('documentInfo.select')}</option>
 
                     <option value="cashier-1">{t('documentInfo.cashierOne')}</option>
@@ -259,7 +286,7 @@ export function DocumentInfoBar({
                 <label className={styles.field}>
                   <span>{t('documentInfo.label')}</span>
 
-                  <select defaultValue="">
+                  <select defaultValue={initialDocument?.label ?? ''}>
                     <option value="">{t('documentInfo.select')}</option>
 
                     <option value="urgent">{t('documentInfo.urgent')}</option>
@@ -271,12 +298,17 @@ export function DocumentInfoBar({
 
               <div className={styles.checkboxRow}>
                 <label>
-                  <input type="checkbox" />
+                  <input type="checkbox" defaultChecked={initialDocument?.internetSale ?? false} />
+
                   <span>{t('documentInfo.internetSale')}</span>
                 </label>
 
                 <label>
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    defaultChecked={initialDocument?.deliveryReplacement ?? false}
+                  />
+
                   <span>{t('documentInfo.deliveryReplacement')}</span>
                 </label>
               </div>

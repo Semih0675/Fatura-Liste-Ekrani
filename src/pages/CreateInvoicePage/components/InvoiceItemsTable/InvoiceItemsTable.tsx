@@ -1,15 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './InvoiceItemsTable.module.scss';
+import type { InvoiceItem } from '../../../../models/invoice';
 
 type ItemType = 'product' | 'service';
 type ItemUnit = 'piece' | 'kg' | 'meter' | 'hour';
 type Currency = 'TRY' | 'USD' | 'EUR';
 
 interface InvoiceItemsTableProps {
+  initialItems?: InvoiceItem[];
   initialAmount?: number;
+  onItemsChange?: (items: InvoiceItem[]) => void;
 }
-
 interface InvoiceItemRow {
   id: string;
   type: ItemType;
@@ -45,6 +47,21 @@ function createEmptyRow(initialAmount = 0): InvoiceItemRow {
   };
 }
 
+function createRowFromInvoiceItem(item: InvoiceItem): InvoiceItemRow {
+  return {
+    id: item.id,
+    type: item.type,
+    productId: item.productId,
+    description: item.description,
+    quantity: item.quantity,
+    unit: item.unit,
+    unitPrice: item.unitPrice,
+    discountRate: item.discountRate,
+    vatRate: item.vatRate,
+    currency: item.currency,
+  };
+}
+
 function calculateRowTotal(row: InvoiceItemRow) {
   const grossAmount = row.quantity * row.unitPrice;
 
@@ -56,10 +73,42 @@ function calculateRowTotal(row: InvoiceItemRow) {
 
   return discountedAmount + vatAmount;
 }
-export function InvoiceItemsTable({ initialAmount = 0 }: InvoiceItemsTableProps) {
+export function InvoiceItemsTable({
+  initialItems,
+  initialAmount = 0,
+  onItemsChange,
+}: InvoiceItemsTableProps) {
   const { t, i18n } = useTranslation();
 
-  const [rows, setRows] = useState<InvoiceItemRow[]>(() => [createEmptyRow(initialAmount)]);
+  const [rows, setRows] = useState<InvoiceItemRow[]>(() => {
+    if (initialItems && initialItems.length > 0) {
+      return initialItems.map(createRowFromInvoiceItem);
+    }
+    useEffect(() => {
+      const invoiceItems: InvoiceItem[] = rows.map((row) => {
+        const product = products.find((item) => item.id === row.productId);
+
+        return {
+          id: row.id,
+          type: row.type,
+          productId: row.productId,
+          productName: product?.name ?? '',
+          description: row.description,
+          quantity: row.quantity,
+          unit: row.unit,
+          unitPrice: row.unitPrice,
+          discountRate: row.discountRate,
+          vatRate: row.vatRate,
+          currency: row.currency,
+          lineTotal: calculateRowTotal(row),
+        };
+      });
+
+      onItemsChange?.(invoiceItems);
+    }, [rows, onItemsChange]);
+
+    return [createEmptyRow(initialAmount)];
+  });
   const locale = i18n.resolvedLanguage?.startsWith('en') ? 'en-US' : 'tr-TR';
 
   const totalsByCurrency = useMemo(() => {
