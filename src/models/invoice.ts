@@ -129,6 +129,7 @@ export interface Invoice {
 }
 
 export type CreateInvoiceInput = Omit<Invoice, 'id'>;
+export type UpdateInvoiceInput = Omit<Invoice, 'id'>;
 
 export type InvoiceSortKey =
   'invoiceNumber' | 'customerName' | 'issueDate' | 'dueDate' | 'amount' | 'type' | 'status';

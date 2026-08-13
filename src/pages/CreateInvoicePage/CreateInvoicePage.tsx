@@ -1,13 +1,17 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
-import type { CreateInvoiceInput, Invoice, InvoiceItem } from '../../models/invoice';
+
+import type { Invoice, InvoiceItem } from '../../models/invoice';
+import { useAppDispatch } from '../../store/hooks';
+import { createInvoice, updateInvoice } from '../../store/slices/invoiceSlice';
+
 import { CustomerAddressCard } from './components/CustomerAddressCard/CustomerAddressCard';
 import { DocumentInfoBar } from './components/DocumentInfoBar/DocumentInfoBar';
 import { InvoiceItemsTable } from './components/InvoiceItemsTable/InvoiceItemsTable';
+
 import styles from './CreateInvoicePage.module.scss';
-import { useAppDispatch } from '../../store/hooks';
-import { createInvoice } from '../../store/slices/invoiceSlice';
+
 interface CreateInvoiceLocationState {
   sourceInvoice?: Invoice;
 }
@@ -16,11 +20,10 @@ export default function CreateInvoicePage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useAppDispatch();
 
   const sourceInvoice =
     (location.state as CreateInvoiceLocationState | null)?.sourceInvoice ?? null;
-
-  const dispatch = useAppDispatch();
 
   const [items, setItems] = useState<InvoiceItem[]>(sourceInvoice?.items ?? []);
 
@@ -32,6 +35,7 @@ export default function CreateInvoicePage() {
   function handleCancel() {
     navigate('/');
   }
+
   function calculateTotals(invoiceItems: InvoiceItem[]) {
     let subtotal = 0;
     let totalDiscount = 0;
@@ -39,8 +43,11 @@ export default function CreateInvoicePage() {
 
     invoiceItems.forEach((item) => {
       const gross = item.quantity * item.unitPrice;
+
       const discount = gross * (item.discountRate / 100);
+
       const discounted = gross - discount;
+
       const vat = discounted * (item.vatRate / 100);
 
       subtotal += gross;
@@ -55,60 +62,65 @@ export default function CreateInvoicePage() {
       grandTotal: subtotal - totalDiscount + totalVat,
     };
   }
+
   async function handleSave() {
-    if (items.length === 0) {
-      setSaveError('En az bir fatura kalemi eklemelisiniz.');
-      return;
-    }
+    setIsSaving(true);
+    setSaveError(null);
 
     try {
-      setIsSaving(true);
-      setSaveError(null);
-
       const totals = calculateTotals(items);
-      const now = new Date();
 
-      const invoiceNumber = `FTR-${now.getFullYear()}-${Date.now().toString().slice(-6)}`;
+      const invoiceData = {
+        invoiceNumber: sourceInvoice?.invoiceNumber ?? '',
 
-      const invoice: CreateInvoiceInput = {
-        invoiceNumber,
-        customerName: sourceInvoice?.customerName ?? 'Yeni Müşteri',
+        customerName: sourceInvoice?.customerName ?? '',
 
-        issueDate: now.toISOString().slice(0, 10),
+        issueDate: sourceInvoice?.issueDate ?? '',
 
-        dueDate: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        dueDate: sourceInvoice?.dueDate ?? '',
 
         amount: totals.grandTotal,
 
         type: sourceInvoice?.type ?? 'sale',
 
-        status: 'pending',
-
-        customer: sourceInvoice?.customer,
-        document: sourceInvoice?.document,
-
-        sourceDocuments: sourceInvoice?.sourceDocuments ?? [],
+        status: sourceInvoice?.status ?? 'pending',
 
         items,
-
-        totals,
       };
 
-      await dispatch(createInvoice(invoice)).unwrap();
+      if (sourceInvoice) {
+        /*
+         * Mevcut faturayı güncelle.
+         * ID korunuyor, yeni fatura oluşturulmuyor.
+         */
+        await dispatch(
+          updateInvoice({
+            ...sourceInvoice,
+            ...invoiceData,
+          }),
+        ).unwrap();
+      } else {
+        /*
+         * Yeni fatura oluştur.
+         */
+        await dispatch(createInvoice(invoiceData)).unwrap();
+      }
 
       navigate('/');
     } catch (error) {
-      setSaveError(typeof error === 'string' ? error : 'Fatura kaydedilirken hata oluştu.');
+      setSaveError(typeof error === 'string' ? error : t('errors.invoiceSave'));
     } finally {
       setIsSaving(false);
     }
   }
+
   function handleLanguageChange(language: 'tr' | 'en') {
     void i18n.changeLanguage(language);
   }
 
   return (
     <div className={styles.page}>
+      {/* ÜST BAR */}
       <header className={styles.topBar}>
         <div className={styles.topBarContent}>
           <div className={styles.brand}>
@@ -152,6 +164,7 @@ export default function CreateInvoicePage() {
       </header>
 
       <div className={styles.pageInner}>
+        {/* SAYFA BAŞLIĞI */}
         <section className={styles.pageHeader}>
           <div className={styles.heading}>
             <span className={styles.eyebrow}>{t('createInvoice.pageEyebrow')}</span>
@@ -159,11 +172,8 @@ export default function CreateInvoicePage() {
             <h1>{t('createInvoice.pageTitle')}</h1>
 
             <p>{t('createInvoice.pageDescription')}</p>
-            {saveError ? (
-              <div className={styles.saveError}>
-                {saveError}
-              </div>
-            ) : null}
+
+            {saveError ? <div className={styles.saveError}>{saveError}</div> : null}
 
             {sourceInvoice ? (
               <div className={styles.prefillNotice}>
@@ -177,7 +187,12 @@ export default function CreateInvoicePage() {
           </div>
 
           <div className={styles.actions}>
-            <button type="button" className={styles.cancelButton} onClick={handleCancel}>
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={handleCancel}
+              disabled={isSaving}
+            >
               {t('actions.cancel')}
             </button>
 
@@ -194,6 +209,7 @@ export default function CreateInvoicePage() {
           </div>
         </section>
 
+        {/* FATURA FORMU */}
         <section className={styles.content}>
           <div className={styles.topPanels}>
             <CustomerAddressCard

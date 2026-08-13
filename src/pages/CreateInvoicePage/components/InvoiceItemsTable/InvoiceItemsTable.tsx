@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import styles from './InvoiceItemsTable.module.scss';
+
 import type { InvoiceItem } from '../../../../models/invoice';
+import styles from './InvoiceItemsTable.module.scss';
 
 type ItemType = 'product' | 'service';
 type ItemUnit = 'piece' | 'kg' | 'meter' | 'hour';
@@ -12,6 +13,7 @@ interface InvoiceItemsTableProps {
   initialAmount?: number;
   onItemsChange?: (items: InvoiceItem[]) => void;
 }
+
 interface InvoiceItemRow {
   id: string;
   type: ItemType;
@@ -42,7 +44,7 @@ function createEmptyRow(initialAmount = 0): InvoiceItemRow {
     unit: 'piece',
     unitPrice: initialAmount,
     discountRate: 0,
-    vatRate: 0,
+    vatRate: 20,
     currency: 'TRY',
   };
 }
@@ -73,6 +75,7 @@ function calculateRowTotal(row: InvoiceItemRow) {
 
   return discountedAmount + vatAmount;
 }
+
 export function InvoiceItemsTable({
   initialItems,
   initialAmount = 0,
@@ -84,37 +87,45 @@ export function InvoiceItemsTable({
     if (initialItems && initialItems.length > 0) {
       return initialItems.map(createRowFromInvoiceItem);
     }
-    useEffect(() => {
-      const invoiceItems: InvoiceItem[] = rows.map((row) => {
-        const product = products.find((item) => item.id === row.productId);
-
-        return {
-          id: row.id,
-          type: row.type,
-          productId: row.productId,
-          productName: product?.name ?? '',
-          description: row.description,
-          quantity: row.quantity,
-          unit: row.unit,
-          unitPrice: row.unitPrice,
-          discountRate: row.discountRate,
-          vatRate: row.vatRate,
-          currency: row.currency,
-          lineTotal: calculateRowTotal(row),
-        };
-      });
-
-      onItemsChange?.(invoiceItems);
-    }, [rows, onItemsChange]);
 
     return [createEmptyRow(initialAmount)];
   });
+
+  /*
+   * Fatura kalemleri değiştiğinde parent'a gönder.
+   * Böylece CreateInvoicePage güncel kalemleri
+   * kaydetme sırasında kullanabilir.
+   */
+  useEffect(() => {
+    const invoiceItems: InvoiceItem[] = rows.map((row) => {
+      const product = products.find((item) => item.id === row.productId);
+
+      return {
+        id: row.id,
+        type: row.type,
+        productId: row.productId,
+        productName: product?.name ?? '',
+        description: row.description,
+        quantity: row.quantity,
+        unit: row.unit,
+        unitPrice: row.unitPrice,
+        discountRate: row.discountRate,
+        vatRate: row.vatRate,
+        currency: row.currency,
+        lineTotal: calculateRowTotal(row),
+      };
+    });
+
+    onItemsChange?.(invoiceItems);
+  }, [rows, onItemsChange]);
+
   const locale = i18n.resolvedLanguage?.startsWith('en') ? 'en-US' : 'tr-TR';
 
   const totalsByCurrency = useMemo(() => {
     return rows.reduce<Record<Currency, number>>(
       (totals, row) => {
         totals[row.currency] += calculateRowTotal(row);
+
         return totals;
       },
       {
@@ -141,6 +152,10 @@ export function InvoiceItemsTable({
   function addRowAfter(id: string) {
     setRows((currentRows) => {
       const rowIndex = currentRows.findIndex((row) => row.id === id);
+
+      if (rowIndex === -1) {
+        return currentRows;
+      }
 
       const nextRows = [...currentRows];
 
@@ -176,6 +191,7 @@ export function InvoiceItemsTable({
       <div className={styles.header}>
         <div>
           <h2>{t('invoiceItems.title')}</h2>
+
           <p>{t('invoiceItems.description')}</p>
         </div>
 
@@ -191,7 +207,6 @@ export function InvoiceItemsTable({
           <thead>
             <tr>
               <th className={styles.controlsHeader}>#</th>
-
               <th>{t('invoiceItems.type')}</th>
               <th>{t('invoiceItems.product')}</th>
               <th>{t('invoiceItems.descriptionColumn')}</th>

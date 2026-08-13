@@ -79,6 +79,27 @@ export const createInvoice = createAsyncThunk<
     return rejectWithValue(getHttpErrorMessage(error));
   }
 });
+export const updateInvoice = createAsyncThunk<
+  Invoice,
+  Invoice,
+  {
+    rejectValue: string;
+  }
+>(
+  'invoices/updateInvoice',
+  async (invoice, { rejectWithValue }) => {
+    try {
+      return await invoiceResource.update(
+        invoice.id,
+        invoice,
+      );
+    } catch (error) {
+      return rejectWithValue(
+        getHttpErrorMessage(error),
+      );
+    }
+  },
+);
 
 export const deleteInvoice = createAsyncThunk<
   number,
@@ -175,6 +196,19 @@ const invoiceSlice = createSlice({
 
       .addCase(deleteInvoice.rejected, (state, action) => {
         state.error = action.payload ?? 'Fatura silinirken bir hata oluştu.';
+      })
+      .addCase(updateInvoice.fulfilled, (state, action) => {
+        const index = state.items.findIndex((invoice) => invoice.id === action.payload.id);
+
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
+
+        state.error = null;
+      })
+
+      .addCase(updateInvoice.rejected, (state, action) => {
+        state.error = action.payload ?? 'Fatura güncellenirken bir hata oluştu.';
       })
 
       .addCase(createInvoice.fulfilled, (state, action) => {
