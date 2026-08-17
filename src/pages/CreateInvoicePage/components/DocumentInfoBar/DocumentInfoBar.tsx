@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import styles from './DocumentInfoBar.module.scss';
-
 import type { InvoiceDocument, InvoiceSourceDocument } from '../../../../models/invoice';
+
+import styles from './DocumentInfoBar.module.scss';
 
 interface DocumentInfoBarProps {
   initialDocument?: InvoiceDocument;
@@ -12,8 +12,11 @@ interface DocumentInfoBarProps {
   initialIssueDate?: string;
 
   onDocumentChange?: (document: InvoiceDocument) => void;
+
   onSourceDocumentsChange?: (documents: InvoiceSourceDocument[]) => void;
 }
+
+type DocumentTab = 'general' | 'source';
 
 function splitInvoiceNumber(invoiceNumber: string) {
   const match = invoiceNumber.match(/^([A-Za-zÇĞİÖŞÜçğıöşü]+)[-\s/]?(.+)$/);
@@ -24,9 +27,35 @@ function splitInvoiceNumber(invoiceNumber: string) {
   };
 }
 
-function toDateTimeLocal(value: string) {
+function getCurrentLocalTime() {
+  const now = new Date();
+
+  const hours = String(now.getHours()).padStart(2, '0');
+
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+
+  return `${hours}:${minutes}`;
+}
+
+function normalizeDateTimeLocal(value: string) {
   if (!value) {
     return '';
+  }
+
+  /*
+   * Zaten datetime-local formatındaysa
+   * Date objesine çevirmeden kullan.
+   */
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)) {
+    return value.slice(0, 16);
+  }
+
+  /*
+   * Sadece YYYY-MM-DD geldiyse
+   * mevcut saati ekle.
+   */
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return `${value}T${getCurrentLocalTime()}`;
   }
 
   const date = new Date(value);
@@ -35,27 +64,12 @@ function toDateTimeLocal(value: string) {
     return '';
   }
 
-  const timezoneOffset = date.getTimezoneOffset();
+  const timezoneOffset = date.getTimezoneOffset() * 60_000;
 
-  return new Date(date.getTime() - timezoneOffset * 60_000).toISOString().slice(0, 16);
+  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
 }
 
-type DocumentTab = 'general' | 'source';
-
-type Currency = 'TRY' | 'USD' | 'EUR';
-
-interface SourceDocument {
-  id: string;
-  documentType: string;
-  documentNumber: string;
-  documentDate: string;
-  issuer: string;
-  ettn: string;
-  amount: number;
-  currency: Currency;
-}
-
-function createSourceDocument(): SourceDocument {
+function createSourceDocument(): InvoiceSourceDocument {
   return {
     id: crypto.randomUUID(),
     documentType: '',
@@ -82,7 +96,11 @@ export function DocumentInfoBar({
 
   const [activeTab, setActiveTab] = useState<DocumentTab>('general');
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  /*
+   * Gerçek fatura giriş ekranında
+   * belge bilgileri doğrudan görünür.
+   */
+  const [isExpanded, setIsExpanded] = useState(true);
 
   const [document, setDocument] = useState<InvoiceDocument>(() => ({
     series: initialDocument?.series ?? fallbackDocument.series,
@@ -91,7 +109,7 @@ export function DocumentInfoBar({
 
     description: initialDocument?.description ?? '',
 
-    dateTime: initialDocument?.dateTime ?? initialIssueDate,
+    dateTime: normalizeDateTimeLocal(initialDocument?.dateTime ?? initialIssueDate),
 
     scenario: initialDocument?.scenario ?? 'eArchive',
 
@@ -110,90 +128,67 @@ export function DocumentInfoBar({
     deliveryReplacement: initialDocument?.deliveryReplacement ?? false,
   }));
 
-  const [sourceDocuments, setSourceDocuments] = useState<SourceDocument[]>(() => {
-    if (initialSourceDocuments && initialSourceDocuments.length > 0) {
-      return initialSourceDocuments.map((sourceDocument) => ({
-        ...sourceDocument,
-      }));
-    }
+  const [sourceDocuments, setSourceDocuments] = useState<InvoiceSourceDocument[]>(
+    initialSourceDocuments?.map((sourceDocument) => ({
+      ...sourceDocument,
+    })) ?? [],
+  );
 
-    return [createSourceDocument()];
-  });
+  /*
+   * Child state -> CreateInvoicePage
+   *
+   * Parent state artık setState
+   * callback'inin içinden güncellenmiyor.
+   * Böylece önceki React warning'i
+   * oluşmuyor.
+   */
+  useEffect(() => {
+    onDocumentChange?.(document);
+  }, [document, onDocumentChange]);
+
+  useEffect(() => {
+    onSourceDocumentsChange?.(sourceDocuments);
+  }, [sourceDocuments, onSourceDocumentsChange]);
 
   function updateDocument(changes: Partial<InvoiceDocument>) {
-    setDocument((currentDocument) => {
-      const updatedDocument = {
-        ...currentDocument,
-        ...changes,
-      };
-
-      onDocumentChange?.(updatedDocument);
-
-      return updatedDocument;
-    });
+    setDocument((currentDocument) => ({
+      ...currentDocument,
+      ...changes,
+    }));
   }
 
-  function updateSourceDocument(id: string, changes: Partial<SourceDocument>) {
-    setSourceDocuments((currentDocuments) => {
-      const updatedDocuments = currentDocuments.map((sourceDocument) =>
+  function updateSourceDocument(id: string, changes: Partial<InvoiceSourceDocument>) {
+    setSourceDocuments((currentDocuments) =>
+      currentDocuments.map((sourceDocument) =>
         sourceDocument.id === id
           ? {
               ...sourceDocument,
               ...changes,
             }
           : sourceDocument,
-      );
-
-      onSourceDocumentsChange?.(updatedDocuments);
-
-      return updatedDocuments;
-    });
+      ),
+    );
   }
 
   function addSourceDocument() {
-    setSourceDocuments((currentDocuments) => {
-      const updatedDocuments = [...currentDocuments, createSourceDocument()];
+    setSourceDocuments((currentDocuments) => [...currentDocuments, createSourceDocument()]);
 
-      onSourceDocumentsChange?.(updatedDocuments);
-
-      return updatedDocuments;
-    });
+    setActiveTab('source');
+    setIsExpanded(true);
   }
 
   function removeSourceDocument(id: string) {
-    setSourceDocuments((currentDocuments) => {
-      if (currentDocuments.length === 1) {
-        return currentDocuments;
-      }
-
-      const updatedDocuments = currentDocuments.filter(
-        (sourceDocument) => sourceDocument.id !== id,
-      );
-
-      onSourceDocumentsChange?.(updatedDocuments);
-
-      return updatedDocuments;
-    });
+    setSourceDocuments((currentDocuments) =>
+      currentDocuments.filter((sourceDocument) => sourceDocument.id !== id),
+    );
   }
 
   function handleGeneralTab() {
-    if (activeTab === 'general') {
-      setIsExpanded((currentValue) => !currentValue);
-
-      return;
-    }
-
     setActiveTab('general');
     setIsExpanded(true);
   }
 
   function handleSourceTab() {
-    if (activeTab === 'source') {
-      setIsExpanded((currentValue) => !currentValue);
-
-      return;
-    }
-
     setActiveTab('source');
     setIsExpanded(true);
   }
@@ -202,15 +197,23 @@ export function DocumentInfoBar({
     setIsExpanded((currentValue) => !currentValue);
   }
 
+  const invoiceNumberPreview = [document.series, document.number].filter(Boolean).join('-');
+
   return (
     <section className={`${styles.panel} ${isExpanded ? styles.panelOpen : ''}`}>
+      {/* ================================================
+          PANEL HEADER / TABS
+          ================================================ */}
+
       <div className={styles.tabs}>
         <button
           type="button"
           className={`${styles.tab} ${activeTab === 'general' ? styles.activeTab : ''}`}
           onClick={handleGeneralTab}
         >
-          {t('documentInfo.generalTab')}
+          {t('documentInfo.generalTab', {
+            defaultValue: 'Fatura Bilgileri',
+          })}
         </button>
 
         <button
@@ -218,7 +221,11 @@ export function DocumentInfoBar({
           className={`${styles.tab} ${activeTab === 'source' ? styles.activeTab : ''}`}
           onClick={handleSourceTab}
         >
-          {t('documentInfo.sourceTab')}
+          {t('documentInfo.sourceTab', {
+            defaultValue: 'Kaynak Belgeler',
+          })}
+
+          {sourceDocuments.length > 0 ? <span>{sourceDocuments.length}</span> : null}
         </button>
       </div>
 
@@ -227,7 +234,15 @@ export function DocumentInfoBar({
         className={styles.toggleButton}
         onClick={handleToggle}
         aria-expanded={isExpanded}
-        aria-label={isExpanded ? t('documentInfo.closeDetails') : t('documentInfo.openDetails')}
+        aria-label={
+          isExpanded
+            ? t('documentInfo.closeDetails', {
+                defaultValue: 'Belge detaylarını kapat',
+              })
+            : t('documentInfo.openDetails', {
+                defaultValue: 'Belge detaylarını aç',
+              })
+        }
       >
         <span
           className={`${styles.arrow} ${isExpanded ? styles.arrowOpen : ''}`}
@@ -237,11 +252,19 @@ export function DocumentInfoBar({
         </span>
       </button>
 
+      {/* ================================================
+          GENERAL DOCUMENT INFORMATION
+          ================================================ */}
+
       {activeTab === 'general' ? (
         <>
           <div className={styles.previewGrid}>
             <label className={styles.field}>
-              <span>{t('documentInfo.series')}</span>
+              <span>
+                {t('documentInfo.series', {
+                  defaultValue: 'Fatura Serisi',
+                })}
+              </span>
 
               <select
                 value={document.series}
@@ -251,24 +274,35 @@ export function DocumentInfoBar({
                   })
                 }
               >
-                <option value="">{t('documentInfo.select')}</option>
+                <option value="">
+                  {t('documentInfo.select', {
+                    defaultValue: 'Seçiniz',
+                  })}
+                </option>
 
-                {!['A', 'B', 'FTR'].includes(document.series) && document.series ? (
+                {document.series && !['A', 'B', 'FTR'].includes(document.series) ? (
                   <option value={document.series}>{document.series}</option>
                 ) : null}
 
-                <option value="A">A</option>
-                <option value="B">B</option>
                 <option value="FTR">FTR</option>
+
+                <option value="A">A</option>
+
+                <option value="B">B</option>
               </select>
             </label>
 
             <label className={styles.field}>
-              <span>{t('documentInfo.number')}</span>
+              <span>
+                {t('documentInfo.number', {
+                  defaultValue: 'Fatura No',
+                })}
+              </span>
 
               <input
                 type="text"
                 value={document.number}
+                placeholder="0000001"
                 onChange={(event) =>
                   updateDocument({
                     number: event.target.value,
@@ -278,30 +312,29 @@ export function DocumentInfoBar({
             </label>
           </div>
 
+          {invoiceNumberPreview ? (
+            <div className={styles.documentPreview}>
+              <span>Belge Numarası</span>
+
+              <strong>{invoiceNumberPreview}</strong>
+            </div>
+          ) : null}
+
           <div className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''}`}>
             <div className={styles.expandableInner}>
-              <label className={`${styles.field} ${styles.descriptionField}`}>
-                <span>{t('documentInfo.description')}</span>
-
-                <input
-                  type="text"
-                  value={document.description}
-                  onChange={(event) =>
-                    updateDocument({
-                      description: event.target.value,
-                    })
-                  }
-                  placeholder={t('documentInfo.descriptionPlaceholder')}
-                />
-              </label>
-
               <div className={styles.detailsGrid}>
+                {/* Tarih / Saat */}
+
                 <label className={styles.field}>
-                  <span>{t('documentInfo.dateTime')}</span>
+                  <span>
+                    {t('documentInfo.dateTime', {
+                      defaultValue: 'Düzenleme Tarihi / Saati',
+                    })}
+                  </span>
 
                   <input
                     type="datetime-local"
-                    value={toDateTimeLocal(document.dateTime)}
+                    value={document.dateTime}
                     onChange={(event) =>
                       updateDocument({
                         dateTime: event.target.value,
@@ -310,8 +343,14 @@ export function DocumentInfoBar({
                   />
                 </label>
 
+                {/* Belge profili */}
+
                 <label className={styles.field}>
-                  <span>{t('documentInfo.scenario')}</span>
+                  <span>
+                    {t('documentInfo.scenario', {
+                      defaultValue: 'Belge Profili / Senaryo',
+                    })}
+                  </span>
 
                   <select
                     value={document.scenario}
@@ -321,18 +360,40 @@ export function DocumentInfoBar({
                       })
                     }
                   >
-                    <option value="eArchive">{t('documentInfo.eArchiveInvoice')}</option>
+                    <option value="eArchive">
+                      {t('documentInfo.eArchiveInvoice', {
+                        defaultValue: 'e-Arşiv Fatura',
+                      })}
+                    </option>
 
-                    <option value="eInvoice">{t('documentInfo.eInvoice')}</option>
+                    <option value="eInvoice">
+                      {t('documentInfo.eInvoice', {
+                        defaultValue: 'e-Fatura',
+                      })}
+                    </option>
 
-                    <option value="commercial">{t('documentInfo.commercialInvoice')}</option>
+                    <option value="commercial">
+                      {t('documentInfo.commercialInvoice', {
+                        defaultValue: 'Ticari Fatura',
+                      })}
+                    </option>
 
-                    <option value="basic">{t('documentInfo.basicInvoice')}</option>
+                    <option value="basic">
+                      {t('documentInfo.basicInvoice', {
+                        defaultValue: 'Temel Fatura',
+                      })}
+                    </option>
                   </select>
                 </label>
 
+                {/* Fatura tipi */}
+
                 <label className={styles.field}>
-                  <span>{t('documentInfo.eType')}</span>
+                  <span>
+                    {t('documentInfo.eType', {
+                      defaultValue: 'Fatura Tipi',
+                    })}
+                  </span>
 
                   <select
                     value={document.eType}
@@ -342,18 +403,40 @@ export function DocumentInfoBar({
                       })
                     }
                   >
-                    <option value="sale">{t('documentInfo.sale')}</option>
+                    <option value="sale">
+                      {t('documentInfo.sale', {
+                        defaultValue: 'Satış',
+                      })}
+                    </option>
 
-                    <option value="return">{t('documentInfo.return')}</option>
+                    <option value="return">
+                      {t('documentInfo.return', {
+                        defaultValue: 'İade',
+                      })}
+                    </option>
 
-                    <option value="withholding">{t('documentInfo.withholding')}</option>
+                    <option value="withholding">
+                      {t('documentInfo.withholding', {
+                        defaultValue: 'Tevkifat',
+                      })}
+                    </option>
 
-                    <option value="exemption">{t('documentInfo.exemption')}</option>
+                    <option value="exemption">
+                      {t('documentInfo.exemption', {
+                        defaultValue: 'İstisna',
+                      })}
+                    </option>
                   </select>
                 </label>
 
+                {/* Para birimi */}
+
                 <label className={styles.field}>
-                  <span>{t('documentInfo.currency')}</span>
+                  <span>
+                    {t('documentInfo.currency', {
+                      defaultValue: 'Para Birimi',
+                    })}
+                  </span>
 
                   <select
                     value={document.currency}
@@ -363,16 +446,45 @@ export function DocumentInfoBar({
                       })
                     }
                   >
-                    <option value="TRY">TRY</option>
+                    <option value="TRY">TRY — Türk Lirası</option>
 
-                    <option value="USD">USD</option>
+                    <option value="USD">USD — Amerikan Doları</option>
 
-                    <option value="EUR">EUR</option>
+                    <option value="EUR">EUR — Euro</option>
                   </select>
                 </label>
 
+                {/* Açıklama */}
+
                 <label className={`${styles.field} ${styles.fullWidth}`}>
-                  <span>{t('documentInfo.ettn')}</span>
+                  <span>
+                    {t('documentInfo.description', {
+                      defaultValue: 'Belge Açıklaması',
+                    })}
+                  </span>
+
+                  <input
+                    type="text"
+                    value={document.description}
+                    onChange={(event) =>
+                      updateDocument({
+                        description: event.target.value,
+                      })
+                    }
+                    placeholder={t('documentInfo.descriptionPlaceholder', {
+                      defaultValue: 'Faturaya ait açıklama...',
+                    })}
+                  />
+                </label>
+
+                {/* ETTN */}
+
+                <label className={`${styles.field} ${styles.fullWidth}`}>
+                  <span>
+                    {t('documentInfo.ettn', {
+                      defaultValue: 'ETTN / UUID',
+                    })}
+                  </span>
 
                   <input
                     type="text"
@@ -382,11 +494,18 @@ export function DocumentInfoBar({
                         ettn: event.target.value,
                       })
                     }
+                    placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                   />
                 </label>
 
+                {/* Kasiyer */}
+
                 <label className={styles.field}>
-                  <span>{t('documentInfo.cashier')}</span>
+                  <span>
+                    {t('documentInfo.cashier', {
+                      defaultValue: 'Satış Personeli / Kasiyer',
+                    })}
+                  </span>
 
                   <select
                     value={document.cashier}
@@ -396,16 +515,34 @@ export function DocumentInfoBar({
                       })
                     }
                   >
-                    <option value="">{t('documentInfo.select')}</option>
+                    <option value="">
+                      {t('documentInfo.select', {
+                        defaultValue: 'Seçiniz',
+                      })}
+                    </option>
 
-                    <option value="cashier-1">{t('documentInfo.cashierOne')}</option>
+                    <option value="cashier-1">
+                      {t('documentInfo.cashierOne', {
+                        defaultValue: 'Personel 1',
+                      })}
+                    </option>
 
-                    <option value="cashier-2">{t('documentInfo.cashierTwo')}</option>
+                    <option value="cashier-2">
+                      {t('documentInfo.cashierTwo', {
+                        defaultValue: 'Personel 2',
+                      })}
+                    </option>
                   </select>
                 </label>
 
+                {/* Etiket */}
+
                 <label className={styles.field}>
-                  <span>{t('documentInfo.label')}</span>
+                  <span>
+                    {t('documentInfo.label', {
+                      defaultValue: 'Etiket',
+                    })}
+                  </span>
 
                   <select
                     value={document.label}
@@ -415,14 +552,30 @@ export function DocumentInfoBar({
                       })
                     }
                   >
-                    <option value="">{t('documentInfo.select')}</option>
+                    <option value="">
+                      {t('documentInfo.select', {
+                        defaultValue: 'Seçiniz',
+                      })}
+                    </option>
 
-                    <option value="urgent">{t('documentInfo.urgent')}</option>
+                    <option value="standard">
+                      {t('documentInfo.standard', {
+                        defaultValue: 'Standart',
+                      })}
+                    </option>
 
-                    <option value="standard">{t('documentInfo.standard')}</option>
+                    <option value="urgent">
+                      {t('documentInfo.urgent', {
+                        defaultValue: 'Acil',
+                      })}
+                    </option>
                   </select>
                 </label>
               </div>
+
+              {/* ============================================
+                  OPTIONS
+                  ============================================ */}
 
               <div className={styles.checkboxRow}>
                 <label>
@@ -436,7 +589,11 @@ export function DocumentInfoBar({
                     }
                   />
 
-                  <span>{t('documentInfo.internetSale')}</span>
+                  <span>
+                    {t('documentInfo.internetSale', {
+                      defaultValue: 'İnternet Satışı',
+                    })}
+                  </span>
                 </label>
 
                 <label>
@@ -450,168 +607,203 @@ export function DocumentInfoBar({
                     }
                   />
 
-                  <span>{t('documentInfo.deliveryReplacement')}</span>
+                  <span>
+                    {t('documentInfo.deliveryReplacement', {
+                      defaultValue: 'İrsaliye Yerine Geçer',
+                    })}
+                  </span>
                 </label>
               </div>
             </div>
           </div>
         </>
       ) : (
+        /* ================================================
+           SOURCE DOCUMENTS
+           ================================================ */
+
         <div className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''}`}>
           <div className={styles.expandableInner}>
             <div className={styles.sourceHeader}>
               <div>
-                <strong>{t('documentInfo.sourceTitle')}</strong>
+                <strong>
+                  {t('documentInfo.sourceTitle', {
+                    defaultValue: 'Kaynak Belgeler',
+                  })}
+                </strong>
 
-                <span>{t('documentInfo.sourceDescription')}</span>
+                <span>
+                  {t('documentInfo.sourceDescription', {
+                    defaultValue:
+                      'Faturaya bağlı sipariş, irsaliye, sözleşme veya diğer belgeleri ekleyin.',
+                  })}
+                </span>
               </div>
 
               <button type="button" className={styles.sourceAddButton} onClick={addSourceDocument}>
-                + {t('documentInfo.addSource')}
+                +{' '}
+                {t('documentInfo.addSource', {
+                  defaultValue: 'Kaynak Belge Ekle',
+                })}
               </button>
             </div>
 
-            <div className={styles.sourceRows}>
-              {sourceDocuments.map((sourceDocument, index) => (
-                <div key={sourceDocument.id} className={styles.sourceRow}>
-                  <div className={styles.sourceRowTitle}>
-                    <strong>
-                      {t('documentInfo.sourceRow', {
-                        number: index + 1,
-                      })}
-                    </strong>
+            {sourceDocuments.length === 0 ? (
+              <div className={styles.emptySourceState}>
+                <strong>Henüz kaynak belge yok</strong>
 
-                    <button
-                      type="button"
-                      className={styles.sourceRemoveButton}
-                      disabled={sourceDocuments.length === 1}
-                      onClick={() => removeSourceDocument(sourceDocument.id)}
-                      aria-label={t('documentInfo.removeSource')}
-                    >
-                      −
-                    </button>
-                  </div>
+                <span>
+                  İrsaliye, sipariş, sözleşme veya başka bir belge bağlamak için Kaynak Belge Ekle
+                  butonunu kullanın.
+                </span>
+              </div>
+            ) : (
+              <div className={styles.sourceRows}>
+                {sourceDocuments.map((sourceDocument, index) => (
+                  <div key={sourceDocument.id} className={styles.sourceRow}>
+                    <div className={styles.sourceRowTitle}>
+                      <strong>
+                        {t('documentInfo.sourceRow', {
+                          number: index + 1,
+                          defaultValue: `Kaynak Belge ${index + 1}`,
+                        })}
+                      </strong>
 
-                  <div className={styles.sourceGrid}>
-                    <label className={styles.field}>
-                      <span>{t('documentInfo.sourceDocumentType')}</span>
-
-                      <select
-                        value={sourceDocument.documentType}
-                        onChange={(event) =>
-                          updateSourceDocument(sourceDocument.id, {
-                            documentType: event.target.value,
-                          })
-                        }
+                      <button
+                        type="button"
+                        className={styles.sourceRemoveButton}
+                        onClick={() => removeSourceDocument(sourceDocument.id)}
+                        aria-label={t('documentInfo.removeSource', {
+                          defaultValue: 'Kaynak belgeyi sil',
+                        })}
+                        title="Kaynak belgeyi sil"
                       >
-                        <option value="">{t('documentInfo.select')}</option>
+                        −
+                      </button>
+                    </div>
 
-                        <option value="invoice">{t('documentInfo.sourceInvoice')}</option>
+                    <div className={styles.sourceGrid}>
+                      <label className={styles.field}>
+                        <span>Belge Türü</span>
 
-                        <option value="dispatchNote">{t('documentInfo.sourceDispatchNote')}</option>
+                        <select
+                          value={sourceDocument.documentType}
+                          onChange={(event) =>
+                            updateSourceDocument(sourceDocument.id, {
+                              documentType: event.target.value,
+                            })
+                          }
+                        >
+                          <option value="">Seçiniz</option>
 
-                        <option value="order">{t('documentInfo.sourceOrder')}</option>
+                          <option value="invoice">Fatura</option>
 
-                        <option value="receipt">{t('documentInfo.sourceReceipt')}</option>
+                          <option value="dispatchNote">İrsaliye</option>
 
-                        <option value="contract">{t('documentInfo.sourceContract')}</option>
-                      </select>
-                    </label>
+                          <option value="order">Sipariş</option>
 
-                    <label className={styles.field}>
-                      <span>{t('documentInfo.sourceDocumentNumber')}</span>
+                          <option value="receipt">Makbuz</option>
 
-                      <input
-                        type="text"
-                        value={sourceDocument.documentNumber}
-                        onChange={(event) =>
-                          updateSourceDocument(sourceDocument.id, {
-                            documentNumber: event.target.value,
-                          })
-                        }
-                      />
-                    </label>
+                          <option value="contract">Sözleşme</option>
+                        </select>
+                      </label>
 
-                    <label className={styles.field}>
-                      <span>{t('documentInfo.sourceDocumentDate')}</span>
+                      <label className={styles.field}>
+                        <span>Belge No</span>
 
-                      <input
-                        type="date"
-                        value={sourceDocument.documentDate}
-                        onChange={(event) =>
-                          updateSourceDocument(sourceDocument.id, {
-                            documentDate: event.target.value,
-                          })
-                        }
-                      />
-                    </label>
+                        <input
+                          type="text"
+                          value={sourceDocument.documentNumber}
+                          onChange={(event) =>
+                            updateSourceDocument(sourceDocument.id, {
+                              documentNumber: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
 
-                    <label className={styles.field}>
-                      <span>{t('documentInfo.sourceIssuer')}</span>
+                      <label className={styles.field}>
+                        <span>Belge Tarihi</span>
 
-                      <input
-                        type="text"
-                        value={sourceDocument.issuer}
-                        onChange={(event) =>
-                          updateSourceDocument(sourceDocument.id, {
-                            issuer: event.target.value,
-                          })
-                        }
-                      />
-                    </label>
+                        <input
+                          type="date"
+                          value={sourceDocument.documentDate}
+                          onChange={(event) =>
+                            updateSourceDocument(sourceDocument.id, {
+                              documentDate: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
 
-                    <label className={`${styles.field} ${styles.fullWidth}`}>
-                      <span>{t('documentInfo.sourceEttn')}</span>
+                      <label className={styles.field}>
+                        <span>Düzenleyen / Gönderen</span>
 
-                      <input
-                        type="text"
-                        value={sourceDocument.ettn}
-                        onChange={(event) =>
-                          updateSourceDocument(sourceDocument.id, {
-                            ettn: event.target.value,
-                          })
-                        }
-                      />
-                    </label>
+                        <input
+                          type="text"
+                          value={sourceDocument.issuer}
+                          onChange={(event) =>
+                            updateSourceDocument(sourceDocument.id, {
+                              issuer: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
 
-                    <label className={styles.field}>
-                      <span>{t('documentInfo.sourceAmount')}</span>
+                      <label className={`${styles.field} ${styles.fullWidth}`}>
+                        <span>ETTN / UUID</span>
 
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={sourceDocument.amount}
-                        onChange={(event) =>
-                          updateSourceDocument(sourceDocument.id, {
-                            amount: Math.max(0, Number(event.target.value)),
-                          })
-                        }
-                      />
-                    </label>
+                        <input
+                          type="text"
+                          value={sourceDocument.ettn}
+                          onChange={(event) =>
+                            updateSourceDocument(sourceDocument.id, {
+                              ettn: event.target.value,
+                            })
+                          }
+                          placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                        />
+                      </label>
 
-                    <label className={styles.field}>
-                      <span>{t('documentInfo.sourceCurrency')}</span>
+                      <label className={styles.field}>
+                        <span>Tutar</span>
 
-                      <select
-                        value={sourceDocument.currency}
-                        onChange={(event) =>
-                          updateSourceDocument(sourceDocument.id, {
-                            currency: event.target.value as Currency,
-                          })
-                        }
-                      >
-                        <option value="TRY">TRY</option>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={sourceDocument.amount}
+                          onChange={(event) =>
+                            updateSourceDocument(sourceDocument.id, {
+                              amount: Math.max(0, Number(event.target.value)),
+                            })
+                          }
+                        />
+                      </label>
 
-                        <option value="USD">USD</option>
+                      <label className={styles.field}>
+                        <span>Para Birimi</span>
 
-                        <option value="EUR">EUR</option>
-                      </select>
-                    </label>
+                        <select
+                          value={sourceDocument.currency}
+                          onChange={(event) =>
+                            updateSourceDocument(sourceDocument.id, {
+                              currency: event.target.value as InvoiceSourceDocument['currency'],
+                            })
+                          }
+                        >
+                          <option value="TRY">TRY</option>
+
+                          <option value="USD">USD</option>
+
+                          <option value="EUR">EUR</option>
+                        </select>
+                      </label>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

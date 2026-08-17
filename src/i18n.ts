@@ -31,11 +31,11 @@ const resources = {
       },
 
       invoiceStatus: {
+        draft: 'Taslak',
         paid: 'Ödendi',
         pending: 'Bekliyor',
         overdue: 'Gecikmiş',
       },
-
       errors: {
         invoiceFetch: 'Fatura verileri alınamadı.',
       },
@@ -79,20 +79,39 @@ const resources = {
       table: {
         hiddenTitle: 'Tablo gizlendi',
         hiddenDescription: 'Tabloyu yeniden görüntülemek için üst bölümdeki butona basın.',
+
         title: 'Faturalar',
+
         description: 'Kolon başlıklarına tıklayarak sıralayabilirsiniz.',
+
         caption: 'Sayfalanmış fatura listesi',
+
         rowCount: '{{count}} satır',
+
         invoiceNumber: 'Fatura No',
+
         customer: 'Müşteri',
+
         issueDate: 'Düzenleme Tarihi',
+
         dueDate: 'Vade Tarihi',
+
         amount: 'Tutar',
+
         type: 'Tip',
+
         status: 'Durum',
+
         action: 'İşlem',
+
+        unnumberedDraft: 'Numarasız Taslak',
+
+        customerNotSelected: 'Müşteri seçilmedi',
+
         emptyTitle: 'Fatura bulunamadı',
+
         emptyDescription: 'Filtrelerinizi değiştirerek tekrar deneyin.',
+
         createFromInvoice: 'Bu faturadan yeni fatura oluştur',
       },
 
@@ -341,6 +360,7 @@ const resources = {
       },
 
       invoiceStatus: {
+        draft: 'Draft',
         paid: 'Paid',
         pending: 'Pending',
         overdue: 'Overdue',
@@ -404,6 +424,8 @@ const resources = {
         action: 'Action',
         emptyTitle: 'No invoices found',
         emptyDescription: 'Change your filters and try again.',
+        unnumberedDraft: 'Unnumbered Draft',
+        customerNotSelected: 'Customer not selected',
         createFromInvoice: 'Create a new invoice from this invoice',
       },
 

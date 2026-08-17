@@ -1,0 +1,321 @@
+.section {
+  overflow: hidden;
+
+  border: 1px solid #d5dee9;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 3%),
+    0 4px 14px rgb(15 23 42 / 5%);
+}
+
+.sectionHeader {
+  display: flex;
+
+  min-height: 64px;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 13px 16px;
+
+  border-bottom: 1px solid #dce4ee;
+
+  background: #ffffff;
+
+  h2 {
+    margin: 0;
+
+    color: #172033;
+
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  p {
+    margin: 4px 0 0;
+
+    color: #718096;
+
+    font-size: 10px;
+    line-height: 1.45;
+  }
+}
+
+.badge {
+  display: inline-flex;
+
+  min-height: 29px;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 10px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+
+  color: #1d4ed8;
+  background: #eff6ff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.content {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+
+  gap: 0;
+}
+
+.notesPanel,
+.paymentPanel {
+  min-width: 0;
+
+  padding: 16px;
+}
+
+.notesPanel {
+  border-right: 1px solid #e2e8f0;
+}
+
+.panelTitle {
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  margin-bottom: 14px;
+
+  > div:last-child {
+    display: flex;
+
+    min-width: 0;
+
+    flex-direction: column;
+
+    gap: 2px;
+  }
+
+  strong {
+    color: #334155;
+
+    font-size: 11px;
+    font-weight: 900;
+  }
+
+  span {
+    color: #94a3b8;
+
+    font-size: 9px;
+    line-height: 1.35;
+  }
+}
+
+.iconBox {
+  display: grid;
+
+  width: 30px;
+  height: 30px;
+
+  flex-shrink: 0;
+
+  place-items: center;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+
+  color: #1d4ed8;
+  background: #eff6ff;
+
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.field {
+  display: flex;
+
+  min-width: 0;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  margin-bottom: 11px;
+
+  > span {
+    color: #526176;
+
+    font-size: 10px;
+    font-weight: 800;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+
+    outline: none;
+
+    color: #1e293b;
+    background: #ffffff;
+
+    font: inherit;
+    font-size: 11px;
+
+    transition:
+      border-color 140ms ease,
+      box-shadow 140ms ease,
+      background-color 140ms ease;
+
+    &:hover {
+      border-color: #94a3b8;
+    }
+
+    &:focus {
+      border-color: #2563eb;
+
+      box-shadow: 0 0 0 2px rgb(37 99 235 / 10%);
+    }
+  }
+
+  input,
+  select {
+    height: 35px;
+
+    padding: 0 9px;
+  }
+
+  textarea {
+    min-height: 74px;
+
+    padding: 9px;
+
+    line-height: 1.5;
+
+    resize: vertical;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #a0aec0;
+  }
+
+  select {
+    cursor: pointer;
+  }
+
+  small {
+    color: #94a3b8;
+
+    font-size: 9px;
+  }
+}
+
+.formGrid {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 0 10px;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.paymentInfo {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 8px;
+
+  margin-top: 3px;
+
+  padding: 9px 10px;
+
+  border: 1px solid #dbeafe;
+  border-radius: 6px;
+
+  color: #475569;
+  background: #f8fbff;
+
+  p {
+    margin: 0;
+
+    font-size: 9px;
+    line-height: 1.5;
+  }
+}
+
+.infoIcon {
+  display: grid;
+
+  width: 17px;
+  height: 17px;
+
+  flex-shrink: 0;
+
+  place-items: center;
+
+  border-radius: 50%;
+
+  color: #ffffff;
+  background: #2563eb;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+  .content {
+    grid-template-columns: 1fr;
+  }
+
+  .notesPanel {
+    border-right: 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+}
+
+@media (max-width: 560px) {
+  .sectionHeader {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 8px;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fullWidth {
+    grid-column: auto;
+  }
+
+  .notesPanel,
+  .paymentPanel {
+    padding: 12px;
+  }
+}

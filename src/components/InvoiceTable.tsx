@@ -1,16 +1,23 @@
 import classNames from 'classnames/bind';
 import { useTranslation } from 'react-i18next';
+
 import type { Invoice, InvoiceSortConfig, InvoiceSortKey } from '../models/invoice';
+
 import { formatDate, formatMoney } from '../utils/formatters';
+
 import styles from './InvoiceTable.module.scss';
 
 const cx = classNames.bind(styles);
 
 interface InvoiceTableProps {
   invoices: Invoice[];
+
   sortConfig: InvoiceSortConfig;
+
   onSort: (sortKey: InvoiceSortKey) => void;
+
   onInvoiceSelect: (invoice: Invoice) => void;
+
   onCreateFromInvoice: (invoice: Invoice) => void;
 }
 
@@ -44,39 +51,86 @@ export function InvoiceTable({
   const columns: InvoiceColumn[] = [
     {
       key: 'invoiceNumber',
+
       label: t('table.invoiceNumber'),
     },
+
     {
       key: 'customerName',
+
       label: t('table.customer'),
     },
+
     {
       key: 'issueDate',
+
       label: t('table.issueDate'),
     },
+
     {
       key: 'dueDate',
+
       label: t('table.dueDate'),
     },
+
     {
       key: 'amount',
+
       label: t('table.amount'),
     },
+
     {
       key: 'type',
+
       label: t('table.type'),
     },
+
     {
       key: 'status',
+
       label: t('table.status'),
     },
   ];
+
+  function getInvoiceNumber(invoice: Invoice) {
+    if (invoice.invoiceNumber?.trim()) {
+      return invoice.invoiceNumber;
+    }
+
+    if (invoice.status === 'draft') {
+      return t('table.unnumberedDraft', {
+        defaultValue: 'Numarasız Taslak',
+      });
+    }
+
+    return '—';
+  }
+
+  function getCustomerName(invoice: Invoice) {
+    return (
+      invoice.customerName?.trim() ||
+      t('table.customerNotSelected', {
+        defaultValue: 'Müşteri seçilmedi',
+      })
+    );
+  }
+
+  function getFormattedDate(value: string) {
+    if (!value) {
+      return '—';
+    }
+
+    const formatted = formatDate(value, locale);
+
+    return formatted || '—';
+  }
 
   return (
     <section className={styles.card}>
       <div className={styles.cardHeader}>
         <div>
           <h2>{t('table.title')}</h2>
+
           <p>{t('table.description')}</p>
         </div>
 
@@ -123,10 +177,22 @@ export function InvoiceTable({
           <tbody>
             {invoices.length > 0 ? (
               invoices.map((invoice) => (
-                <tr key={invoice.id} onClick={() => onInvoiceSelect(invoice)}>
+                <tr
+                  key={invoice.id}
+                  className={cx({
+                    draftRow: invoice.status === 'draft',
+                  })}
+                  onClick={() => onInvoiceSelect(invoice)}
+                >
                   <td>
                     <div className={styles.invoiceNumberCell}>
-                      <span>{invoice.invoiceNumber}</span>
+                      <span
+                        className={cx({
+                          draftInvoiceNumber: invoice.status === 'draft',
+                        })}
+                      >
+                        {getInvoiceNumber(invoice)}
+                      </span>
 
                       <button
                         type="button"
@@ -135,6 +201,7 @@ export function InvoiceTable({
                         aria-label={t('table.createFromInvoice')}
                         onClick={(event) => {
                           event.stopPropagation();
+
                           onCreateFromInvoice(invoice);
                         }}
                       >
@@ -143,11 +210,19 @@ export function InvoiceTable({
                     </div>
                   </td>
 
-                  <td>{invoice.customerName}</td>
+                  <td>
+                    <span
+                      className={cx({
+                        mutedValue: !invoice.customerName?.trim(),
+                      })}
+                    >
+                      {getCustomerName(invoice)}
+                    </span>
+                  </td>
 
-                  <td>{formatDate(invoice.issueDate, locale)}</td>
+                  <td>{getFormattedDate(invoice.issueDate)}</td>
 
-                  <td>{formatDate(invoice.dueDate, locale)}</td>
+                  <td>{getFormattedDate(invoice.dueDate)}</td>
 
                   <td className={styles.amount}>{formatMoney(invoice.amount, locale)}</td>
 
@@ -158,8 +233,12 @@ export function InvoiceTable({
                   <td>
                     <span
                       className={cx('statusBadge', {
+                        draft: invoice.status === 'draft',
+
                         paid: invoice.status === 'paid',
+
                         pending: invoice.status === 'pending',
+
                         overdue: invoice.status === 'overdue',
                       })}
                     >
@@ -172,6 +251,7 @@ export function InvoiceTable({
               <tr>
                 <td className={styles.emptyRow} colSpan={columns.length}>
                   <strong>{t('table.emptyTitle')}</strong>
+
                   <span>{t('table.emptyDescription')}</span>
                 </td>
               </tr>

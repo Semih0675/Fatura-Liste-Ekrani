@@ -1,4 +1,4 @@
-export type InvoiceStatus = 'paid' | 'pending' | 'overdue';
+export type InvoiceStatus = 'draft' | 'paid' | 'pending' | 'overdue';
 
 export type InvoiceType = 'sale' | 'purchase';
 
@@ -12,23 +12,33 @@ export type InvoiceScenario = 'eArchive' | 'eInvoice' | 'commercial' | 'basic';
 
 export type InvoiceEType = 'sale' | 'return' | 'withholding' | 'exemption';
 
+/* =========================================================
+   CUSTOMER
+   ========================================================= */
+
 export interface InvoiceCustomerAddress {
   addressName: string;
+
   country: string;
   city: string;
   district: string;
+
   neighborhood: string;
   avenue: string;
   street: string;
+
   buildingNumber: string;
   apartmentNumber: string;
+
   postalCode: string;
   addressCode: string;
+
   additionalDescription: string;
 }
 
 export interface InvoiceCustomer {
   id: string;
+
   name: string;
   titleName: string;
 
@@ -42,9 +52,14 @@ export interface InvoiceCustomer {
   address: InvoiceCustomerAddress;
 }
 
+/* =========================================================
+   DOCUMENT
+   ========================================================= */
+
 export interface InvoiceDocument {
   series: string;
   number: string;
+
   description: string;
 
   dateTime: string;
@@ -63,6 +78,10 @@ export interface InvoiceDocument {
   deliveryReplacement: boolean;
 }
 
+/* =========================================================
+   SOURCE DOCUMENT
+   ========================================================= */
+
 export interface InvoiceSourceDocument {
   id: string;
 
@@ -71,11 +90,17 @@ export interface InvoiceSourceDocument {
   documentDate: string;
 
   issuer: string;
+
   ettn: string;
 
   amount: number;
+
   currency: InvoiceCurrency;
 }
+
+/* =========================================================
+   INVOICE ITEMS
+   ========================================================= */
 
 export interface InvoiceItem {
   id: string;
@@ -88,11 +113,13 @@ export interface InvoiceItem {
   description: string;
 
   quantity: number;
+
   unit: InvoiceItemUnit;
 
   unitPrice: number;
 
   discountRate: number;
+
   vatRate: number;
 
   currency: InvoiceCurrency;
@@ -100,36 +127,113 @@ export interface InvoiceItem {
   lineTotal: number;
 }
 
+/* =========================================================
+   PAYMENT
+   ========================================================= */
+
+export type InvoicePaymentMethod = 'cash' | 'bankTransfer' | 'creditCard' | 'other';
+
+export interface InvoicePaymentInfo {
+  method: InvoicePaymentMethod;
+
+  accountName: string;
+
+  bankName: string;
+
+  iban: string;
+
+  paymentDescription: string;
+}
+
+/* =========================================================
+   ADDITIONAL / NOTES
+   ========================================================= */
+
+export interface InvoiceAdditionalInfo {
+  /*
+   * Faturada müşteriye gösterilecek açıklama.
+   */
+  note: string;
+
+  /*
+   * Sadece şirket içi kullanım için not.
+   */
+  privateNote: string;
+}
+
+/* =========================================================
+   TOTALS
+   ========================================================= */
+
 export interface InvoiceTotals {
   subtotal: number;
+
   totalDiscount: number;
+
   totalVat: number;
+
   grandTotal: number;
 }
+
+/* =========================================================
+   INVOICE
+   ========================================================= */
 
 export interface Invoice {
   id: number;
 
-  // Liste ekranındaki mevcut alanlar
+  /*
+   * Liste ekranında kullanılan ana alanlar.
+   */
   invoiceNumber: string;
+
   customerName: string;
+
   issueDate: string;
+
   dueDate: string;
+
   amount: number;
 
   type: InvoiceType;
+
   status: InvoiceStatus;
 
-  // Yeni detaylı alanlar
+  /*
+   * Detaylı fatura bilgileri.
+   */
   customer?: InvoiceCustomer;
+
   document?: InvoiceDocument;
+
   sourceDocuments?: InvoiceSourceDocument[];
+
   items?: InvoiceItem[];
+
   totals?: InvoiceTotals;
+
+  /*
+   * Ödeme / banka bilgileri.
+   */
+  payment?: InvoicePaymentInfo;
+
+  /*
+   * Fatura ve dahili notlar.
+   */
+  additionalInfo?: InvoiceAdditionalInfo;
 }
 
+/* =========================================================
+   CREATE / UPDATE
+   ========================================================= */
+
 export type CreateInvoiceInput = Omit<Invoice, 'id'>;
+
 export type UpdateInvoiceInput = Omit<Invoice, 'id'>;
+
+/* =========================================================
+   SORTING
+   ========================================================= */
 
 export type InvoiceSortKey =
   'invoiceNumber' | 'customerName' | 'issueDate' | 'dueDate' | 'amount' | 'type' | 'status';
@@ -138,8 +242,13 @@ export type SortDirection = 'ascending' | 'descending';
 
 export interface InvoiceSortConfig {
   key: InvoiceSortKey;
+
   direction: SortDirection;
 }
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
 
 export interface InvoiceFilterValues {
   searchTerm: string;
@@ -149,9 +258,11 @@ export interface InvoiceFilterValues {
   statuses: InvoiceStatus[];
 
   issueDateFrom: string | null;
+
   issueDateTo: string | null;
 
   minAmount: number | null;
+
   maxAmount: number | null;
 }
 
@@ -159,9 +270,14 @@ export interface InvoiceFiltersState extends InvoiceFilterValues {
   sortConfig: InvoiceSortConfig;
 }
 
+/* =========================================================
+   PAGINATION
+   ========================================================= */
+
 export type InvoicePageSize = 10 | 25 | 50;
 
 export interface InvoicePaginationState {
   currentPage: number;
+
   pageSize: InvoicePageSize;
 }

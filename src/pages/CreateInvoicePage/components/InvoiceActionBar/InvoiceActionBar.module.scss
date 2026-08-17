@@ -1,0 +1,287 @@
+.wrapper {
+  position: sticky;
+  z-index: 300;
+  bottom: 0;
+
+  width: 100%;
+
+  margin-top: 4px;
+  padding-top: 8px;
+
+  background: linear-gradient(180deg, transparent 0%, rgb(246 248 251 / 92%) 32%, #f6f8fb 100%);
+}
+
+.bar {
+  display: flex;
+
+  min-height: 72px;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 24px;
+
+  box-sizing: border-box;
+
+  padding: 10px 14px;
+
+  border: 1px solid #ccd8e6;
+  border-radius: 10px;
+
+  background: rgb(255 255 255 / 96%);
+
+  box-shadow:
+    0 -4px 20px rgb(15 23 42 / 5%),
+    0 8px 28px rgb(15 23 42 / 10%);
+
+  backdrop-filter: blur(10px);
+}
+
+.invoiceInfo {
+  display: flex;
+
+  min-width: 0;
+
+  align-items: center;
+
+  gap: 18px;
+}
+
+.infoItem {
+  display: flex;
+
+  min-width: 0;
+
+  flex-direction: column;
+
+  gap: 3px;
+
+  span {
+    color: #94a3b8;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
+  }
+
+  strong {
+    max-width: 220px;
+
+    overflow: hidden;
+
+    color: #334155;
+
+    font-size: 11px;
+    font-weight: 900;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 30px;
+
+  flex-shrink: 0;
+
+  background: #e2e8f0;
+}
+
+.rightArea {
+  display: flex;
+
+  flex-shrink: 0;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+.total {
+  display: flex;
+
+  min-width: 160px;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 2px;
+
+  span {
+    color: #64748b;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+    letter-spacing: 0.04em;
+  }
+
+  strong {
+    color: #123f73;
+
+    font-size: 18px;
+    font-weight: 900;
+
+    font-variant-numeric: tabular-nums;
+
+    letter-spacing: -0.025em;
+  }
+}
+
+.actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+}
+
+.cancelButton,
+.previewButton,
+.draftButton,
+.saveButton {
+  display: inline-flex;
+
+  min-height: 38px;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 14px;
+
+  border-radius: 6px;
+
+  font: inherit;
+  font-size: 10px;
+  font-weight: 900;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+}
+
+.cancelButton {
+  border: 1px solid #cbd5e1;
+
+  color: #475569;
+  background: #ffffff;
+
+  &:hover:not(:disabled) {
+    border-color: #94a3b8;
+    background: #f8fafc;
+  }
+}
+
+.previewButton {
+  border: 1px solid #93b4ec;
+
+  color: #1d4ed8;
+  background: #eff6ff;
+
+  &:hover:not(:disabled) {
+    border-color: #2563eb;
+
+    background: #dbeafe;
+  }
+}
+
+.draftButton {
+  border: 1px solid #64748b;
+
+  color: #475569;
+  background: #ffffff;
+
+  &:hover:not(:disabled) {
+    border-color: #475569;
+
+    color: #ffffff;
+    background: #475569;
+
+    box-shadow: 0 4px 12px rgb(71 85 105 / 16%);
+  }
+}
+
+.saveButton {
+  min-width: 135px;
+
+  border: 1px solid #1d4ed8;
+
+  color: #ffffff;
+  background: #2563eb;
+
+  &:hover:not(:disabled) {
+    border-color: #1e40af;
+
+    background: #1d4ed8;
+
+    box-shadow: 0 5px 14px rgb(37 99 235 / 20%);
+  }
+}
+
+@media (max-width: 1100px) {
+  .bar {
+    align-items: stretch;
+
+    flex-direction: column;
+
+    gap: 10px;
+  }
+
+  .rightArea {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 700px) {
+  .invoiceInfo {
+    display: none;
+  }
+
+  .rightArea {
+    width: 100%;
+
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .total {
+    align-items: flex-start;
+  }
+
+  .actions {
+    width: 100%;
+
+    flex-wrap: wrap;
+
+    button {
+      flex: 1 1 calc(50% - 4px);
+    }
+  }
+}
+
+@media (max-width: 460px) {
+  .actions {
+    button {
+      flex-basis: 100%;
+    }
+  }
+}

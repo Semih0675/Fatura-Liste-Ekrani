@@ -49,7 +49,7 @@ function createValidationSchema(t: TFunction) {
 
     statuses: yup
       .array()
-      .of(yup.mixed<InvoiceStatus>().oneOf(['paid', 'pending', 'overdue']).required())
+      .of(yup.mixed<InvoiceStatus>().oneOf(['draft', 'paid', 'pending', 'overdue']).required())
       .required(),
 
     issueDateFrom: yup.date().nullable().typeError(t('validation.invalidDate')),
@@ -189,15 +189,26 @@ export function FilterForm({
   const statusOptions = useMemo<InvoiceStatusOption[]>(
     () => [
       {
+        value: 'draft',
+
+        label: t('invoiceStatus.draft'),
+      },
+
+      {
         value: 'paid',
+
         label: t('invoiceStatus.paid'),
       },
+
       {
         value: 'pending',
+
         label: t('invoiceStatus.pending'),
       },
+
       {
         value: 'overdue',
+
         label: t('invoiceStatus.overdue'),
       },
     ],

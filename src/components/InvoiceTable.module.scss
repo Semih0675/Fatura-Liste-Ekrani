@@ -2,9 +2,12 @@
 
 .card {
   overflow: hidden;
+
   border: 1px solid #d8e1ee;
   border-radius: 16px;
+
   background: #ffffff;
+
   box-shadow:
     0 1px 2px rgb(15 23 42 / 4%),
     0 12px 32px rgb(15 23 42 / 7%);
@@ -12,29 +15,39 @@
 
 .cardHeader {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   padding: 20px;
+
   border-bottom: 1px solid variables.$color-border;
 
   h2 {
     margin: 0;
+
     color: variables.$color-primary-900;
+
     font-size: 19px;
   }
 
   p {
     margin: 5px 0 0;
+
     color: variables.$color-muted;
+
     font-size: 14px;
   }
 }
 
 .countBadge {
   padding: 6px 10px;
+
   border-radius: variables.$radius-pill;
+
   color: variables.$color-primary-700;
   background: variables.$color-primary-100;
+
   font-size: 12px;
   font-weight: 700;
 }
@@ -46,31 +59,41 @@
 .table {
   width: 100%;
   min-width: 980px;
+
   border-collapse: collapse;
 
   th,
   td {
     padding: 14px 16px;
+
     text-align: left;
+
     white-space: nowrap;
   }
 
   th {
     color: variables.$color-surface;
     background: variables.$color-primary-900;
+
     font-size: 12px;
     font-weight: 700;
   }
 
   td {
     border-bottom: 1px solid #e3e8f0;
+
     color: variables.$color-text;
+
     font-size: 13px;
   }
 
   tbody {
     tr {
-      transition: background-color 120ms ease;
+      cursor: pointer;
+
+      transition:
+        background-color 120ms ease,
+        box-shadow 120ms ease;
 
       &:nth-child(even) {
         background: variables.$color-row-alternate;
@@ -89,22 +112,64 @@
   }
 }
 
+/* =========================================================
+   DRAFT ROW
+   ========================================================= */
+
+.draftRow {
+  td {
+    background: rgb(248 250 252 / 62%);
+  }
+
+  &:hover {
+    td {
+      background: #f1f5f9;
+    }
+  }
+}
+
+.draftInvoiceNumber {
+  color: #64748b !important;
+
+  font-style: italic;
+  font-weight: 800 !important;
+}
+
+.mutedValue {
+  color: #94a3b8;
+
+  font-style: italic;
+}
+
+/* =========================================================
+   SORT
+   ========================================================= */
+
 .sortButton {
   display: inline-flex;
+
+  width: 100%;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 8px;
-  width: 100%;
+
   padding: 0;
+
   border: 0;
+
   color: inherit;
   background: transparent;
+
   font: inherit;
   text-align: left;
+
   cursor: pointer;
 
   &:focus-visible {
     border-radius: 3px;
+
     outline: 2px solid variables.$color-surface;
     outline-offset: 3px;
   }
@@ -112,6 +177,7 @@
 
 .sortIndicator {
   color: rgb(255 255 255 / 55%);
+
   font-size: 10px;
 
   &.active {
@@ -119,28 +185,51 @@
   }
 }
 
+/* =========================================================
+   CELLS
+   ========================================================= */
+
 .invoiceNumber {
   color: variables.$color-primary-600;
+
   font-weight: 700;
 }
 
 .amount {
   font-weight: 700;
+
+  font-variant-numeric: tabular-nums;
 }
 
 .type {
   color: variables.$color-muted;
 }
 
+/* =========================================================
+   STATUS
+   ========================================================= */
+
 .statusBadge {
   display: inline-flex;
+
+  min-width: 72px;
+
   align-items: center;
   justify-content: center;
-  min-width: 72px;
+
   padding: 5px 9px;
+
   border-radius: variables.$radius-pill;
+
   font-size: 12px;
   font-weight: 700;
+
+  &.draft {
+    border: 1px solid #cbd5e1;
+
+    color: #475569;
+    background: #f1f5f9;
+  }
 
   &.paid {
     color: variables.$color-success;
@@ -158,8 +247,13 @@
   }
 }
 
+/* =========================================================
+   EMPTY
+   ========================================================= */
+
 .emptyRow {
   height: 180px;
+
   text-align: center !important;
 
   strong,
@@ -169,54 +263,83 @@
 
   strong {
     margin-bottom: 7px;
+
     color: variables.$color-primary-900;
+
     font-size: 16px;
   }
 
   span {
     color: variables.$color-muted;
+
     font-weight: 400;
   }
 }
 
+/* =========================================================
+   SCREEN READER
+   ========================================================= */
+
 .srOnly {
   position: absolute;
+
   width: 1px;
   height: 1px;
+
   overflow: hidden;
+
   padding: 0;
   margin: -1px;
+
   border: 0;
+
   clip: rect(0, 0, 0, 0);
+
   white-space: nowrap;
 }
 
+/* =========================================================
+   NUMBER + TRANSFER
+   ========================================================= */
+
 .invoiceNumberCell {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 8px;
 
   span {
     font-weight: 700;
+
     white-space: nowrap;
   }
 }
 
 .transferButton {
   display: grid;
+
   width: 28px;
   height: 28px;
+
   flex: 0 0 28px;
+
   padding: 0;
+
   place-items: center;
+
   border: 1px solid #93c5fd;
   border-radius: 50%;
+
   color: #2563eb;
   background: #eff6ff;
+
   font-size: 15px;
   font-weight: 800;
+
   cursor: pointer;
+
   transition:
     color 160ms ease,
     background 160ms ease,
@@ -226,7 +349,9 @@
   &:hover {
     color: #ffffff;
     background: #2563eb;
+
     box-shadow: 0 6px 14px rgb(37 99 235 / 25%);
+
     transform: translateX(2px) scale(1.06);
   }
 

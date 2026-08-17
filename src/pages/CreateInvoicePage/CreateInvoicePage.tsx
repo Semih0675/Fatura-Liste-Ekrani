@@ -1,15 +1,35 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
+
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import type { Invoice, InvoiceCustomer, InvoiceItem } from '../../models/invoice';
+import type {
+  CreateInvoiceInput,
+  Invoice,
+  InvoiceAdditionalInfo,
+  InvoiceCustomer,
+  InvoiceDocument,
+  InvoiceItem,
+  InvoicePaymentInfo,
+  InvoiceSourceDocument,
+} from '../../models/invoice';
 
 import { useAppDispatch } from '../../store/hooks';
-import { createInvoice, updateInvoice } from '../../store/slices/invoiceSlice';
+
+import { createDraftInvoice, createInvoice } from '../../store/slices/invoiceSlice';
 
 import { CustomerAddressCard } from './components/CustomerAddressCard/CustomerAddressCard';
+
 import { DocumentInfoBar } from './components/DocumentInfoBar/DocumentInfoBar';
+
 import { InvoiceItemsTable } from './components/InvoiceItemsTable/InvoiceItemsTable';
+
+import { InvoicePaymentPanel } from './components/InvoicePaymentPanel/InvoicePaymentPanel';
+
+import { InvoiceActionBar } from './components/InvoiceActionBar/InvoiceActionBar';
+
+import { InvoicePreviewModal } from './components/InvoicePreviewModal/InvoicePreviewModal';
 
 import styles from './CreateInvoicePage.module.scss';
 
@@ -17,117 +37,412 @@ interface CreateInvoiceLocationState {
   sourceInvoice?: Invoice;
 }
 
+type SavingMode = 'draft' | 'final' | null;
+
+/* =========================================================
+   DATE HELPERS
+   ========================================================= */
+
+function formatLocalDate(date: Date): string {
+  const timezoneOffset = date.getTimezoneOffset() * 60_000;
+
+  return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 10);
+}
+
+function getToday(): string {
+  return formatLocalDate(new Date());
+}
+
+function getDefaultDueDate(): string {
+  const date = new Date();
+
+  date.setDate(date.getDate() + 30);
+
+  return formatLocalDate(date);
+}
+
+/* =========================================================
+   TOTALS
+   ========================================================= */
+
+function calculateTotals(invoiceItems: InvoiceItem[]) {
+  let subtotal = 0;
+  let totalDiscount = 0;
+  let totalVat = 0;
+
+  invoiceItems.forEach((item) => {
+    const gross = item.quantity * item.unitPrice;
+
+    const discount = gross * (item.discountRate / 100);
+
+    const discounted = gross - discount;
+
+    const vat = discounted * (item.vatRate / 100);
+
+    subtotal += gross;
+
+    totalDiscount += discount;
+
+    totalVat += vat;
+  });
+
+  return {
+    subtotal,
+
+    totalDiscount,
+
+    totalVat,
+
+    grandTotal: subtotal - totalDiscount + totalVat,
+  };
+}
+
+/* =========================================================
+   PAGE
+   ========================================================= */
+
 export default function CreateInvoicePage() {
   const { t, i18n } = useTranslation();
+
   const navigate = useNavigate();
+
   const location = useLocation();
+
   const dispatch = useAppDispatch();
+
+  /* =======================================================
+     SOURCE INVOICE
+
+     Sadece ön doldurma için kullanılır.
+     Eski faturayı güncellemez.
+     ======================================================= */
 
   const sourceInvoice =
     (location.state as CreateInvoiceLocationState | null)?.sourceInvoice ?? null;
 
+  /* =======================================================
+     DEFAULT DATES
+     ======================================================= */
+
+  const initialIssueDate = sourceInvoice?.issueDate || getToday();
+
+  const initialDueDate = sourceInvoice?.dueDate || getDefaultDueDate();
+
+  /* =======================================================
+     ITEMS
+     ======================================================= */
+
   const [items, setItems] = useState<InvoiceItem[]>(sourceInvoice?.items ?? []);
+
+  /* =======================================================
+     CUSTOMER
+     ======================================================= */
 
   const [customer, setCustomer] = useState<InvoiceCustomer | undefined>(sourceInvoice?.customer);
 
-  const [document, setDocument] = useState(sourceInvoice?.document);
+  /* =======================================================
+     DOCUMENT
+     ======================================================= */
 
-  const [sourceDocuments, setSourceDocuments] = useState(sourceInvoice?.sourceDocuments ?? []);
+  const [document, setDocument] = useState<InvoiceDocument | undefined>(sourceInvoice?.document);
 
-  const [isSaving, setIsSaving] = useState(false);
+  /* =======================================================
+     SOURCE DOCUMENTS
+     ======================================================= */
+
+  const [sourceDocuments, setSourceDocuments] = useState<InvoiceSourceDocument[]>(
+    sourceInvoice?.sourceDocuments ?? [],
+  );
+
+  /* =======================================================
+     PAYMENT
+     ======================================================= */
+
+  const [payment, setPayment] = useState<InvoicePaymentInfo>(
+    sourceInvoice?.payment ?? {
+      method: 'bankTransfer',
+
+      accountName: '',
+
+      bankName: '',
+
+      iban: '',
+
+      paymentDescription: '',
+    },
+  );
+
+  /* =======================================================
+     ADDITIONAL INFO
+     ======================================================= */
+
+  const [additionalInfo, setAdditionalInfo] = useState<InvoiceAdditionalInfo>(
+    sourceInvoice?.additionalInfo ?? {
+      note: '',
+
+      privateNote: '',
+    },
+  );
+
+  /* =======================================================
+     DUE DATE
+     ======================================================= */
+
+  const [dueDate, setDueDate] = useState(initialDueDate);
+
+  /* =======================================================
+     SAVE
+     ======================================================= */
+
+  const [savingMode, setSavingMode] = useState<SavingMode>(null);
+
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  const isSaving = savingMode !== null;
+
+  /* =======================================================
+     PREVIEW
+     ======================================================= */
+
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  /* =======================================================
+     LANGUAGE
+     ======================================================= */
+
   const isEnglish = i18n.resolvedLanguage?.startsWith('en') ?? false;
+
+  /* =======================================================
+     TOTALS
+     ======================================================= */
+
+  const totals = useMemo(() => calculateTotals(items), [items]);
+
+  /* =======================================================
+     ISSUE DATE
+     ======================================================= */
+
+  const issueDate = useMemo(() => {
+    if (!document?.dateTime) {
+      return initialIssueDate;
+    }
+
+    const documentDate = document.dateTime.slice(0, 10);
+
+    return documentDate || initialIssueDate;
+  }, [document?.dateTime, initialIssueDate]);
+
+  /* =======================================================
+     INVOICE NUMBER
+     ======================================================= */
+
+  const invoiceNumber = useMemo(() => {
+    const series = document?.series?.trim();
+
+    const number = document?.number?.trim();
+
+    if (series && number) {
+      return `${series}-${number}`;
+    }
+
+    if (number) {
+      return number;
+    }
+
+    return '';
+  }, [document?.series, document?.number]);
+
+  /* =======================================================
+     NAVIGATION
+     ======================================================= */
 
   function handleCancel() {
     navigate('/');
   }
 
-  function calculateTotals(invoiceItems: InvoiceItem[]) {
-    let subtotal = 0;
-    let totalDiscount = 0;
-    let totalVat = 0;
+  /* =======================================================
+     FINAL VALIDATION
+     ======================================================= */
 
-    invoiceItems.forEach((item) => {
-      const gross = item.quantity * item.unitPrice;
+  function validateInvoice(): string | null {
+    if (!customer?.name?.trim()) {
+      return 'Lütfen müşteri seçiniz.';
+    }
 
-      const discount = gross * (item.discountRate / 100);
+    if (items.length === 0) {
+      return 'Faturaya en az bir kalem ekleyiniz.';
+    }
 
-      const discounted = gross - discount;
+    const hasValidItem = items.some(
+      (item) =>
+        item.quantity > 0 &&
+        item.unitPrice >= 0 &&
+        Boolean(item.productName?.trim() || item.description?.trim()),
+    );
 
-      const vat = discounted * (item.vatRate / 100);
+    if (!hasValidItem) {
+      return 'En az bir geçerli ürün veya hizmet kalemi giriniz.';
+    }
 
-      subtotal += gross;
-      totalDiscount += discount;
-      totalVat += vat;
-    });
+    if (!issueDate) {
+      return 'Fatura tarihi boş bırakılamaz.';
+    }
 
+    if (!dueDate) {
+      return 'Vade tarihi boş bırakılamaz.';
+    }
+
+    const issueDateValue = new Date(issueDate).getTime();
+
+    const dueDateValue = new Date(dueDate).getTime();
+
+    if (Number.isNaN(issueDateValue) || Number.isNaN(dueDateValue)) {
+      return 'Geçersiz tarih bilgisi.';
+    }
+
+    if (dueDateValue < issueDateValue) {
+      return 'Vade tarihi fatura tarihinden önce olamaz.';
+    }
+
+    return null;
+  }
+
+  /* =======================================================
+     BUILD INVOICE
+     ======================================================= */
+
+  function buildInvoiceInput(status: Invoice['status']): CreateInvoiceInput {
     return {
-      subtotal,
-      totalDiscount,
-      totalVat,
-      grandTotal: subtotal - totalDiscount + totalVat,
+      invoiceNumber,
+
+      customerName: customer?.name ?? '',
+
+      issueDate,
+
+      dueDate,
+
+      amount: totals.grandTotal,
+
+      type: sourceInvoice?.type ?? 'sale',
+
+      status,
+
+      customer,
+
+      document,
+
+      sourceDocuments,
+
+      items,
+
+      totals,
+
+      payment,
+
+      additionalInfo,
     };
   }
 
-  async function handleSave() {
-    setIsSaving(true);
+  /* =======================================================
+     SAVE DRAFT
+     ======================================================= */
+
+  async function handleSaveDraft() {
+    if (isSaving) {
+      return;
+    }
+
+    setSavingMode('draft');
+
     setSaveError(null);
 
     try {
-      const totals = calculateTotals(items);
+      /*
+       * Taslakta normal fatura
+       * validasyonu uygulanmıyor.
+       *
+       * Müşteri veya kalem bilgisi
+       * eksik olsa bile taslak
+       * kaydedilebilir.
+       */
+      const invoiceData = buildInvoiceInput('draft');
 
-      const invoiceData = {
-        invoiceNumber: sourceInvoice?.invoiceNumber ?? '',
-
-        customerName: customer?.name ?? sourceInvoice?.customerName ?? '',
-
-        issueDate: sourceInvoice?.issueDate ?? '',
-
-        dueDate: sourceInvoice?.dueDate ?? '',
-
-        amount: totals.grandTotal,
-
-        type: sourceInvoice?.type ?? 'sale',
-
-        status: sourceInvoice?.status ?? 'pending',
-
-        customer,
-
-        document,
-
-        sourceDocuments,
-
-        items,
-
-        totals,
-      };
-
-      if (sourceInvoice) {
-        await dispatch(
-          updateInvoice({
-            ...sourceInvoice,
-            ...invoiceData,
-          }),
-        ).unwrap();
-      } else {
-        await dispatch(createInvoice(invoiceData)).unwrap();
-      }
+      await dispatch(createDraftInvoice(invoiceData)).unwrap();
 
       navigate('/');
     } catch (error) {
-      setSaveError(typeof error === 'string' ? error : t('errors.invoiceSave'));
+      setSaveError(typeof error === 'string' ? error : 'Taslak kaydedilirken bir hata oluştu.');
     } finally {
-      setIsSaving(false);
+      setSavingMode(null);
     }
   }
+
+  /* =======================================================
+     SAVE FINAL INVOICE
+     ======================================================= */
+
+  async function handleSave() {
+    if (isSaving) {
+      return;
+    }
+
+    const validationError = validateInvoice();
+
+    if (validationError) {
+      setSaveError(validationError);
+
+      return;
+    }
+
+    setSavingMode('final');
+
+    setSaveError(null);
+
+    try {
+      /*
+       * sourceInvoice olsa bile
+       * eski kaydı UPDATE etmiyoruz.
+       *
+       * Bu sayfa "Yeni Fatura"
+       * sayfası olduğu için her
+       * zaman yeni kayıt oluşturur.
+       */
+      const invoiceData = buildInvoiceInput('pending');
+
+      await dispatch(createInvoice(invoiceData)).unwrap();
+
+      navigate('/');
+    } catch (error) {
+      setSaveError(
+        typeof error === 'string'
+          ? error
+          : t('errors.invoiceSave', {
+              defaultValue: 'Fatura kaydedilirken bir hata oluştu.',
+            }),
+      );
+    } finally {
+      setSavingMode(null);
+    }
+  }
+
+  /* =======================================================
+     LANGUAGE
+     ======================================================= */
 
   function handleLanguageChange(language: 'tr' | 'en') {
     void i18n.changeLanguage(language);
   }
 
+  /* =======================================================
+     RENDER
+     ======================================================= */
+
   return (
     <div className={styles.page}>
+      {/* ===================================================
+          TOP BAR
+          =================================================== */}
+
       <header className={styles.topBar}>
         <div className={styles.topBarContent}>
           <div className={styles.brand}>
@@ -136,7 +451,11 @@ export default function CreateInvoicePage() {
             <div className={styles.brandText}>
               <strong>PreAccounting</strong>
 
-              <span>{t('createInvoice.pageTitle')}</span>
+              <span>
+                {t('createInvoice.pageTitle', {
+                  defaultValue: 'Yeni Fatura',
+                })}
+              </span>
             </div>
           </div>
 
@@ -175,14 +494,24 @@ export default function CreateInvoicePage() {
         </div>
       </header>
 
+      {/* ===================================================
+          PAGE
+          =================================================== */}
+
       <div className={styles.pageInner}>
         <section className={styles.pageHeader}>
           <div className={styles.heading}>
-            <span className={styles.eyebrow}>{t('createInvoice.pageEyebrow')}</span>
+            <span className={styles.eyebrow}>E-FATURA / E-ARŞİV</span>
 
-            <h1>{t('createInvoice.pageTitle')}</h1>
+            <h1>
+              {t('createInvoice.pageTitle', {
+                defaultValue: 'Yeni Fatura',
+              })}
+            </h1>
 
-            <p>{t('createInvoice.pageDescription')}</p>
+            <p>
+              Müşteri, belge, ürün, ödeme ve vade bilgilerini girerek yeni faturanızı oluşturun.
+            </p>
 
             {saveError ? <div className={styles.saveError}>{saveError}</div> : null}
 
@@ -192,35 +521,23 @@ export default function CreateInvoicePage() {
 
                 {t('createInvoice.prefilledFrom', {
                   invoiceNumber: sourceInvoice.invoiceNumber,
+
+                  defaultValue: `${sourceInvoice.invoiceNumber} numaralı faturadan bilgiler aktarıldı. Yeni kayıt oluşturulacaktır.`,
                 })}
               </div>
             ) : null}
           </div>
-
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={handleCancel}
-              disabled={isSaving}
-            >
-              {t('actions.cancel')}
-            </button>
-
-            <button
-              type="button"
-              className={styles.saveButton}
-              onClick={() => void handleSave()}
-              disabled={isSaving}
-            >
-              <span aria-hidden="true">✓</span>
-
-              {isSaving ? 'Kaydediliyor...' : t('createInvoice.saveInvoice')}
-            </button>
-          </div>
         </section>
 
+        {/* =================================================
+            CONTENT
+            ================================================= */}
+
         <section className={styles.content}>
+          {/* ===============================================
+              CUSTOMER + DOCUMENT
+              =============================================== */}
+
           <div className={styles.topPanels}>
             <CustomerAddressCard
               initialCustomer={sourceInvoice?.customer}
@@ -232,19 +549,72 @@ export default function CreateInvoicePage() {
               initialDocument={sourceInvoice?.document}
               initialSourceDocuments={sourceInvoice?.sourceDocuments}
               initialInvoiceNumber={sourceInvoice?.invoiceNumber ?? ''}
-              initialIssueDate={sourceInvoice?.issueDate ?? ''}
+              initialIssueDate={initialIssueDate}
               onDocumentChange={setDocument}
               onSourceDocumentsChange={setSourceDocuments}
             />
           </div>
+
+          {/* ===============================================
+              ITEMS
+              =============================================== */}
 
           <InvoiceItemsTable
             initialItems={sourceInvoice?.items}
             initialAmount={sourceInvoice?.amount ?? 0}
             onItemsChange={setItems}
           />
+
+          {/* ===============================================
+              PAYMENT
+              =============================================== */}
+
+          <InvoicePaymentPanel
+            issueDate={issueDate}
+            dueDate={dueDate}
+            payment={payment}
+            additionalInfo={additionalInfo}
+            onDueDateChange={setDueDate}
+            onPaymentChange={setPayment}
+            onAdditionalInfoChange={setAdditionalInfo}
+          />
+
+          {/* ===============================================
+              ACTION BAR
+              =============================================== */}
+
+          <InvoiceActionBar
+            isSaving={isSaving}
+            savingMode={savingMode}
+            invoiceNumber={invoiceNumber}
+            customerName={customer?.name ?? ''}
+            total={totals.grandTotal}
+            currency={document?.currency ?? 'TRY'}
+            onCancel={handleCancel}
+            onPreview={() => setIsPreviewOpen(true)}
+            onSaveDraft={() => void handleSaveDraft()}
+            onSave={() => void handleSave()}
+          />
         </section>
       </div>
+
+      {/* ===================================================
+          PREVIEW
+          =================================================== */}
+
+      <InvoicePreviewModal
+        isOpen={isPreviewOpen}
+        invoiceNumber={invoiceNumber}
+        issueDate={issueDate}
+        dueDate={dueDate}
+        customer={customer}
+        document={document}
+        items={items}
+        totals={totals}
+        payment={payment}
+        additionalInfo={additionalInfo}
+        onClose={() => setIsPreviewOpen(false)}
+      />
     </div>
   );
 }
