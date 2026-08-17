@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+
 import styles from './InvoiceListPage.module.scss';
 
 import { ApiErrorState } from '../../components/ApiErrorState';
@@ -21,6 +22,7 @@ import type {
 } from '../../models/invoice';
 
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
+
 import {
   selectInvoiceError,
   selectInvoiceFilterValues,
@@ -31,6 +33,7 @@ import {
   selectInvoiceTotalCount,
   selectPaginatedInvoices,
 } from '../../store/selectors/invoiceSelectors';
+
 import {
   applyFilters,
   fetchInvoices,
@@ -40,10 +43,12 @@ import {
   toggleSort,
   deleteInvoice,
 } from '../../store/slices/invoiceSlice';
+
 import { formatMoney } from '../../utils/formatters';
 
 export default function InvoiceListPage() {
   const { t, i18n } = useTranslation();
+
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -58,9 +63,11 @@ export default function InvoiceListPage() {
 
   const [isTableVisible, setIsTableVisible] = useState(true);
 
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+  const [selectedInvoice, setSelectedInvoice] =
+    useState<Invoice | null>(null);
 
-  const isEnglish = i18n.resolvedLanguage?.startsWith('en') ?? false;
+  const isEnglish =
+    i18n.resolvedLanguage?.startsWith('en') ?? false;
 
   const locale = isEnglish ? 'en-US' : 'tr-TR';
   const language = isEnglish ? 'en' : 'tr';
@@ -74,7 +81,9 @@ export default function InvoiceListPage() {
   useEffect(() => {
     document.documentElement.lang = language;
 
-    document.title = isTableVisible ? t('document.invoiceList') : t('document.tableHidden');
+    document.title = isTableVisible
+      ? t('document.invoiceList')
+      : t('document.tableHidden');
   }, [isTableVisible, language, t]);
 
   const summaryCards: SummaryCard[] = [
@@ -92,14 +101,20 @@ export default function InvoiceListPage() {
     {
       id: 'filtered-total',
       label: t('summary.filteredAmountLabel'),
-      value: formatMoney(invoiceSummary.totalAmount, locale),
+      value: formatMoney(
+        invoiceSummary.totalAmount,
+        locale
+      ),
       helperText: t('summary.activeFilterResults'),
       variant: 'info',
     },
     {
       id: 'overdue-total',
       label: t('summary.overdueAmountLabel'),
-      value: formatMoney(invoiceSummary.overdueAmount, locale),
+      value: formatMoney(
+        invoiceSummary.overdueAmount,
+        locale
+      ),
       helperText: t('summary.overdueInvoiceCount', {
         count: invoiceSummary.overdueCount,
       }),
@@ -108,10 +123,14 @@ export default function InvoiceListPage() {
   ];
 
   function handleToggleTable() {
-    setIsTableVisible((currentValue) => !currentValue);
+    setIsTableVisible(
+      (currentValue) => !currentValue
+    );
   }
 
-  function handleApplyFilters(newFilterValues: InvoiceFilterValues) {
+  function handleApplyFilters(
+    newFilterValues: InvoiceFilterValues
+  ) {
     dispatch(applyFilters(newFilterValues));
   }
 
@@ -119,7 +138,9 @@ export default function InvoiceListPage() {
     dispatch(resetFilters());
   }
 
-  function handleSort(sortKey: InvoiceSortKey) {
+  function handleSort(
+    sortKey: InvoiceSortKey
+  ) {
     dispatch(toggleSort(sortKey));
   }
 
@@ -127,14 +148,19 @@ export default function InvoiceListPage() {
     dispatch(setCurrentPage(page));
   }
 
-  function handlePageSizeChange(pageSize: InvoicePageSize) {
+  function handlePageSizeChange(
+    pageSize: InvoicePageSize
+  ) {
     dispatch(setPageSize(pageSize));
   }
 
   function handleOpenInvoice(invoice: Invoice) {
     setSelectedInvoice(invoice);
   }
-  function handleCreateFromInvoice(invoice: Invoice) {
+
+  function handleCreateFromInvoice(
+    invoice: Invoice
+  ) {
     navigate('/invoices/new', {
       state: {
         sourceInvoice: invoice,
@@ -149,6 +175,7 @@ export default function InvoiceListPage() {
   function handleRetry() {
     void dispatch(fetchInvoices());
   }
+
   function handleOpenCreateInvoice() {
     navigate('/invoices/new');
   }
@@ -156,17 +183,23 @@ export default function InvoiceListPage() {
   async function handleDeleteInvoice(id: number) {
     try {
       await dispatch(deleteInvoice(id)).unwrap();
+
       setSelectedInvoice(null);
     } catch {
       // Redux hata mesajını tutuyor.
     }
   }
 
-  const isLoading = requestStatus === 'idle' || requestStatus === 'loading';
+  const isLoading =
+    requestStatus === 'idle' ||
+    requestStatus === 'loading';
 
-  const hasError = requestStatus === 'failed';
+  const hasError =
+    requestStatus === 'failed';
 
-  const hasNoInvoices = requestStatus === 'succeeded' && invoiceTotalCount === 0;
+  const hasNoInvoices =
+    requestStatus === 'succeeded' &&
+    invoiceTotalCount === 0;
 
   return (
     <div className={styles.app}>
@@ -174,8 +207,12 @@ export default function InvoiceListPage() {
         appName="PreAccounting"
         pageName={t('title')}
         isTableVisible={isTableVisible}
-        isNewInvoiceDisabled={requestStatus !== 'succeeded'}
-        onCreateInvoice={handleOpenCreateInvoice}
+        isNewInvoiceDisabled={
+          requestStatus !== 'succeeded'
+        }
+        onCreateInvoice={
+          handleOpenCreateInvoice
+        }
         onToggleTable={handleToggleTable}
       />
 
@@ -183,48 +220,99 @@ export default function InvoiceListPage() {
         {isLoading ? (
           <LoadingSpinner />
         ) : hasError ? (
-          <ApiErrorState message={requestError ?? t('errors.invoiceFetch')} onRetry={handleRetry} />
+          <ApiErrorState
+            message={
+              requestError ??
+              t('errors.invoiceFetch')
+            }
+            onRetry={handleRetry}
+          />
         ) : hasNoInvoices ? (
           <EmptyInvoiceState />
         ) : (
           <>
-            <SummaryCards cards={summaryCards} />
+            <SummaryCards
+              cards={summaryCards}
+            />
 
             {isTableVisible ? (
               <div className={styles.tableArea}>
                 <FilterForm
                   initialFilters={filterValues}
-                  resultCount={pagination.totalItems}
-                  totalCount={invoiceTotalCount}
-                  onApply={handleApplyFilters}
-                  onReset={handleResetFilters}
+                  resultCount={
+                    pagination.totalItems
+                  }
+                  totalCount={
+                    invoiceTotalCount
+                  }
+                  onApply={
+                    handleApplyFilters
+                  }
+                  onReset={
+                    handleResetFilters
+                  }
                 />
 
-                <div className={styles.invoiceListBlock}>
+                <div
+                  className={
+                    styles.invoiceListBlock
+                  }
+                >
                   <InvoiceTable
                     invoices={pageInvoices}
                     sortConfig={sortConfig}
                     onSort={handleSort}
-                    onInvoiceSelect={handleOpenInvoice}
-                    onCreateFromInvoice={handleCreateFromInvoice}
+                    onInvoiceSelect={
+                      handleOpenInvoice
+                    }
+                    onCreateFromInvoice={
+                      handleCreateFromInvoice
+                    }
                   />
 
                   <Pagination
-                    currentPage={pagination.currentPage}
-                    pageSize={pagination.pageSize}
-                    totalItems={pagination.totalItems}
-                    totalPages={pagination.totalPages}
-                    startItem={pagination.startItem}
-                    endItem={pagination.endItem}
-                    onPageChange={handlePageChange}
-                    onPageSizeChange={handlePageSizeChange}
+                    currentPage={
+                      pagination.currentPage
+                    }
+                    pageSize={
+                      pagination.pageSize
+                    }
+                    totalItems={
+                      pagination.totalItems
+                    }
+                    totalPages={
+                      pagination.totalPages
+                    }
+                    startItem={
+                      pagination.startItem
+                    }
+                    endItem={
+                      pagination.endItem
+                    }
+                    onPageChange={
+                      handlePageChange
+                    }
+                    onPageSizeChange={
+                      handlePageSizeChange
+                    }
                   />
                 </div>
               </div>
             ) : (
-              <section className={styles.emptyState}>
-                <h2>{t('table.hiddenTitle')}</h2>
-                <p>{t('table.hiddenDescription')}</p>
+              <section
+                className={
+                  styles.emptyState
+                }
+              >
+                <h2>
+                  {t('table.hiddenTitle')}
+                </h2>
+
+                <p>
+                  {t(
+                    'table.hiddenDescription'
+                  )}
+                </p>
               </section>
             )}
           </>

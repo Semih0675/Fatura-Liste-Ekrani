@@ -7,11 +7,13 @@ import styles from './CustomerAddressCard.module.scss';
 interface CustomerAddressCardProps {
   initialCustomer?: InvoiceCustomer;
   initialCustomerName?: string;
+  onCustomerChange?: (customer: InvoiceCustomer) => void;
 }
 
 export function CustomerAddressCard({
   initialCustomer,
   initialCustomerName = '',
+  onCustomerChange,
 }: CustomerAddressCardProps) {
   const { t } = useTranslation();
 
@@ -19,9 +21,37 @@ export function CustomerAddressCard({
 
   const customerName = initialCustomer?.name ?? initialCustomerName;
 
-  const address = initialCustomer?.address;
+  const [customer, setCustomer] = useState<InvoiceCustomer>({
+    id: initialCustomer?.id ?? '',
+    name: customerName,
+    titleName: initialCustomer?.titleName ?? customerName,
+    taxNumber: initialCustomer?.taxNumber ?? '',
+    taxOfficeCode: initialCustomer?.taxOfficeCode ?? '',
+    taxOfficeName: initialCustomer?.taxOfficeName ?? '',
+    phone: initialCustomer?.phone ?? '',
+    email: initialCustomer?.email ?? '',
+    address: {
+      addressName: initialCustomer?.address?.addressName ?? '',
+      country: initialCustomer?.address?.country ?? 'Türkiye',
+      city: initialCustomer?.address?.city ?? '',
+      district: initialCustomer?.address?.district ?? '',
+      neighborhood: initialCustomer?.address?.neighborhood ?? '',
+      avenue: initialCustomer?.address?.avenue ?? '',
+      street: initialCustomer?.address?.street ?? '',
+      buildingNumber: initialCustomer?.address?.buildingNumber ?? '',
+      apartmentNumber: initialCustomer?.address?.apartmentNumber ?? '',
+      postalCode: initialCustomer?.address?.postalCode ?? '',
+      addressCode: initialCustomer?.address?.addressCode ?? '',
+      additionalDescription:
+        initialCustomer?.address?.additionalDescription ?? '',
+    },
+  });
 
-  const knownCustomers = ['Yılmaz Ticaret A.Ş.', 'Demir İnşaat Ltd. Şti.', 'Aksa Gıda San. A.Ş.'];
+  const knownCustomers = [
+    'Yılmaz Ticaret A.Ş.',
+    'Demir İnşaat Ltd. Şti.',
+    'Aksa Gıda San. A.Ş.',
+  ];
 
   const knownCities = ['Ankara', 'İstanbul', 'İzmir'];
 
@@ -29,8 +59,38 @@ export function CustomerAddressCard({
     setIsExpanded((current) => !current);
   }
 
+  function updateCustomer(
+    changes: Partial<InvoiceCustomer>,
+  ) {
+    const updated: InvoiceCustomer = {
+      ...customer,
+      ...changes,
+    };
+
+    setCustomer(updated);
+    onCustomerChange?.(updated);
+  }
+
+  function updateAddress(
+    changes: Partial<InvoiceCustomer['address']>,
+  ) {
+    const updated: InvoiceCustomer = {
+      ...customer,
+      address: {
+        ...customer.address,
+        ...changes,
+      },
+    };
+
+    setCustomer(updated);
+    onCustomerChange?.(updated);
+  }
+
   return (
-    <section className={`${styles.panel} ${isExpanded ? styles.panelOpen : ''}`}>
+    <section
+      className={`${styles.panel} ${isExpanded ? styles.panelOpen : ''
+        }`}
+    >
       <div className={styles.tabs}>
         <button
           type="button"
@@ -47,11 +107,14 @@ export function CustomerAddressCard({
         onClick={handleToggle}
         aria-expanded={isExpanded}
         aria-label={
-          isExpanded ? t('customerAddress.hideDetails') : t('customerAddress.showDetails')
+          isExpanded
+            ? t('customerAddress.hideDetails')
+            : t('customerAddress.showDetails')
         }
       >
         <span
-          className={`${styles.arrow} ${isExpanded ? styles.arrowOpen : ''}`}
+          className={`${styles.arrow} ${isExpanded ? styles.arrowOpen : ''
+            }`}
           aria-hidden="true"
         >
           ⌄
@@ -62,18 +125,31 @@ export function CustomerAddressCard({
         <label className={styles.field}>
           <span>{t('customerAddress.customerName')}</span>
 
-          <select defaultValue={customerName}>
+          <select
+            value={customer.name}
+            onChange={(event) =>
+              updateCustomer({
+                name: event.target.value,
+              })
+            }
+          >
             <option value="" disabled>
               {t('customerAddress.selectCustomer')}
             </option>
 
-            {customerName && !knownCustomers.includes(customerName) ? (
-              <option value={customerName}>{customerName}</option>
+            {customer.name &&
+              !knownCustomers.includes(customer.name) ? (
+              <option value={customer.name}>
+                {customer.name}
+              </option>
             ) : null}
 
-            {knownCustomers.map((customer) => (
-              <option key={customer} value={customer}>
-                {customer}
+            {knownCustomers.map((knownCustomer) => (
+              <option
+                key={knownCustomer}
+                value={knownCustomer}
+              >
+                {knownCustomer}
               </option>
             ))}
           </select>
@@ -84,16 +160,28 @@ export function CustomerAddressCard({
 
           <input
             type="text"
-            defaultValue={initialCustomer?.titleName ?? customerName}
-            placeholder={t('customerAddress.titleNamePlaceholder')}
+            value={customer.titleName}
+            onChange={(event) =>
+              updateCustomer({
+                titleName: event.target.value,
+              })
+            }
+            placeholder={t(
+              'customerAddress.titleNamePlaceholder',
+            )}
           />
         </label>
       </div>
 
-      <div className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''}`}>
+      <div
+        className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''
+          }`}
+      >
         <div className={styles.expandableInner}>
           <div className={styles.detailsGrid}>
-            <div className={`${styles.sectionTitle} ${styles.fullWidth}`}>
+            <div
+              className={`${styles.sectionTitle} ${styles.fullWidth}`}
+            >
               {t('customerAddress.taxInformation')}
             </div>
 
@@ -103,69 +191,132 @@ export function CustomerAddressCard({
               <input
                 type="text"
                 inputMode="numeric"
-                defaultValue={initialCustomer?.taxNumber ?? ''}
-                placeholder={t('customerAddress.taxNumberPlaceholder')}
+                value={customer.taxNumber}
+                onChange={(event) =>
+                  updateCustomer({
+                    taxNumber: event.target.value,
+                  })
+                }
+                placeholder={t(
+                  'customerAddress.taxNumberPlaceholder',
+                )}
               />
             </label>
 
             <div className={styles.lookupButtons}>
-              <button type="button">{t('customerAddress.declaration')}</button>
+              <button type="button">
+                {t('customerAddress.declaration')}
+              </button>
 
-              <button type="button">{t('customerAddress.freeQuery')}</button>
+              <button type="button">
+                {t('customerAddress.freeQuery')}
+              </button>
             </div>
 
             <label className={styles.field}>
-              <span>{t('customerAddress.taxOfficeCode')}</span>
+              <span>
+                {t('customerAddress.taxOfficeCode')}
+              </span>
 
               <input
                 type="text"
-                defaultValue={initialCustomer?.taxOfficeCode ?? ''}
-                placeholder={t('customerAddress.taxOfficeCodePlaceholder')}
+                value={customer.taxOfficeCode}
+                onChange={(event) =>
+                  updateCustomer({
+                    taxOfficeCode: event.target.value,
+                  })
+                }
+                placeholder={t(
+                  'customerAddress.taxOfficeCodePlaceholder',
+                )}
               />
             </label>
 
             <label className={styles.field}>
-              <span>{t('customerAddress.taxOfficeName')}</span>
+              <span>
+                {t('customerAddress.taxOfficeName')}
+              </span>
 
               <input
                 type="text"
-                defaultValue={initialCustomer?.taxOfficeName ?? ''}
-                placeholder={t('customerAddress.taxOfficeNamePlaceholder')}
+                value={customer.taxOfficeName}
+                onChange={(event) =>
+                  updateCustomer({
+                    taxOfficeName: event.target.value,
+                  })
+                }
+                placeholder={t(
+                  'customerAddress.taxOfficeNamePlaceholder',
+                )}
               />
             </label>
 
-            <div className={`${styles.sectionTitle} ${styles.fullWidth}`}>
+            <div
+              className={`${styles.sectionTitle} ${styles.fullWidth}`}
+            >
               {t('customerAddress.addressInformation')}
             </div>
 
-            <label className={`${styles.field} ${styles.fullWidth}`}>
-              <span>{t('customerAddress.addressName')}</span>
+            <label
+              className={`${styles.field} ${styles.fullWidth}`}
+            >
+              <span>
+                {t('customerAddress.addressName')}
+              </span>
 
               <input
                 type="text"
-                defaultValue={address?.addressName ?? ''}
-                placeholder={t('customerAddress.addressNamePlaceholder')}
+                value={customer.address.addressName}
+                onChange={(event) =>
+                  updateAddress({
+                    addressName: event.target.value,
+                  })
+                }
+                placeholder={t(
+                  'customerAddress.addressNamePlaceholder',
+                )}
               />
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.country')}</span>
 
-              <select defaultValue={address?.country ?? 'Türkiye'}>
-                <option value="Türkiye">{t('customerAddress.turkey')}</option>
+              <select
+                value={customer.address.country}
+                onChange={(event) =>
+                  updateAddress({
+                    country: event.target.value,
+                  })
+                }
+              >
+                <option value="Türkiye">
+                  {t('customerAddress.turkey')}
+                </option>
               </select>
             </label>
 
             <label className={styles.field}>
               <span>{t('customerAddress.city')}</span>
 
-              <select defaultValue={address?.city ?? ''}>
+              <select
+                value={customer.address.city}
+                onChange={(event) =>
+                  updateAddress({
+                    city: event.target.value,
+                  })
+                }
+              >
                 <option value="" disabled>
                   {t('customerAddress.select')}
                 </option>
 
-                {address?.city && !knownCities.includes(address.city) ? (
-                  <option value={address.city}>{address.city}</option>
+                {customer.address.city &&
+                  !knownCities.includes(
+                    customer.address.city,
+                  ) ? (
+                  <option value={customer.address.city}>
+                    {customer.address.city}
+                  </option>
                 ) : null}
 
                 {knownCities.map((city) => (
@@ -181,18 +332,32 @@ export function CustomerAddressCard({
 
               <input
                 type="text"
-                defaultValue={address?.district ?? ''}
+                value={customer.address.district}
+                onChange={(event) =>
+                  updateAddress({
+                    district: event.target.value,
+                  })
+                }
                 placeholder={t('customerAddress.select')}
               />
             </label>
 
             <label className={styles.field}>
-              <span>{t('customerAddress.neighborhood')}</span>
+              <span>
+                {t('customerAddress.neighborhood')}
+              </span>
 
               <input
                 type="text"
-                defaultValue={address?.neighborhood ?? ''}
-                placeholder={t('customerAddress.neighborhoodPlaceholder')}
+                value={customer.address.neighborhood}
+                onChange={(event) =>
+                  updateAddress({
+                    neighborhood: event.target.value,
+                  })
+                }
+                placeholder={t(
+                  'customerAddress.neighborhoodPlaceholder',
+                )}
               />
             </label>
 
@@ -201,8 +366,15 @@ export function CustomerAddressCard({
 
               <input
                 type="text"
-                defaultValue={address?.avenue ?? ''}
-                placeholder={t('customerAddress.avenuePlaceholder')}
+                value={customer.address.avenue}
+                onChange={(event) =>
+                  updateAddress({
+                    avenue: event.target.value,
+                  })
+                }
+                placeholder={t(
+                  'customerAddress.avenuePlaceholder',
+                )}
               />
             </label>
 
@@ -211,42 +383,106 @@ export function CustomerAddressCard({
 
               <input
                 type="text"
-                defaultValue={address?.street ?? ''}
-                placeholder={t('customerAddress.streetPlaceholder')}
+                value={customer.address.street}
+                onChange={(event) =>
+                  updateAddress({
+                    street: event.target.value,
+                  })
+                }
+                placeholder={t(
+                  'customerAddress.streetPlaceholder',
+                )}
               />
             </label>
 
             <label className={styles.field}>
-              <span>{t('customerAddress.buildingNumber')}</span>
+              <span>
+                {t('customerAddress.buildingNumber')}
+              </span>
 
-              <input type="text" defaultValue={address?.buildingNumber ?? ''} />
+              <input
+                type="text"
+                value={customer.address.buildingNumber}
+                onChange={(event) =>
+                  updateAddress({
+                    buildingNumber: event.target.value,
+                  })
+                }
+              />
             </label>
 
             <label className={styles.field}>
-              <span>{t('customerAddress.apartmentNumber')}</span>
+              <span>
+                {t('customerAddress.apartmentNumber')}
+              </span>
 
-              <input type="text" defaultValue={address?.apartmentNumber ?? ''} />
+              <input
+                type="text"
+                value={customer.address.apartmentNumber}
+                onChange={(event) =>
+                  updateAddress({
+                    apartmentNumber: event.target.value,
+                  })
+                }
+              />
             </label>
 
             <label className={styles.field}>
-              <span>{t('customerAddress.postalCode')}</span>
+              <span>
+                {t('customerAddress.postalCode')}
+              </span>
 
-              <input type="text" inputMode="numeric" defaultValue={address?.postalCode ?? ''} />
+              <input
+                type="text"
+                inputMode="numeric"
+                value={customer.address.postalCode}
+                onChange={(event) =>
+                  updateAddress({
+                    postalCode: event.target.value,
+                  })
+                }
+              />
             </label>
 
             <label className={styles.field}>
-              <span>{t('customerAddress.addressCode')}</span>
+              <span>
+                {t('customerAddress.addressCode')}
+              </span>
 
-              <input type="text" defaultValue={address?.addressCode ?? ''} />
+              <input
+                type="text"
+                value={customer.address.addressCode}
+                onChange={(event) =>
+                  updateAddress({
+                    addressCode: event.target.value,
+                  })
+                }
+              />
             </label>
 
-            <label className={`${styles.field} ${styles.fullWidth}`}>
-              <span>{t('customerAddress.additionalDescription')}</span>
+            <label
+              className={`${styles.field} ${styles.fullWidth}`}
+            >
+              <span>
+                {t(
+                  'customerAddress.additionalDescription',
+                )}
+              </span>
 
               <textarea
                 rows={3}
-                defaultValue={address?.additionalDescription ?? ''}
-                placeholder={t('customerAddress.additionalDescriptionPlaceholder')}
+                value={
+                  customer.address.additionalDescription
+                }
+                onChange={(event) =>
+                  updateAddress({
+                    additionalDescription:
+                      event.target.value,
+                  })
+                }
+                placeholder={t(
+                  'customerAddress.additionalDescriptionPlaceholder',
+                )}
               />
             </label>
           </div>
