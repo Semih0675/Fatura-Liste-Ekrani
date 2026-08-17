@@ -2,17 +2,10 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import type {
-  Invoice,
-  InvoiceCustomer,
-  InvoiceItem,
-} from '../../models/invoice';
+import type { Invoice, InvoiceCustomer, InvoiceItem } from '../../models/invoice';
 
 import { useAppDispatch } from '../../store/hooks';
-import {
-  createInvoice,
-  updateInvoice,
-} from '../../store/slices/invoiceSlice';
+import { createInvoice, updateInvoice } from '../../store/slices/invoiceSlice';
 
 import { CustomerAddressCard } from './components/CustomerAddressCard/CustomerAddressCard';
 import { DocumentInfoBar } from './components/DocumentInfoBar/DocumentInfoBar';
@@ -31,28 +24,20 @@ export default function CreateInvoicePage() {
   const dispatch = useAppDispatch();
 
   const sourceInvoice =
-    (location.state as CreateInvoiceLocationState | null)
-      ?.sourceInvoice ?? null;
+    (location.state as CreateInvoiceLocationState | null)?.sourceInvoice ?? null;
 
-  const [items, setItems] = useState<InvoiceItem[]>(
-    sourceInvoice?.items ?? [],
-  );
+  const [items, setItems] = useState<InvoiceItem[]>(sourceInvoice?.items ?? []);
 
-  const [customer, setCustomer] = useState<
-    InvoiceCustomer | undefined
-  >(sourceInvoice?.customer);
+  const [customer, setCustomer] = useState<InvoiceCustomer | undefined>(sourceInvoice?.customer);
 
-  const [document, setDocument] =
-    useState(sourceInvoice?.document);
+  const [document, setDocument] = useState(sourceInvoice?.document);
 
-  const [sourceDocuments, setSourceDocuments] =
-    useState(sourceInvoice?.sourceDocuments ?? []);
+  const [sourceDocuments, setSourceDocuments] = useState(sourceInvoice?.sourceDocuments ?? []);
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const isEnglish =
-    i18n.resolvedLanguage?.startsWith('en') ?? false;
+  const isEnglish = i18n.resolvedLanguage?.startsWith('en') ?? false;
 
   function handleCancel() {
     navigate('/');
@@ -66,13 +51,11 @@ export default function CreateInvoicePage() {
     invoiceItems.forEach((item) => {
       const gross = item.quantity * item.unitPrice;
 
-      const discount =
-        gross * (item.discountRate / 100);
+      const discount = gross * (item.discountRate / 100);
 
       const discounted = gross - discount;
 
-      const vat =
-        discounted * (item.vatRate / 100);
+      const vat = discounted * (item.vatRate / 100);
 
       subtotal += gross;
       totalDiscount += discount;
@@ -83,8 +66,7 @@ export default function CreateInvoicePage() {
       subtotal,
       totalDiscount,
       totalVat,
-      grandTotal:
-        subtotal - totalDiscount + totalVat,
+      grandTotal: subtotal - totalDiscount + totalVat,
     };
   }
 
@@ -96,27 +78,19 @@ export default function CreateInvoicePage() {
       const totals = calculateTotals(items);
 
       const invoiceData = {
-        invoiceNumber:
-          sourceInvoice?.invoiceNumber ?? '',
+        invoiceNumber: sourceInvoice?.invoiceNumber ?? '',
 
-        customerName:
-          customer?.name ??
-          sourceInvoice?.customerName ??
-          '',
+        customerName: customer?.name ?? sourceInvoice?.customerName ?? '',
 
-        issueDate:
-          sourceInvoice?.issueDate ?? '',
+        issueDate: sourceInvoice?.issueDate ?? '',
 
-        dueDate:
-          sourceInvoice?.dueDate ?? '',
+        dueDate: sourceInvoice?.dueDate ?? '',
 
         amount: totals.grandTotal,
 
-        type:
-          sourceInvoice?.type ?? 'sale',
+        type: sourceInvoice?.type ?? 'sale',
 
-        status:
-          sourceInvoice?.status ?? 'pending',
+        status: sourceInvoice?.status ?? 'pending',
 
         customer,
 
@@ -137,26 +111,18 @@ export default function CreateInvoicePage() {
           }),
         ).unwrap();
       } else {
-        await dispatch(
-          createInvoice(invoiceData),
-        ).unwrap();
+        await dispatch(createInvoice(invoiceData)).unwrap();
       }
 
       navigate('/');
     } catch (error) {
-      setSaveError(
-        typeof error === 'string'
-          ? error
-          : t('errors.invoiceSave'),
-      );
+      setSaveError(typeof error === 'string' ? error : t('errors.invoiceSave'));
     } finally {
       setIsSaving(false);
     }
   }
 
-  function handleLanguageChange(
-    language: 'tr' | 'en',
-  ) {
+  function handleLanguageChange(language: 'tr' | 'en') {
     void i18n.changeLanguage(language);
   }
 
@@ -165,16 +131,12 @@ export default function CreateInvoicePage() {
       <header className={styles.topBar}>
         <div className={styles.topBarContent}>
           <div className={styles.brand}>
-            <div className={styles.brandMark}>
-              P
-            </div>
+            <div className={styles.brandMark}>P</div>
 
             <div className={styles.brandText}>
               <strong>PreAccounting</strong>
 
-              <span>
-                {t('createInvoice.pageTitle')}
-              </span>
+              <span>{t('createInvoice.pageTitle')}</span>
             </div>
           </div>
 
@@ -185,42 +147,26 @@ export default function CreateInvoicePage() {
               onClick={handleCancel}
               disabled={isSaving}
             >
-              <span aria-hidden="true">
-                ←
-              </span>
+              <span aria-hidden="true">←</span>
 
               {t('navigation.invoiceList', {
                 defaultValue: 'Fatura Listesi',
               })}
             </button>
 
-            <div
-              className={styles.languageSwitcher}
-            >
+            <div className={styles.languageSwitcher}>
               <button
                 type="button"
-                className={
-                  !isEnglish
-                    ? styles.activeLanguageButton
-                    : styles.languageButton
-                }
-                onClick={() =>
-                  handleLanguageChange('tr')
-                }
+                className={!isEnglish ? styles.activeLanguageButton : styles.languageButton}
+                onClick={() => handleLanguageChange('tr')}
               >
                 TR
               </button>
 
               <button
                 type="button"
-                className={
-                  isEnglish
-                    ? styles.activeLanguageButton
-                    : styles.languageButton
-                }
-                onClick={() =>
-                  handleLanguageChange('en')
-                }
+                className={isEnglish ? styles.activeLanguageButton : styles.languageButton}
+                onClick={() => handleLanguageChange('en')}
               >
                 EN
               </button>
@@ -232,43 +178,21 @@ export default function CreateInvoicePage() {
       <div className={styles.pageInner}>
         <section className={styles.pageHeader}>
           <div className={styles.heading}>
-            <span className={styles.eyebrow}>
-              {t('createInvoice.pageEyebrow')}
-            </span>
+            <span className={styles.eyebrow}>{t('createInvoice.pageEyebrow')}</span>
 
-            <h1>
-              {t('createInvoice.pageTitle')}
-            </h1>
+            <h1>{t('createInvoice.pageTitle')}</h1>
 
-            <p>
-              {t(
-                'createInvoice.pageDescription',
-              )}
-            </p>
+            <p>{t('createInvoice.pageDescription')}</p>
 
-            {saveError ? (
-              <div className={styles.saveError}>
-                {saveError}
-              </div>
-            ) : null}
+            {saveError ? <div className={styles.saveError}>{saveError}</div> : null}
 
             {sourceInvoice ? (
-              <div
-                className={
-                  styles.prefillNotice
-                }
-              >
-                <span aria-hidden="true">
-                  ✓
-                </span>
+              <div className={styles.prefillNotice}>
+                <span aria-hidden="true">✓</span>
 
-                {t(
-                  'createInvoice.prefilledFrom',
-                  {
-                    invoiceNumber:
-                      sourceInvoice.invoiceNumber,
-                  },
-                )}
+                {t('createInvoice.prefilledFrom', {
+                  invoiceNumber: sourceInvoice.invoiceNumber,
+                })}
               </div>
             ) : null}
           </div>
@@ -286,20 +210,12 @@ export default function CreateInvoicePage() {
             <button
               type="button"
               className={styles.saveButton}
-              onClick={() =>
-                void handleSave()
-              }
+              onClick={() => void handleSave()}
               disabled={isSaving}
             >
-              <span aria-hidden="true">
-                ✓
-              </span>
+              <span aria-hidden="true">✓</span>
 
-              {isSaving
-                ? 'Kaydediliyor...'
-                : t(
-                  'createInvoice.saveInvoice',
-                )}
+              {isSaving ? 'Kaydediliyor...' : t('createInvoice.saveInvoice')}
             </button>
           </div>
         </section>
@@ -307,15 +223,9 @@ export default function CreateInvoicePage() {
         <section className={styles.content}>
           <div className={styles.topPanels}>
             <CustomerAddressCard
-              initialCustomer={
-                sourceInvoice?.customer
-              }
-              initialCustomerName={
-                sourceInvoice?.customerName ?? ''
-              }
-              onCustomerChange={
-                setCustomer
-              }
+              initialCustomer={sourceInvoice?.customer}
+              initialCustomerName={sourceInvoice?.customerName ?? ''}
+              onCustomerChange={setCustomer}
             />
 
             <DocumentInfoBar
@@ -329,12 +239,8 @@ export default function CreateInvoicePage() {
           </div>
 
           <InvoiceItemsTable
-            initialItems={
-              sourceInvoice?.items
-            }
-            initialAmount={
-              sourceInvoice?.amount ?? 0
-            }
+            initialItems={sourceInvoice?.items}
+            initialAmount={sourceInvoice?.amount ?? 0}
             onItemsChange={setItems}
           />
         </section>

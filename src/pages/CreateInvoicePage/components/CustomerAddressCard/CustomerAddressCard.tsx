@@ -42,16 +42,11 @@ export function CustomerAddressCard({
       apartmentNumber: initialCustomer?.address?.apartmentNumber ?? '',
       postalCode: initialCustomer?.address?.postalCode ?? '',
       addressCode: initialCustomer?.address?.addressCode ?? '',
-      additionalDescription:
-        initialCustomer?.address?.additionalDescription ?? '',
+      additionalDescription: initialCustomer?.address?.additionalDescription ?? '',
     },
   });
 
-  const knownCustomers = [
-    'Yılmaz Ticaret A.Ş.',
-    'Demir İnşaat Ltd. Şti.',
-    'Aksa Gıda San. A.Ş.',
-  ];
+  const knownCustomers = ['Yılmaz Ticaret A.Ş.', 'Demir İnşaat Ltd. Şti.', 'Aksa Gıda San. A.Ş.'];
 
   const knownCities = ['Ankara', 'İstanbul', 'İzmir'];
 
@@ -59,9 +54,7 @@ export function CustomerAddressCard({
     setIsExpanded((current) => !current);
   }
 
-  function updateCustomer(
-    changes: Partial<InvoiceCustomer>,
-  ) {
+  function updateCustomer(changes: Partial<InvoiceCustomer>) {
     const updated: InvoiceCustomer = {
       ...customer,
       ...changes,
@@ -71,9 +64,7 @@ export function CustomerAddressCard({
     onCustomerChange?.(updated);
   }
 
-  function updateAddress(
-    changes: Partial<InvoiceCustomer['address']>,
-  ) {
+  function updateAddress(changes: Partial<InvoiceCustomer['address']>) {
     const updated: InvoiceCustomer = {
       ...customer,
       address: {
@@ -87,10 +78,7 @@ export function CustomerAddressCard({
   }
 
   return (
-    <section
-      className={`${styles.panel} ${isExpanded ? styles.panelOpen : ''
-        }`}
-    >
+    <section className={`${styles.panel} ${isExpanded ? styles.panelOpen : ''}`}>
       <div className={styles.tabs}>
         <button
           type="button"
@@ -107,14 +95,11 @@ export function CustomerAddressCard({
         onClick={handleToggle}
         aria-expanded={isExpanded}
         aria-label={
-          isExpanded
-            ? t('customerAddress.hideDetails')
-            : t('customerAddress.showDetails')
+          isExpanded ? t('customerAddress.hideDetails') : t('customerAddress.showDetails')
         }
       >
         <span
-          className={`${styles.arrow} ${isExpanded ? styles.arrowOpen : ''
-            }`}
+          className={`${styles.arrow} ${isExpanded ? styles.arrowOpen : ''}`}
           aria-hidden="true"
         >
           ⌄
@@ -137,18 +122,12 @@ export function CustomerAddressCard({
               {t('customerAddress.selectCustomer')}
             </option>
 
-            {customer.name &&
-              !knownCustomers.includes(customer.name) ? (
-              <option value={customer.name}>
-                {customer.name}
-              </option>
+            {customer.name && !knownCustomers.includes(customer.name) ? (
+              <option value={customer.name}>{customer.name}</option>
             ) : null}
 
             {knownCustomers.map((knownCustomer) => (
-              <option
-                key={knownCustomer}
-                value={knownCustomer}
-              >
+              <option key={knownCustomer} value={knownCustomer}>
                 {knownCustomer}
               </option>
             ))}
@@ -166,22 +145,15 @@ export function CustomerAddressCard({
                 titleName: event.target.value,
               })
             }
-            placeholder={t(
-              'customerAddress.titleNamePlaceholder',
-            )}
+            placeholder={t('customerAddress.titleNamePlaceholder')}
           />
         </label>
       </div>
 
-      <div
-        className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''
-          }`}
-      >
+      <div className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''}`}>
         <div className={styles.expandableInner}>
           <div className={styles.detailsGrid}>
-            <div
-              className={`${styles.sectionTitle} ${styles.fullWidth}`}
-            >
+            <div className={`${styles.sectionTitle} ${styles.fullWidth}`}>
               {t('customerAddress.taxInformation')}
             </div>
 
@@ -197,26 +169,18 @@ export function CustomerAddressCard({
                     taxNumber: event.target.value,
                   })
                 }
-                placeholder={t(
-                  'customerAddress.taxNumberPlaceholder',
-                )}
+                placeholder={t('customerAddress.taxNumberPlaceholder')}
               />
             </label>
 
             <div className={styles.lookupButtons}>
-              <button type="button">
-                {t('customerAddress.declaration')}
-              </button>
+              <button type="button">{t('customerAddress.declaration')}</button>
 
-              <button type="button">
-                {t('customerAddress.freeQuery')}
-              </button>
+              <button type="button">{t('customerAddress.freeQuery')}</button>
             </div>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.taxOfficeCode')}
-              </span>
+              <span>{t('customerAddress.taxOfficeCode')}</span>
 
               <input
                 type="text"
@@ -226,16 +190,12 @@ export function CustomerAddressCard({
                     taxOfficeCode: event.target.value,
                   })
                 }
-                placeholder={t(
-                  'customerAddress.taxOfficeCodePlaceholder',
-                )}
+                placeholder={t('customerAddress.taxOfficeCodePlaceholder')}
               />
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.taxOfficeName')}
-              </span>
+              <span>{t('customerAddress.taxOfficeName')}</span>
 
               <input
                 type="text"
@@ -245,24 +205,16 @@ export function CustomerAddressCard({
                     taxOfficeName: event.target.value,
                   })
                 }
-                placeholder={t(
-                  'customerAddress.taxOfficeNamePlaceholder',
-                )}
+                placeholder={t('customerAddress.taxOfficeNamePlaceholder')}
               />
             </label>
 
-            <div
-              className={`${styles.sectionTitle} ${styles.fullWidth}`}
-            >
+            <div className={`${styles.sectionTitle} ${styles.fullWidth}`}>
               {t('customerAddress.addressInformation')}
             </div>
 
-            <label
-              className={`${styles.field} ${styles.fullWidth}`}
-            >
-              <span>
-                {t('customerAddress.addressName')}
-              </span>
+            <label className={`${styles.field} ${styles.fullWidth}`}>
+              <span>{t('customerAddress.addressName')}</span>
 
               <input
                 type="text"
@@ -272,9 +224,7 @@ export function CustomerAddressCard({
                     addressName: event.target.value,
                   })
                 }
-                placeholder={t(
-                  'customerAddress.addressNamePlaceholder',
-                )}
+                placeholder={t('customerAddress.addressNamePlaceholder')}
               />
             </label>
 
@@ -289,9 +239,7 @@ export function CustomerAddressCard({
                   })
                 }
               >
-                <option value="Türkiye">
-                  {t('customerAddress.turkey')}
-                </option>
+                <option value="Türkiye">{t('customerAddress.turkey')}</option>
               </select>
             </label>
 
@@ -310,13 +258,8 @@ export function CustomerAddressCard({
                   {t('customerAddress.select')}
                 </option>
 
-                {customer.address.city &&
-                  !knownCities.includes(
-                    customer.address.city,
-                  ) ? (
-                  <option value={customer.address.city}>
-                    {customer.address.city}
-                  </option>
+                {customer.address.city && !knownCities.includes(customer.address.city) ? (
+                  <option value={customer.address.city}>{customer.address.city}</option>
                 ) : null}
 
                 {knownCities.map((city) => (
@@ -343,9 +286,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.neighborhood')}
-              </span>
+              <span>{t('customerAddress.neighborhood')}</span>
 
               <input
                 type="text"
@@ -355,9 +296,7 @@ export function CustomerAddressCard({
                     neighborhood: event.target.value,
                   })
                 }
-                placeholder={t(
-                  'customerAddress.neighborhoodPlaceholder',
-                )}
+                placeholder={t('customerAddress.neighborhoodPlaceholder')}
               />
             </label>
 
@@ -372,9 +311,7 @@ export function CustomerAddressCard({
                     avenue: event.target.value,
                   })
                 }
-                placeholder={t(
-                  'customerAddress.avenuePlaceholder',
-                )}
+                placeholder={t('customerAddress.avenuePlaceholder')}
               />
             </label>
 
@@ -389,16 +326,12 @@ export function CustomerAddressCard({
                     street: event.target.value,
                   })
                 }
-                placeholder={t(
-                  'customerAddress.streetPlaceholder',
-                )}
+                placeholder={t('customerAddress.streetPlaceholder')}
               />
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.buildingNumber')}
-              </span>
+              <span>{t('customerAddress.buildingNumber')}</span>
 
               <input
                 type="text"
@@ -412,9 +345,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.apartmentNumber')}
-              </span>
+              <span>{t('customerAddress.apartmentNumber')}</span>
 
               <input
                 type="text"
@@ -428,9 +359,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.postalCode')}
-              </span>
+              <span>{t('customerAddress.postalCode')}</span>
 
               <input
                 type="text"
@@ -445,9 +374,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.addressCode')}
-              </span>
+              <span>{t('customerAddress.addressCode')}</span>
 
               <input
                 type="text"
@@ -460,29 +387,18 @@ export function CustomerAddressCard({
               />
             </label>
 
-            <label
-              className={`${styles.field} ${styles.fullWidth}`}
-            >
-              <span>
-                {t(
-                  'customerAddress.additionalDescription',
-                )}
-              </span>
+            <label className={`${styles.field} ${styles.fullWidth}`}>
+              <span>{t('customerAddress.additionalDescription')}</span>
 
               <textarea
                 rows={3}
-                value={
-                  customer.address.additionalDescription
-                }
+                value={customer.address.additionalDescription}
                 onChange={(event) =>
                   updateAddress({
-                    additionalDescription:
-                      event.target.value,
+                    additionalDescription: event.target.value,
                   })
                 }
-                placeholder={t(
-                  'customerAddress.additionalDescriptionPlaceholder',
-                )}
+                placeholder={t('customerAddress.additionalDescriptionPlaceholder')}
               />
             </label>
           </div>

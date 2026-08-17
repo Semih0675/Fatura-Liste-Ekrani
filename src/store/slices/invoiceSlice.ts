@@ -85,21 +85,13 @@ export const updateInvoice = createAsyncThunk<
   {
     rejectValue: string;
   }
->(
-  'invoices/updateInvoice',
-  async (invoice, { rejectWithValue }) => {
-    try {
-      return await invoiceResource.update(
-        invoice.id,
-        invoice,
-      );
-    } catch (error) {
-      return rejectWithValue(
-        getHttpErrorMessage(error),
-      );
-    }
-  },
-);
+>('invoices/updateInvoice', async (invoice, { rejectWithValue }) => {
+  try {
+    return await invoiceResource.update(invoice.id, invoice);
+  } catch (error) {
+    return rejectWithValue(getHttpErrorMessage(error));
+  }
+});
 
 export const deleteInvoice = createAsyncThunk<
   number,
