@@ -1,15 +1,27 @@
 import { useEffect, useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
-import type { InvoiceDocument, InvoiceSourceDocument } from '../../../../models/invoice';
+import type {
+  InvoiceCurrency,
+  InvoiceDocument,
+  InvoiceSourceDocument,
+} from '../../../../models/invoice';
 
 import styles from './DocumentInfoBar.module.scss';
 
 interface DocumentInfoBarProps {
   initialDocument?: InvoiceDocument;
+
   initialSourceDocuments?: InvoiceSourceDocument[];
+
   initialInvoiceNumber?: string;
+
   initialIssueDate?: string;
+
+  autoNumbers?: Record<string, string>;
+
+  enableAutoNumbering?: boolean;
 
   onDocumentChange?: (document: InvoiceDocument) => void;
 
@@ -23,6 +35,7 @@ function splitInvoiceNumber(invoiceNumber: string) {
 
   return {
     series: match?.[1] ?? '',
+
     number: match?.[2] ?? invoiceNumber,
   };
 }
@@ -42,18 +55,10 @@ function normalizeDateTimeLocal(value: string) {
     return '';
   }
 
-  /*
-   * Zaten datetime-local formatındaysa
-   * Date objesine çevirmeden kullan.
-   */
   if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(value)) {
     return value.slice(0, 16);
   }
 
-  /*
-   * Sadece YYYY-MM-DD geldiyse
-   * mevcut saati ekle.
-   */
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return `${value}T${getCurrentLocalTime()}`;
   }
@@ -69,43 +74,64 @@ function normalizeDateTimeLocal(value: string) {
   return new Date(date.getTime() - timezoneOffset).toISOString().slice(0, 16);
 }
 
-function createSourceDocument(): InvoiceSourceDocument {
+function createSourceDocument(currency: InvoiceCurrency): InvoiceSourceDocument {
   return {
     id: crypto.randomUUID(),
+
     documentType: '',
+
     documentNumber: '',
+
     documentDate: '',
+
     issuer: '',
+
     ettn: '',
+
     amount: 0,
-    currency: 'TRY',
+
+    currency,
   };
 }
 
 export function DocumentInfoBar({
   initialDocument,
+
   initialSourceDocuments,
+
   initialInvoiceNumber = '',
+
   initialIssueDate = '',
+
+  autoNumbers,
+
+  enableAutoNumbering = true,
+
   onDocumentChange,
+
   onSourceDocumentsChange,
 }: DocumentInfoBarProps) {
   const { t } = useTranslation();
 
   const fallbackDocument = splitInvoiceNumber(initialInvoiceNumber);
 
+  const initialSeries = initialDocument?.series || fallbackDocument.series || 'FTR';
+
+  const suggestedInitialNumber = autoNumbers?.[initialSeries];
+
   const [activeTab, setActiveTab] = useState<DocumentTab>('general');
 
-  /*
-   * Gerçek fatura giriş ekranında
-   * belge bilgileri doğrudan görünür.
-   */
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const [numberWasEdited, setNumberWasEdited] = useState(false);
 
   const [document, setDocument] = useState<InvoiceDocument>(() => ({
-    series: initialDocument?.series ?? fallbackDocument.series,
+    series: initialSeries,
 
-    number: initialDocument?.number ?? fallbackDocument.number,
+    number:
+      enableAutoNumbering && suggestedInitialNumber
+        ? suggestedInitialNumber
+        : (initialDocument?.number ?? fallbackDocument.number),
 
     description: initialDocument?.description ?? '',
 
@@ -134,14 +160,6 @@ export function DocumentInfoBar({
     })) ?? [],
   );
 
-  /*
-   * Child state -> CreateInvoicePage
-   *
-   * Parent state artık setState
-   * callback'inin içinden güncellenmiyor.
-   * Böylece önceki React warning'i
-   * oluşmuyor.
-   */
   useEffect(() => {
     onDocumentChange?.(document);
   }, [document, onDocumentChange]);
@@ -150,6 +168,24 @@ export function DocumentInfoBar({
     onSourceDocumentsChange?.(sourceDocuments);
   }, [sourceDocuments, onSourceDocumentsChange]);
 
+  useEffect(() => {
+    if (!enableAutoNumbering || numberWasEdited) {
+      return;
+    }
+
+    const suggestedNumber = autoNumbers?.[document.series];
+
+    if (!suggestedNumber || suggestedNumber === document.number) {
+      return;
+    }
+
+    setDocument((currentDocument) => ({
+      ...currentDocument,
+
+      number: suggestedNumber,
+    }));
+  }, [autoNumbers, document.number, document.series, enableAutoNumbering, numberWasEdited]);
+
   function updateDocument(changes: Partial<InvoiceDocument>) {
     setDocument((currentDocument) => ({
       ...currentDocument,
@@ -157,12 +193,27 @@ export function DocumentInfoBar({
     }));
   }
 
-  function updateSourceDocument(id: string, changes: Partial<InvoiceSourceDocument>) {
+  function handleSeriesChange(series: string) {
+    setNumberWasEdited(false);
+
+    updateDocument({
+      series,
+
+      number: enableAutoNumbering ? (autoNumbers?.[series] ?? '') : document.number,
+    });
+  }
+
+  function updateSourceDocument(
+    id: string,
+
+    changes: Partial<InvoiceSourceDocument>,
+  ) {
     setSourceDocuments((currentDocuments) =>
       currentDocuments.map((sourceDocument) =>
         sourceDocument.id === id
           ? {
               ...sourceDocument,
+
               ...changes,
             }
           : sourceDocument,
@@ -171,9 +222,14 @@ export function DocumentInfoBar({
   }
 
   function addSourceDocument() {
-    setSourceDocuments((currentDocuments) => [...currentDocuments, createSourceDocument()]);
+    setSourceDocuments((currentDocuments) => [
+      ...currentDocuments,
+
+      createSourceDocument(document.currency),
+    ]);
 
     setActiveTab('source');
+
     setIsExpanded(true);
   }
 
@@ -184,12 +240,26 @@ export function DocumentInfoBar({
   }
 
   function handleGeneralTab() {
+    if (activeTab === 'general') {
+      setIsExpanded((currentValue) => !currentValue);
+
+      return;
+    }
+
     setActiveTab('general');
+
     setIsExpanded(true);
   }
 
   function handleSourceTab() {
+    if (activeTab === 'source') {
+      setIsExpanded((currentValue) => !currentValue);
+
+      return;
+    }
+
     setActiveTab('source');
+
     setIsExpanded(true);
   }
 
@@ -201,10 +271,6 @@ export function DocumentInfoBar({
 
   return (
     <section className={`${styles.panel} ${isExpanded ? styles.panelOpen : ''}`}>
-      {/* ================================================
-          PANEL HEADER / TABS
-          ================================================ */}
-
       <div className={styles.tabs}>
         <button
           type="button"
@@ -252,10 +318,6 @@ export function DocumentInfoBar({
         </span>
       </button>
 
-      {/* ================================================
-          GENERAL DOCUMENT INFORMATION
-          ================================================ */}
-
       {activeTab === 'general' ? (
         <>
           <div className={styles.previewGrid}>
@@ -268,11 +330,7 @@ export function DocumentInfoBar({
 
               <select
                 value={document.series}
-                onChange={(event) =>
-                  updateDocument({
-                    series: event.target.value,
-                  })
-                }
+                onChange={(event) => handleSeriesChange(event.target.value)}
               >
                 <option value="">
                   {t('documentInfo.select', {
@@ -302,19 +360,23 @@ export function DocumentInfoBar({
               <input
                 type="text"
                 value={document.number}
-                placeholder="0000001"
-                onChange={(event) =>
+                placeholder="2026-00001"
+                onChange={(event) => {
+                  setNumberWasEdited(true);
+
                   updateDocument({
                     number: event.target.value,
-                  })
-                }
+                  });
+                }}
               />
             </label>
           </div>
 
           {invoiceNumberPreview ? (
             <div className={styles.documentPreview}>
-              <span>Belge Numarası</span>
+              <span>
+                Belge Numarası {enableAutoNumbering && !numberWasEdited ? '• Otomatik' : ''}
+              </span>
 
               <strong>{invoiceNumberPreview}</strong>
             </div>
@@ -323,8 +385,6 @@ export function DocumentInfoBar({
           <div className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''}`}>
             <div className={styles.expandableInner}>
               <div className={styles.detailsGrid}>
-                {/* Tarih / Saat */}
-
                 <label className={styles.field}>
                   <span>
                     {t('documentInfo.dateTime', {
@@ -342,8 +402,6 @@ export function DocumentInfoBar({
                     }
                   />
                 </label>
-
-                {/* Belge profili */}
 
                 <label className={styles.field}>
                   <span>
@@ -386,8 +444,6 @@ export function DocumentInfoBar({
                   </select>
                 </label>
 
-                {/* Fatura tipi */}
-
                 <label className={styles.field}>
                   <span>
                     {t('documentInfo.eType', {
@@ -429,8 +485,6 @@ export function DocumentInfoBar({
                   </select>
                 </label>
 
-                {/* Para birimi */}
-
                 <label className={styles.field}>
                   <span>
                     {t('documentInfo.currency', {
@@ -454,8 +508,6 @@ export function DocumentInfoBar({
                   </select>
                 </label>
 
-                {/* Açıklama */}
-
                 <label className={`${styles.field} ${styles.fullWidth}`}>
                   <span>
                     {t('documentInfo.description', {
@@ -477,8 +529,6 @@ export function DocumentInfoBar({
                   />
                 </label>
 
-                {/* ETTN */}
-
                 <label className={`${styles.field} ${styles.fullWidth}`}>
                   <span>
                     {t('documentInfo.ettn', {
@@ -497,8 +547,6 @@ export function DocumentInfoBar({
                     placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
                   />
                 </label>
-
-                {/* Kasiyer */}
 
                 <label className={styles.field}>
                   <span>
@@ -535,8 +583,6 @@ export function DocumentInfoBar({
                   </select>
                 </label>
 
-                {/* Etiket */}
-
                 <label className={styles.field}>
                   <span>
                     {t('documentInfo.label', {
@@ -572,10 +618,6 @@ export function DocumentInfoBar({
                   </select>
                 </label>
               </div>
-
-              {/* ============================================
-                  OPTIONS
-                  ============================================ */}
 
               <div className={styles.checkboxRow}>
                 <label>
@@ -618,10 +660,6 @@ export function DocumentInfoBar({
           </div>
         </>
       ) : (
-        /* ================================================
-           SOURCE DOCUMENTS
-           ================================================ */
-
         <div className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''}`}>
           <div className={styles.expandableInner}>
             <div className={styles.sourceHeader}>
@@ -652,31 +690,20 @@ export function DocumentInfoBar({
               <div className={styles.emptySourceState}>
                 <strong>Henüz kaynak belge yok</strong>
 
-                <span>
-                  İrsaliye, sipariş, sözleşme veya başka bir belge bağlamak için Kaynak Belge Ekle
-                  butonunu kullanın.
-                </span>
+                <span>İrsaliye, sipariş, sözleşme veya başka bir belge bağlayabilirsiniz.</span>
               </div>
             ) : (
               <div className={styles.sourceRows}>
                 {sourceDocuments.map((sourceDocument, index) => (
                   <div key={sourceDocument.id} className={styles.sourceRow}>
                     <div className={styles.sourceRowTitle}>
-                      <strong>
-                        {t('documentInfo.sourceRow', {
-                          number: index + 1,
-                          defaultValue: `Kaynak Belge ${index + 1}`,
-                        })}
-                      </strong>
+                      <strong>Kaynak Belge {index + 1}</strong>
 
                       <button
                         type="button"
                         className={styles.sourceRemoveButton}
                         onClick={() => removeSourceDocument(sourceDocument.id)}
-                        aria-label={t('documentInfo.removeSource', {
-                          defaultValue: 'Kaynak belgeyi sil',
-                        })}
-                        title="Kaynak belgeyi sil"
+                        aria-label="Kaynak belgeyi sil"
                       >
                         −
                       </button>

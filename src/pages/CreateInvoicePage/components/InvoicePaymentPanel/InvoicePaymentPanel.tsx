@@ -1,5 +1,6 @@
 import type {
   InvoiceAdditionalInfo,
+  InvoiceCurrency,
   InvoicePaymentInfo,
   InvoicePaymentMethod,
 } from '../../../../models/invoice';
@@ -9,6 +10,9 @@ import styles from './InvoicePaymentPanel.module.scss';
 interface InvoicePaymentPanelProps {
   issueDate: string;
   dueDate: string;
+
+  total: number;
+  currency: InvoiceCurrency;
 
   payment: InvoicePaymentInfo;
 
@@ -23,11 +27,21 @@ interface InvoicePaymentPanelProps {
 
 export function InvoicePaymentPanel({
   issueDate,
+
   dueDate,
+
+  total,
+
+  currency,
+
   payment,
+
   additionalInfo,
+
   onDueDateChange,
+
   onPaymentChange,
+
   onAdditionalInfoChange,
 }: InvoicePaymentPanelProps) {
   function updatePayment(changes: Partial<InvoicePaymentInfo>) {
@@ -44,7 +58,25 @@ export function InvoicePaymentPanel({
     });
   }
 
+  function formatMoney(value: number) {
+    return new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency,
+    }).format(value);
+  }
+
   const showBankFields = payment.method === 'bankTransfer';
+
+  const collectedAmount = Math.max(0, payment.collectedAmount ?? 0);
+
+  const remainingAmount = Math.max(0, total - collectedAmount);
+
+  const collectionStatus =
+    total <= 0 || collectedAmount <= 0
+      ? 'Tahsilat bekleniyor'
+      : collectedAmount >= total
+        ? 'Tam tahsil edildi'
+        : 'Kısmi tahsilat';
 
   return (
     <section className={styles.section}>
@@ -59,10 +91,6 @@ export function InvoicePaymentPanel({
       </div>
 
       <div className={styles.content}>
-        {/* ============================================
-            SOL: NOTLAR
-            ============================================ */}
-
         <div className={styles.notesPanel}>
           <div className={styles.panelTitle}>
             <div className={styles.iconBox}>N</div>
@@ -107,18 +135,14 @@ export function InvoicePaymentPanel({
           </label>
         </div>
 
-        {/* ============================================
-            SAĞ: ÖDEME BİLGİLERİ
-            ============================================ */}
-
         <div className={styles.paymentPanel}>
           <div className={styles.panelTitle}>
             <div className={styles.iconBox}>₺</div>
 
             <div>
-              <strong>Ödeme Bilgileri</strong>
+              <strong>Ödeme / Tahsilat Bilgileri</strong>
 
-              <span>Vade ve tahsilat yöntemi</span>
+              <span>Vade, tahsilat ve banka bilgileri</span>
             </div>
           </div>
 
@@ -152,6 +176,36 @@ export function InvoicePaymentPanel({
                 value={dueDate}
                 min={issueDate}
                 onChange={(event) => onDueDateChange(event.target.value)}
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span>Tahsil Edilen Tutar ({currency})</span>
+
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={payment.collectedAmount ?? 0}
+                onChange={(event) =>
+                  updatePayment({
+                    collectedAmount: Math.max(0, Number(event.target.value)),
+                  })
+                }
+              />
+            </label>
+
+            <label className={styles.field}>
+              <span>Tahsilat Tarihi</span>
+
+              <input
+                type="date"
+                value={payment.collectionDate ?? ''}
+                onChange={(event) =>
+                  updatePayment({
+                    collectionDate: event.target.value,
+                  })
+                }
               />
             </label>
 
@@ -225,7 +279,10 @@ export function InvoicePaymentPanel({
               i
             </span>
 
-            <p>Seçilen ödeme yöntemi ve vade bilgileri faturayla birlikte kaydedilir.</p>
+            <p>
+              {collectionStatus} • Tahsil edilen: {formatMoney(collectedAmount)} • Kalan:{' '}
+              {formatMoney(remainingAmount)}
+            </p>
           </div>
         </div>
       </div>

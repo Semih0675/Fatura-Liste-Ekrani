@@ -1,152 +1,222 @@
 import { useEffect, useMemo, useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
-import type { InvoiceItem } from '../../../../models/invoice';
+import type {
+  InvoiceCurrency,
+  InvoiceItem,
+  InvoiceItemType,
+  InvoiceItemUnit,
+} from '../../../../models/invoice';
+
+import {
+  calculateInvoiceLine,
+  calculateInvoiceTotals,
+} from '../../../../utils/invoiceCalculations';
 
 import styles from './InvoiceItemsTable.module.scss';
 
-type ItemType = 'product' | 'service';
-type ItemUnit = 'piece' | 'kg' | 'meter' | 'hour';
-type Currency = 'TRY' | 'USD' | 'EUR';
-
 interface InvoiceItemsTableProps {
   initialItems?: InvoiceItem[];
+
   initialAmount?: number;
+
+  currency: InvoiceCurrency;
+
   onItemsChange?: (items: InvoiceItem[]) => void;
+}
+
+interface CatalogProduct {
+  id: string;
+
+  code: string;
+
+  name: string;
+
+  description: string;
+
+  type: InvoiceItemType;
+
+  unit: InvoiceItemUnit;
+
+  unitPrice: number;
+
+  vatRate: number;
+
+  stockQuantity: number | null;
 }
 
 interface InvoiceItemRow {
   id: string;
-  type: ItemType;
+
+  type: InvoiceItemType;
+
   productId: string;
+
   productName: string;
+
+  productCode: string;
+
   description: string;
+
   quantity: number;
-  unit: ItemUnit;
+
+  unit: InvoiceItemUnit;
+
   unitPrice: number;
+
   discountRate: number;
+
   vatRate: number;
-  currency: Currency;
 }
 
-interface RowAmounts {
-  grossAmount: number;
-  discountAmount: number;
-  netAmount: number;
-  vatAmount: number;
-  lineTotal: number;
-}
+const MANUAL_PRODUCT_ID = '__manual__';
 
-interface CurrencyTotals {
-  grossAmount: number;
-  discountAmount: number;
-  netAmount: number;
-  vatAmount: number;
-  grandTotal: number;
-}
-
-const products = [
+const products: CatalogProduct[] = [
   {
     id: 'product-1',
+
+    code: '3D-001',
+
     name: '3D Baskı Ürünü',
+
+    description: '3D baskı üretim ürünü',
+
+    type: 'product',
+
+    unit: 'piece',
+
+    unitPrice: 1250,
+
+    vatRate: 20,
+
+    stockQuantity: 48,
   },
+
   {
     id: 'product-2',
+
+    code: 'FLM-PLA-001',
+
     name: 'Filament',
+
+    description: 'PLA filament',
+
+    type: 'product',
+
+    unit: 'piece',
+
+    unitPrice: 650,
+
+    vatRate: 20,
+
+    stockQuantity: 125,
   },
+
   {
     id: 'product-3',
+
+    code: 'HZM-TSR-001',
+
     name: 'Tasarım Hizmeti',
+
+    description: '3D modelleme ve tasarım hizmeti',
+
+    type: 'service',
+
+    unit: 'hour',
+
+    unitPrice: 2500,
+
+    vatRate: 20,
+
+    stockQuantity: null,
   },
+
   {
     id: 'product-4',
+
+    code: 'HZM-KRG-001',
+
     name: 'Kargo Hizmeti',
+
+    description: 'Kargo ve teslimat hizmeti',
+
+    type: 'service',
+
+    unit: 'piece',
+
+    unitPrice: 250,
+
+    vatRate: 20,
+
+    stockQuantity: null,
   },
 ];
 
 function createEmptyRow(initialAmount = 0): InvoiceItemRow {
   return {
     id: crypto.randomUUID(),
+
     type: 'product',
+
     productId: '',
+
     productName: '',
+
+    productCode: '',
+
     description: '',
+
     quantity: 1,
+
     unit: 'piece',
+
     unitPrice: initialAmount,
+
     discountRate: 0,
+
     vatRate: 20,
-    currency: 'TRY',
   };
 }
 
 function createRowFromInvoiceItem(item: InvoiceItem): InvoiceItemRow {
+  const knownProduct = products.find((product) => product.id === item.productId);
+
+  const isManual = !knownProduct && Boolean(item.productName);
+
   return {
     id: item.id,
+
     type: item.type,
-    productId: item.productId,
+
+    productId: knownProduct?.id ?? (isManual ? MANUAL_PRODUCT_ID : ''),
+
     productName: item.productName ?? '',
+
+    productCode: item.productCode ?? knownProduct?.code ?? '',
+
     description: item.description,
+
     quantity: item.quantity,
+
     unit: item.unit,
+
     unitPrice: item.unitPrice,
+
     discountRate: item.discountRate,
+
     vatRate: item.vatRate,
-    currency: item.currency,
-  };
-}
-
-function calculateRowAmounts(row: InvoiceItemRow): RowAmounts {
-  const grossAmount = row.quantity * row.unitPrice;
-
-  const discountAmount = grossAmount * (row.discountRate / 100);
-
-  const netAmount = grossAmount - discountAmount;
-
-  const vatAmount = netAmount * (row.vatRate / 100);
-
-  const lineTotal = netAmount + vatAmount;
-
-  return {
-    grossAmount,
-    discountAmount,
-    netAmount,
-    vatAmount,
-    lineTotal,
-  };
-}
-
-function createEmptyCurrencyTotals(): Record<Currency, CurrencyTotals> {
-  return {
-    TRY: {
-      grossAmount: 0,
-      discountAmount: 0,
-      netAmount: 0,
-      vatAmount: 0,
-      grandTotal: 0,
-    },
-
-    USD: {
-      grossAmount: 0,
-      discountAmount: 0,
-      netAmount: 0,
-      vatAmount: 0,
-      grandTotal: 0,
-    },
-
-    EUR: {
-      grossAmount: 0,
-      discountAmount: 0,
-      netAmount: 0,
-      vatAmount: 0,
-      grandTotal: 0,
-    },
   };
 }
 
 export function InvoiceItemsTable({
   initialItems,
+
   initialAmount = 0,
+
+  currency,
+
   onItemsChange,
 }: InvoiceItemsTableProps) {
   const { t, i18n } = useTranslation();
@@ -161,69 +231,55 @@ export function InvoiceItemsTable({
 
   const locale = i18n.resolvedLanguage?.startsWith('en') ? 'en-US' : 'tr-TR';
 
-  /*
-   * Parent component her zaman güncel
-   * fatura kalemlerini alır.
-   */
+  const invoiceItems = useMemo<InvoiceItem[]>(
+    () =>
+      rows.map((row) => {
+        const amounts = calculateInvoiceLine(row);
+
+        const knownProduct = products.find((product) => product.id === row.productId);
+
+        return {
+          id: row.id,
+
+          type: row.type,
+
+          productId: row.productId === MANUAL_PRODUCT_ID ? '' : row.productId,
+
+          productName: row.productName || knownProduct?.name || '',
+
+          productCode: row.productCode || knownProduct?.code || '',
+
+          description: row.description,
+
+          quantity: row.quantity,
+
+          unit: row.unit,
+
+          unitPrice: row.unitPrice,
+
+          discountRate: row.discountRate,
+
+          vatRate: row.vatRate,
+
+          currency,
+
+          lineTotal: amounts.lineTotal,
+        };
+      }),
+    [currency, rows],
+  );
+
+  const totals = useMemo(() => calculateInvoiceTotals(invoiceItems), [invoiceItems]);
+
   useEffect(() => {
-    const invoiceItems: InvoiceItem[] = rows.map((row) => {
-      const product = products.find((item) => item.id === row.productId);
-
-      const amounts = calculateRowAmounts(row);
-
-      return {
-        id: row.id,
-        type: row.type,
-        productId: row.productId,
-
-        productName: row.productName || product?.name || '',
-
-        description: row.description,
-
-        quantity: row.quantity,
-        unit: row.unit,
-        unitPrice: row.unitPrice,
-
-        discountRate: row.discountRate,
-
-        vatRate: row.vatRate,
-
-        currency: row.currency,
-
-        lineTotal: amounts.lineTotal,
-      };
-    });
-
     onItemsChange?.(invoiceItems);
-  }, [rows, onItemsChange]);
+  }, [invoiceItems, onItemsChange]);
 
-  const totalsByCurrency = useMemo(() => {
-    const totals = createEmptyCurrencyTotals();
+  function updateRow(
+    id: string,
 
-    rows.forEach((row) => {
-      const amounts = calculateRowAmounts(row);
-
-      const currencyTotal = totals[row.currency];
-
-      currencyTotal.grossAmount += amounts.grossAmount;
-
-      currencyTotal.discountAmount += amounts.discountAmount;
-
-      currencyTotal.netAmount += amounts.netAmount;
-
-      currencyTotal.vatAmount += amounts.vatAmount;
-
-      currencyTotal.grandTotal += amounts.lineTotal;
-    });
-
-    return totals;
-  }, [rows]);
-
-  const visibleCurrencies = (
-    Object.entries(totalsByCurrency) as [Currency, CurrencyTotals][]
-  ).filter(([, totals]) => totals.grossAmount > 0 || totals.grandTotal > 0);
-
-  function updateRow(id: string, changes: Partial<InvoiceItemRow>) {
+    changes: Partial<InvoiceItemRow>,
+  ) {
     setRows((currentRows) =>
       currentRows.map((row) =>
         row.id === id
@@ -236,15 +292,55 @@ export function InvoiceItemsTable({
     );
   }
 
-  function handleProductChange(row: InvoiceItemRow, productId: string) {
+  function handleProductChange(
+    row: InvoiceItemRow,
+
+    productId: string,
+  ) {
+    if (productId === MANUAL_PRODUCT_ID) {
+      updateRow(row.id, {
+        productId: MANUAL_PRODUCT_ID,
+
+        productName: '',
+
+        productCode: '',
+
+        description: '',
+      });
+
+      return;
+    }
+
     const product = products.find((item) => item.id === productId);
 
+    if (!product) {
+      updateRow(row.id, {
+        productId: '',
+
+        productName: '',
+
+        productCode: '',
+      });
+
+      return;
+    }
+
     updateRow(row.id, {
-      productId,
+      productId: product.id,
 
-      productName: product?.name ?? '',
+      productName: product.name,
 
-      description: row.description || product?.name || '',
+      productCode: product.code,
+
+      description: product.description,
+
+      type: product.type,
+
+      unit: product.unit,
+
+      unitPrice: product.unitPrice,
+
+      vatRate: product.vatRate,
     });
   }
 
@@ -256,36 +352,16 @@ export function InvoiceItemsTable({
         return currentRows;
       }
 
-      const currentRow = currentRows[rowIndex];
-
-      const nextRow = createEmptyRow();
-
-      /*
-       * Yeni satır önceki satırın
-       * para birimini devam ettirsin.
-       */
-      nextRow.currency = currentRow.currency;
-
       const nextRows = [...currentRows];
 
-      nextRows.splice(rowIndex + 1, 0, nextRow);
+      nextRows.splice(rowIndex + 1, 0, createEmptyRow());
 
       return nextRows;
     });
   }
 
   function addRowToEnd() {
-    setRows((currentRows) => {
-      const nextRow = createEmptyRow();
-
-      const lastRow = currentRows[currentRows.length - 1];
-
-      if (lastRow) {
-        nextRow.currency = lastRow.currency;
-      }
-
-      return [...currentRows, nextRow];
-    });
+    setRows((currentRows) => [...currentRows, createEmptyRow()]);
   }
 
   function removeRow(id: string) {
@@ -298,7 +374,7 @@ export function InvoiceItemsTable({
     });
   }
 
-  function formatCurrency(value: number, currency: Currency) {
+  function formatCurrency(value: number) {
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,
@@ -323,9 +399,12 @@ export function InvoiceItemsTable({
         </div>
 
         <div className={styles.headerActions}>
+          <span className={styles.currencyHeaderBadge}>{currency}</span>
+
           <span className={styles.rowCount}>
             {t('invoiceItems.rowCount', {
               count: rows.length,
+
               defaultValue: '{{count}} kalem',
             })}
           </span>
@@ -433,9 +512,11 @@ export function InvoiceItemsTable({
 
           <tbody>
             {rows.map((row, index) => {
-              const amounts = calculateRowAmounts(row);
+              const amounts = calculateInvoiceLine(row);
 
               const knownProduct = products.find((product) => product.id === row.productId);
+
+              const isManualProduct = row.productId === MANUAL_PRODUCT_ID;
 
               return (
                 <tr key={row.id}>
@@ -447,12 +528,8 @@ export function InvoiceItemsTable({
                         type="button"
                         className={styles.addButton}
                         onClick={() => addRowAfter(row.id)}
-                        aria-label={t('invoiceItems.addRow', {
-                          defaultValue: 'Altına satır ekle',
-                        })}
-                        title={t('invoiceItems.addRow', {
-                          defaultValue: 'Altına satır ekle',
-                        })}
+                        aria-label="Altına satır ekle"
+                        title="Altına satır ekle"
                       >
                         +
                       </button>
@@ -462,12 +539,8 @@ export function InvoiceItemsTable({
                         className={styles.removeButton}
                         onClick={() => removeRow(row.id)}
                         disabled={rows.length === 1}
-                        aria-label={t('invoiceItems.removeRow', {
-                          defaultValue: 'Satırı sil',
-                        })}
-                        title={t('invoiceItems.removeRow', {
-                          defaultValue: 'Satırı sil',
-                        })}
+                        aria-label="Satırı sil"
+                        title="Satırı sil"
                       >
                         −
                       </button>
@@ -479,54 +552,62 @@ export function InvoiceItemsTable({
                       value={row.type}
                       onChange={(event) =>
                         updateRow(row.id, {
-                          type: event.target.value as ItemType,
+                          type: event.target.value as InvoiceItemType,
                         })
                       }
                     >
-                      <option value="product">
-                        {t('invoiceItems.productType', {
-                          defaultValue: 'Ürün',
-                        })}
-                      </option>
+                      <option value="product">Ürün</option>
 
-                      <option value="service">
-                        {t('invoiceItems.serviceType', {
-                          defaultValue: 'Hizmet',
-                        })}
-                      </option>
+                      <option value="service">Hizmet</option>
                     </select>
                   </td>
 
                   <td>
-                    <select
-                      value={row.productId}
-                      onChange={(event) => handleProductChange(row, event.target.value)}
-                    >
-                      <option value="">
-                        {t('invoiceItems.selectProduct', {
-                          defaultValue: 'Mal / hizmet seç',
-                        })}
-                      </option>
+                    <div className={styles.productEditor}>
+                      <select
+                        value={knownProduct?.id ?? (isManualProduct ? MANUAL_PRODUCT_ID : '')}
+                        onChange={(event) => handleProductChange(row, event.target.value)}
+                      >
+                        <option value="">Mal / hizmet seç</option>
 
-                      {row.productId && !knownProduct ? (
-                        <option value={row.productId}>{row.productName || row.productId}</option>
+                        {products.map((product) => (
+                          <option key={product.id} value={product.id}>
+                            [{product.code}] {product.name}
+                          </option>
+                        ))}
+
+                        <option value={MANUAL_PRODUCT_ID}>+ Serbest ürün / hizmet</option>
+                      </select>
+
+                      {isManualProduct ? (
+                        <input
+                          type="text"
+                          value={row.productName}
+                          placeholder="Ürün / hizmet adı"
+                          onChange={(event) =>
+                            updateRow(row.id, {
+                              productName: event.target.value,
+                            })
+                          }
+                        />
                       ) : null}
 
-                      {products.map((product) => (
-                        <option key={product.id} value={product.id}>
-                          {product.name}
-                        </option>
-                      ))}
-                    </select>
+                      {knownProduct ? (
+                        <span className={styles.productMeta}>
+                          Kod: {knownProduct.code} •{' '}
+                          {knownProduct.stockQuantity === null
+                            ? 'Hizmet'
+                            : `Stok: ${knownProduct.stockQuantity}`}
+                        </span>
+                      ) : null}
+                    </div>
                   </td>
 
                   <td>
                     <input
                       type="text"
                       value={row.description}
-                      placeholder={t('invoiceItems.descriptionPlaceholder', {
-                        defaultValue: 'Satır açıklaması',
-                      })}
+                      placeholder="Satır açıklaması"
                       onChange={(event) =>
                         updateRow(row.id, {
                           description: event.target.value,
@@ -554,33 +635,17 @@ export function InvoiceItemsTable({
                       value={row.unit}
                       onChange={(event) =>
                         updateRow(row.id, {
-                          unit: event.target.value as ItemUnit,
+                          unit: event.target.value as InvoiceItemUnit,
                         })
                       }
                     >
-                      <option value="piece">
-                        {t('invoiceItems.piece', {
-                          defaultValue: 'Adet',
-                        })}
-                      </option>
+                      <option value="piece">Adet</option>
 
-                      <option value="kg">
-                        {t('invoiceItems.kilogram', {
-                          defaultValue: 'Kg',
-                        })}
-                      </option>
+                      <option value="kg">Kilogram</option>
 
-                      <option value="meter">
-                        {t('invoiceItems.meter', {
-                          defaultValue: 'Metre',
-                        })}
-                      </option>
+                      <option value="meter">Metre</option>
 
-                      <option value="hour">
-                        {t('invoiceItems.hour', {
-                          defaultValue: 'Saat',
-                        })}
-                      </option>
+                      <option value="hour">Saat</option>
                     </select>
                   </td>
 
@@ -598,26 +663,11 @@ export function InvoiceItemsTable({
                     />
                   </td>
 
-                  <td>
-                    <select
-                      value={row.currency}
-                      onChange={(event) =>
-                        updateRow(row.id, {
-                          currency: event.target.value as Currency,
-                        })
-                      }
-                    >
-                      <option value="TRY">TRY</option>
-
-                      <option value="USD">USD</option>
-
-                      <option value="EUR">EUR</option>
-                    </select>
+                  <td className={styles.currencyCell}>
+                    <span className={styles.currencyBadge}>{currency}</span>
                   </td>
 
-                  <td className={styles.amountCell}>
-                    {formatCurrency(amounts.grossAmount, row.currency)}
-                  </td>
+                  <td className={styles.amountCell}>{formatCurrency(amounts.grossAmount)}</td>
 
                   <td>
                     <input
@@ -634,9 +684,7 @@ export function InvoiceItemsTable({
                     />
                   </td>
 
-                  <td className={styles.amountCell}>
-                    {formatCurrency(amounts.discountAmount, row.currency)}
-                  </td>
+                  <td className={styles.amountCell}>{formatCurrency(amounts.discountAmount)}</td>
 
                   <td>
                     <select
@@ -657,13 +705,9 @@ export function InvoiceItemsTable({
                     </select>
                   </td>
 
-                  <td className={styles.amountCell}>
-                    {formatCurrency(amounts.vatAmount, row.currency)}
-                  </td>
+                  <td className={styles.amountCell}>{formatCurrency(amounts.vatAmount)}</td>
 
-                  <td className={styles.totalCell}>
-                    {formatCurrency(amounts.lineTotal, row.currency)}
-                  </td>
+                  <td className={styles.totalCell}>{formatCurrency(amounts.lineTotal)}</td>
                 </tr>
               );
             })}
@@ -673,59 +717,63 @@ export function InvoiceItemsTable({
 
       <div className={styles.footer}>
         <div className={styles.footerInformation}>
-          <strong>
-            {t('invoiceItems.summaryTitle', {
-              defaultValue: 'Fatura Özeti',
-            })}
-          </strong>
+          <strong>Fatura Özeti</strong>
 
-          <span>{rows.length} kalem</span>
+          <span>
+            {rows.length} kalem • Tek belge para birimi: {currency}
+          </span>
+
+          <span>Para birimi, Belge Genel Bilgileri alanından değiştirilir.</span>
         </div>
 
         <div className={styles.summaryContainer}>
-          {visibleCurrencies.length > 0 ? (
-            visibleCurrencies.map(([currency, totals]) => (
-              <div key={currency} className={styles.currencySummary}>
-                <div className={styles.summaryRow}>
-                  <span>Mal / Hizmet Toplamı</span>
+          <div className={styles.currencySummary}>
+            <div className={styles.summaryRow}>
+              <span>Mal / Hizmet Toplamı</span>
 
-                  <strong>{formatCurrency(totals.grossAmount, currency)}</strong>
-                </div>
-
-                <div className={styles.summaryRow}>
-                  <span>Toplam İskonto</span>
-
-                  <strong>-{formatCurrency(totals.discountAmount, currency)}</strong>
-                </div>
-
-                <div className={styles.summaryRow}>
-                  <span>KDV Matrahı</span>
-
-                  <strong>{formatCurrency(totals.netAmount, currency)}</strong>
-                </div>
-
-                <div className={styles.summaryRow}>
-                  <span>Hesaplanan KDV</span>
-
-                  <strong>{formatCurrency(totals.vatAmount, currency)}</strong>
-                </div>
-
-                <div className={styles.grandTotalRow}>
-                  <span>Ödenecek Tutar</span>
-
-                  <strong>{formatCurrency(totals.grandTotal, currency)}</strong>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className={styles.currencySummary}>
-              <div className={styles.grandTotalRow}>
-                <span>Ödenecek Tutar</span>
-
-                <strong>{formatCurrency(0, 'TRY')}</strong>
-              </div>
+              <strong>{formatCurrency(totals.subtotal)}</strong>
             </div>
-          )}
+
+            <div className={styles.summaryRow}>
+              <span>Toplam İskonto</span>
+
+              <strong>-{formatCurrency(totals.totalDiscount)}</strong>
+            </div>
+
+            <div className={styles.summaryRow}>
+              <span>KDV Matrahı</span>
+
+              <strong>{formatCurrency(totals.netSubtotal ?? 0)}</strong>
+            </div>
+
+            {(totals.vatBreakdown ?? []).map((vat) => (
+              <div key={vat.rate} className={styles.vatGroup}>
+                <div className={styles.summaryRow}>
+                  <span>%{vat.rate} KDV Matrahı</span>
+
+                  <strong>{formatCurrency(vat.taxableAmount)}</strong>
+                </div>
+
+                <div className={styles.summaryRow}>
+                  <span>%{vat.rate} Hesaplanan KDV</span>
+
+                  <strong>{formatCurrency(vat.vatAmount)}</strong>
+                </div>
+              </div>
+            ))}
+
+            <div className={styles.summaryRow}>
+              <span>Toplam KDV</span>
+
+              <strong>{formatCurrency(totals.totalVat)}</strong>
+            </div>
+
+            <div className={styles.grandTotalRow}>
+              <span>Ödenecek Tutar</span>
+
+              <strong>{formatCurrency(totals.grandTotal)}</strong>
+            </div>
+          </div>
         </div>
       </div>
     </section>

@@ -8,6 +8,7 @@ import type {
   CreateInvoiceInput,
   Invoice,
   InvoiceAdditionalInfo,
+  InvoiceCompany,
   InvoiceCustomer,
   InvoiceDocument,
   InvoiceItem,
@@ -15,19 +16,25 @@ import type {
   InvoiceSourceDocument,
 } from '../../models/invoice';
 
-import { useAppDispatch } from '../../store/hooks';
+import { calculateInvoiceTotals } from '../../utils/invoiceCalculations';
+
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
 
 import { createDraftInvoice, createInvoice } from '../../store/slices/invoiceSlice';
+
+import { CompanyInfoCard } from './components/CompanyInfoCard/CompanyInfoCard';
 
 import { CustomerAddressCard } from './components/CustomerAddressCard/CustomerAddressCard';
 
 import { DocumentInfoBar } from './components/DocumentInfoBar/DocumentInfoBar';
 
+import { InvoiceActionBar } from './components/InvoiceActionBar/InvoiceActionBar';
+
 import { InvoiceItemsTable } from './components/InvoiceItemsTable/InvoiceItemsTable';
 
-import { InvoicePaymentPanel } from './components/InvoicePaymentPanel/InvoicePaymentPanel';
+import { InvoiceLiveSummary } from './components/InvoiceLiveSummary/InvoiceLiveSummary';
 
-import { InvoiceActionBar } from './components/InvoiceActionBar/InvoiceActionBar';
+import { InvoicePaymentPanel } from './components/InvoicePaymentPanel/InvoicePaymentPanel';
 
 import { InvoicePreviewModal } from './components/InvoicePreviewModal/InvoicePreviewModal';
 
@@ -38,10 +45,6 @@ interface CreateInvoiceLocationState {
 }
 
 type SavingMode = 'draft' | 'final' | null;
-
-/* =========================================================
-   DATE HELPERS
-   ========================================================= */
 
 function formatLocalDate(date: Date): string {
   const timezoneOffset = date.getTimezoneOffset() * 60_000;
@@ -61,45 +64,87 @@ function getDefaultDueDate(): string {
   return formatLocalDate(date);
 }
 
-/* =========================================================
-   TOTALS
-   ========================================================= */
-
-function calculateTotals(invoiceItems: InvoiceItem[]) {
-  let subtotal = 0;
-  let totalDiscount = 0;
-  let totalVat = 0;
-
-  invoiceItems.forEach((item) => {
-    const gross = item.quantity * item.unitPrice;
-
-    const discount = gross * (item.discountRate / 100);
-
-    const discounted = gross - discount;
-
-    const vat = discounted * (item.vatRate / 100);
-
-    subtotal += gross;
-
-    totalDiscount += discount;
-
-    totalVat += vat;
-  });
-
-  return {
-    subtotal,
-
-    totalDiscount,
-
-    totalVat,
-
-    grandTotal: subtotal - totalDiscount + totalVat,
-  };
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/* =========================================================
-   PAGE
-   ========================================================= */
+function getNextDocumentNumber(
+  invoices: Invoice[],
+
+  series: string,
+
+  year: number,
+): string {
+  const safeSeries = escapeRegExp(series);
+
+  const fullNumberPattern = new RegExp(`^${safeSeries}-${year}-(\\d+)$`, 'i');
+
+  const documentNumberPattern = new RegExp(`^${year}-(\\d+)$`);
+
+  let highestSequence = 0;
+
+  invoices.forEach((invoice) => {
+    const fullMatch = invoice.invoiceNumber?.trim().match(fullNumberPattern);
+
+    if (fullMatch) {
+      highestSequence = Math.max(
+        highestSequence,
+
+        Number(fullMatch[1]),
+      );
+
+      return;
+    }
+
+    if (
+      invoice.document?.series?.toLocaleUpperCase('tr-TR') !== series.toLocaleUpperCase('tr-TR')
+    ) {
+      return;
+    }
+
+    const documentMatch = invoice.document.number?.trim().match(documentNumberPattern);
+
+    if (documentMatch) {
+      highestSequence = Math.max(
+        highestSequence,
+
+        Number(documentMatch[1]),
+      );
+    }
+  });
+
+  return `${year}-${String(highestSequence + 1).padStart(5, '0')}`;
+}
+
+function createDefaultCompany(): InvoiceCompany {
+  return {
+    title: 'PreAccounting',
+
+    taxNumber: '',
+
+    taxOffice: '',
+
+    mersisNumber: '',
+
+    tradeRegistryNumber: '',
+
+    phone: '',
+
+    email: '',
+
+    website: '',
+
+    address: '',
+
+    district: '',
+
+    city: '',
+
+    country: 'Türkiye',
+
+    logoUrl: '',
+  };
+}
 
 export default function CreateInvoicePage() {
   const { t, i18n } = useTranslation();
@@ -110,71 +155,108 @@ export default function CreateInvoicePage() {
 
   const dispatch = useAppDispatch();
 
-  /* =======================================================
-     SOURCE INVOICE
-
-     Sadece ön doldurma için kullanılır.
-     Eski faturayı güncellemez.
-     ======================================================= */
+  const existingInvoices = useAppSelector((state) => state.invoices.items);
 
   const sourceInvoice =
     (location.state as CreateInvoiceLocationState | null)?.sourceInvoice ?? null;
 
-  /* =======================================================
-     DEFAULT DATES
-     ======================================================= */
+  /*
+   * Bu ekran yeni fatura
+   * oluşturduğu için, başka
+   * faturadan aktarım yapılsa
+   * bile tarih ve belge numarası
+   * yeni kayıt için yeniden
+   * oluşturulur.
+   */
 
-  const initialIssueDate = sourceInvoice?.issueDate || getToday();
+  const initialIssueDate = getToday();
 
-  const initialDueDate = sourceInvoice?.dueDate || getDefaultDueDate();
+  const initialDueDate = getDefaultDueDate();
 
-  /* =======================================================
-     ITEMS
-     ======================================================= */
+  const currentYear = new Date().getFullYear();
 
-  const [items, setItems] = useState<InvoiceItem[]>(sourceInvoice?.items ?? []);
+  const sourceSeries = sourceInvoice?.document?.series?.trim() || 'FTR';
 
-  /* =======================================================
-     CUSTOMER
-     ======================================================= */
+  const autoNumbers = useMemo(() => {
+    const seriesList = [...new Set(['FTR', 'A', 'B', sourceSeries].filter(Boolean))];
+
+    return Object.fromEntries(
+      seriesList.map((series) => [
+        series,
+
+        getNextDocumentNumber(existingInvoices, series, currentYear),
+      ]),
+    );
+  }, [currentYear, existingInvoices, sourceSeries]);
+
+  const initialInvoiceNumber = `${sourceSeries}-${autoNumbers[sourceSeries]}`;
+
+  const initialDocumentForForm = useMemo<InvoiceDocument | undefined>(() => {
+    if (!sourceInvoice?.document) {
+      return undefined;
+    }
+
+    return {
+      ...sourceInvoice.document,
+
+      series: sourceSeries,
+
+      number: autoNumbers[sourceSeries],
+
+      dateTime: initialIssueDate,
+
+      ettn: '',
+    };
+  }, [autoNumbers, initialIssueDate, sourceInvoice, sourceSeries]);
+
+  const initialItems = useMemo<InvoiceItem[]>(
+    () =>
+      sourceInvoice?.items?.map((item) => ({
+        ...item,
+
+        id: crypto.randomUUID(),
+      })) ?? [],
+    [sourceInvoice],
+  );
+
+  const initialSourceDocuments = useMemo<InvoiceSourceDocument[]>(
+    () =>
+      sourceInvoice?.sourceDocuments?.map((sourceDocument) => ({
+        ...sourceDocument,
+
+        id: crypto.randomUUID(),
+      })) ?? [],
+    [sourceInvoice],
+  );
+
+  const [items, setItems] = useState<InvoiceItem[]>(initialItems);
 
   const [customer, setCustomer] = useState<InvoiceCustomer | undefined>(sourceInvoice?.customer);
 
-  /* =======================================================
-     DOCUMENT
-     ======================================================= */
-
-  const [document, setDocument] = useState<InvoiceDocument | undefined>(sourceInvoice?.document);
-
-  /* =======================================================
-     SOURCE DOCUMENTS
-     ======================================================= */
-
-  const [sourceDocuments, setSourceDocuments] = useState<InvoiceSourceDocument[]>(
-    sourceInvoice?.sourceDocuments ?? [],
+  const [company, setCompany] = useState<InvoiceCompany>(
+    sourceInvoice?.company ?? createDefaultCompany(),
   );
 
-  /* =======================================================
-     PAYMENT
-     ======================================================= */
+  const [document, setDocument] = useState<InvoiceDocument | undefined>(initialDocumentForForm);
 
-  const [payment, setPayment] = useState<InvoicePaymentInfo>(
-    sourceInvoice?.payment ?? {
-      method: 'bankTransfer',
+  const [sourceDocuments, setSourceDocuments] =
+    useState<InvoiceSourceDocument[]>(initialSourceDocuments);
 
-      accountName: '',
+  const [payment, setPayment] = useState<InvoicePaymentInfo>({
+    method: sourceInvoice?.payment?.method ?? 'bankTransfer',
 
-      bankName: '',
+    accountName: sourceInvoice?.payment?.accountName ?? '',
 
-      iban: '',
+    bankName: sourceInvoice?.payment?.bankName ?? '',
 
-      paymentDescription: '',
-    },
-  );
+    iban: sourceInvoice?.payment?.iban ?? '',
 
-  /* =======================================================
-     ADDITIONAL INFO
-     ======================================================= */
+    paymentDescription: sourceInvoice?.payment?.paymentDescription ?? '',
+
+    collectedAmount: 0,
+
+    collectionDate: '',
+  });
 
   const [additionalInfo, setAdditionalInfo] = useState<InvoiceAdditionalInfo>(
     sourceInvoice?.additionalInfo ?? {
@@ -184,57 +266,27 @@ export default function CreateInvoicePage() {
     },
   );
 
-  /* =======================================================
-     DUE DATE
-     ======================================================= */
-
   const [dueDate, setDueDate] = useState(initialDueDate);
-
-  /* =======================================================
-     SAVE
-     ======================================================= */
 
   const [savingMode, setSavingMode] = useState<SavingMode>(null);
 
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  const isSaving = savingMode !== null;
-
-  /* =======================================================
-     PREVIEW
-     ======================================================= */
-
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  /* =======================================================
-     LANGUAGE
-     ======================================================= */
+  const isSaving = savingMode !== null;
 
   const isEnglish = i18n.resolvedLanguage?.startsWith('en') ?? false;
 
-  /* =======================================================
-     TOTALS
-     ======================================================= */
-
-  const totals = useMemo(() => calculateTotals(items), [items]);
-
-  /* =======================================================
-     ISSUE DATE
-     ======================================================= */
+  const totals = useMemo(() => calculateInvoiceTotals(items), [items]);
 
   const issueDate = useMemo(() => {
     if (!document?.dateTime) {
       return initialIssueDate;
     }
 
-    const documentDate = document.dateTime.slice(0, 10);
-
-    return documentDate || initialIssueDate;
+    return document.dateTime.slice(0, 10) || initialIssueDate;
   }, [document?.dateTime, initialIssueDate]);
-
-  /* =======================================================
-     INVOICE NUMBER
-     ======================================================= */
 
   const invoiceNumber = useMemo(() => {
     const series = document?.series?.trim();
@@ -245,51 +297,43 @@ export default function CreateInvoicePage() {
       return `${series}-${number}`;
     }
 
-    if (number) {
-      return number;
-    }
+    return number || '';
+  }, [document?.number, document?.series]);
 
-    return '';
-  }, [document?.series, document?.number]);
+  const currency = document?.currency ?? initialDocumentForForm?.currency ?? 'TRY';
 
-  /* =======================================================
-     NAVIGATION
-     ======================================================= */
+  const collectedAmount = Math.max(0, payment.collectedAmount ?? 0);
 
   function handleCancel() {
     navigate('/');
   }
-
-  /* =======================================================
-     FINAL VALIDATION
-     ======================================================= */
 
   function validateInvoice(): string | null {
     if (!customer?.name?.trim()) {
       return 'Lütfen müşteri seçiniz.';
     }
 
-    if (items.length === 0) {
-      return 'Faturaya en az bir kalem ekleyiniz.';
+    if (!company.title.trim()) {
+      return 'Lütfen faturayı düzenleyen firma ünvanını giriniz.';
     }
 
-    const hasValidItem = items.some(
+    if (!document?.series?.trim() || !document?.number?.trim()) {
+      return 'Fatura seri ve numarası oluşturulamadı.';
+    }
+
+    const validItems = items.filter(
       (item) =>
         item.quantity > 0 &&
         item.unitPrice >= 0 &&
         Boolean(item.productName?.trim() || item.description?.trim()),
     );
 
-    if (!hasValidItem) {
+    if (validItems.length === 0) {
       return 'En az bir geçerli ürün veya hizmet kalemi giriniz.';
     }
 
-    if (!issueDate) {
-      return 'Fatura tarihi boş bırakılamaz.';
-    }
-
-    if (!dueDate) {
-      return 'Vade tarihi boş bırakılamaz.';
+    if (!issueDate || !dueDate) {
+      return 'Fatura ve vade tarihlerini kontrol ediniz.';
     }
 
     const issueDateValue = new Date(issueDate).getTime();
@@ -306,10 +350,6 @@ export default function CreateInvoicePage() {
 
     return null;
   }
-
-  /* =======================================================
-     BUILD INVOICE
-     ======================================================= */
 
   function buildInvoiceInput(status: Invoice['status']): CreateInvoiceInput {
     return {
@@ -329,6 +369,8 @@ export default function CreateInvoicePage() {
 
       customer,
 
+      company,
+
       document,
 
       sourceDocuments,
@@ -343,10 +385,6 @@ export default function CreateInvoicePage() {
     };
   }
 
-  /* =======================================================
-     SAVE DRAFT
-     ======================================================= */
-
   async function handleSaveDraft() {
     if (isSaving) {
       return;
@@ -357,17 +395,7 @@ export default function CreateInvoicePage() {
     setSaveError(null);
 
     try {
-      /*
-       * Taslakta normal fatura
-       * validasyonu uygulanmıyor.
-       *
-       * Müşteri veya kalem bilgisi
-       * eksik olsa bile taslak
-       * kaydedilebilir.
-       */
-      const invoiceData = buildInvoiceInput('draft');
-
-      await dispatch(createDraftInvoice(invoiceData)).unwrap();
+      await dispatch(createDraftInvoice(buildInvoiceInput('draft'))).unwrap();
 
       navigate('/');
     } catch (error) {
@@ -376,10 +404,6 @@ export default function CreateInvoicePage() {
       setSavingMode(null);
     }
   }
-
-  /* =======================================================
-     SAVE FINAL INVOICE
-     ======================================================= */
 
   async function handleSave() {
     if (isSaving) {
@@ -399,17 +423,7 @@ export default function CreateInvoicePage() {
     setSaveError(null);
 
     try {
-      /*
-       * sourceInvoice olsa bile
-       * eski kaydı UPDATE etmiyoruz.
-       *
-       * Bu sayfa "Yeni Fatura"
-       * sayfası olduğu için her
-       * zaman yeni kayıt oluşturur.
-       */
-      const invoiceData = buildInvoiceInput('pending');
-
-      await dispatch(createInvoice(invoiceData)).unwrap();
+      await dispatch(createInvoice(buildInvoiceInput('pending'))).unwrap();
 
       navigate('/');
     } catch (error) {
@@ -425,24 +439,12 @@ export default function CreateInvoicePage() {
     }
   }
 
-  /* =======================================================
-     LANGUAGE
-     ======================================================= */
-
   function handleLanguageChange(language: 'tr' | 'en') {
     void i18n.changeLanguage(language);
   }
 
-  /* =======================================================
-     RENDER
-     ======================================================= */
-
   return (
     <div className={styles.page}>
-      {/* ===================================================
-          TOP BAR
-          =================================================== */}
-
       <header className={styles.topBar}>
         <div className={styles.topBarContent}>
           <div className={styles.brand}>
@@ -494,10 +496,6 @@ export default function CreateInvoicePage() {
         </div>
       </header>
 
-      {/* ===================================================
-          PAGE
-          =================================================== */}
-
       <div className={styles.pageInner}>
         <section className={styles.pageHeader}>
           <div className={styles.heading}>
@@ -509,35 +507,31 @@ export default function CreateInvoicePage() {
               })}
             </h1>
 
-            <p>
-              Müşteri, belge, ürün, ödeme ve vade bilgilerini girerek yeni faturanızı oluşturun.
-            </p>
+            <p>Cari, belge, firma, ürün, vergi ve tahsilat bilgilerini tek ekrandan yönetin.</p>
 
             {saveError ? <div className={styles.saveError}>{saveError}</div> : null}
 
             {sourceInvoice ? (
               <div className={styles.prefillNotice}>
                 <span aria-hidden="true">✓</span>
-
-                {t('createInvoice.prefilledFrom', {
-                  invoiceNumber: sourceInvoice.invoiceNumber,
-
-                  defaultValue: `${sourceInvoice.invoiceNumber} numaralı faturadan bilgiler aktarıldı. Yeni kayıt oluşturulacaktır.`,
-                })}
+                {sourceInvoice.invoiceNumber} numaralı faturadan bilgiler aktarıldı. Yeni belge
+                numarası otomatik oluşturuldu.
               </div>
             ) : null}
           </div>
+
+          <div className={styles.documentQuickInfo}>
+            <span>Yeni Belge No</span>
+
+            <strong>{invoiceNumber || initialInvoiceNumber}</strong>
+
+            <small>
+              {currency} • {currentYear}
+            </small>
+          </div>
         </section>
 
-        {/* =================================================
-            CONTENT
-            ================================================= */}
-
         <section className={styles.content}>
-          {/* ===============================================
-              CUSTOMER + DOCUMENT
-              =============================================== */}
-
           <div className={styles.topPanels}>
             <CustomerAddressCard
               initialCustomer={sourceInvoice?.customer}
@@ -546,42 +540,47 @@ export default function CreateInvoicePage() {
             />
 
             <DocumentInfoBar
-              initialDocument={sourceInvoice?.document}
-              initialSourceDocuments={sourceInvoice?.sourceDocuments}
-              initialInvoiceNumber={sourceInvoice?.invoiceNumber ?? ''}
+              initialDocument={initialDocumentForForm}
+              initialSourceDocuments={initialSourceDocuments}
+              initialInvoiceNumber={initialInvoiceNumber}
               initialIssueDate={initialIssueDate}
+              autoNumbers={autoNumbers}
+              enableAutoNumbering
               onDocumentChange={setDocument}
               onSourceDocumentsChange={setSourceDocuments}
             />
           </div>
 
-          {/* ===============================================
-              ITEMS
-              =============================================== */}
+          <CompanyInfoCard company={company} onCompanyChange={setCompany} />
 
           <InvoiceItemsTable
-            initialItems={sourceInvoice?.items}
+            initialItems={initialItems}
             initialAmount={sourceInvoice?.amount ?? 0}
+            currency={currency}
             onItemsChange={setItems}
           />
 
-          {/* ===============================================
-              PAYMENT
-              =============================================== */}
+          <div className={styles.paymentSummaryGrid}>
+            <InvoicePaymentPanel
+              issueDate={issueDate}
+              dueDate={dueDate}
+              total={totals.grandTotal}
+              currency={currency}
+              payment={payment}
+              additionalInfo={additionalInfo}
+              onDueDateChange={setDueDate}
+              onPaymentChange={setPayment}
+              onAdditionalInfoChange={setAdditionalInfo}
+            />
 
-          <InvoicePaymentPanel
-            issueDate={issueDate}
-            dueDate={dueDate}
-            payment={payment}
-            additionalInfo={additionalInfo}
-            onDueDateChange={setDueDate}
-            onPaymentChange={setPayment}
-            onAdditionalInfoChange={setAdditionalInfo}
-          />
-
-          {/* ===============================================
-              ACTION BAR
-              =============================================== */}
+            <InvoiceLiveSummary
+              totals={totals}
+              currency={currency}
+              itemCount={items.length}
+              dueDate={dueDate}
+              collectedAmount={collectedAmount}
+            />
+          </div>
 
           <InvoiceActionBar
             isSaving={isSaving}
@@ -589,7 +588,7 @@ export default function CreateInvoicePage() {
             invoiceNumber={invoiceNumber}
             customerName={customer?.name ?? ''}
             total={totals.grandTotal}
-            currency={document?.currency ?? 'TRY'}
+            currency={currency}
             onCancel={handleCancel}
             onPreview={() => setIsPreviewOpen(true)}
             onSaveDraft={() => void handleSaveDraft()}
@@ -598,16 +597,13 @@ export default function CreateInvoicePage() {
         </section>
       </div>
 
-      {/* ===================================================
-          PREVIEW
-          =================================================== */}
-
       <InvoicePreviewModal
         isOpen={isPreviewOpen}
         invoiceNumber={invoiceNumber}
         issueDate={issueDate}
         dueDate={dueDate}
         customer={customer}
+        company={company}
         document={document}
         items={items}
         totals={totals}

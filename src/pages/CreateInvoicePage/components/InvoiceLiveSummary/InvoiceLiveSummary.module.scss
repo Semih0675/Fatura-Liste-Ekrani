@@ -1,0 +1,215 @@
+.card {
+  overflow: hidden;
+
+  border: 1px solid #cfdbea;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 1px 2px rgb(15 23 42 / 3%),
+    0 4px 14px rgb(15 23 42 / 5%);
+}
+
+.header {
+  display: flex;
+
+  min-height: 58px;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 11px 13px;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  > div {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 1px;
+  }
+
+  span {
+    color: #2563eb;
+
+    font-size: 8px;
+    font-weight: 900;
+
+    letter-spacing: 0.08em;
+  }
+
+  h2 {
+    margin: 0;
+
+    color: #172033;
+
+    font-size: 14px;
+    font-weight: 900;
+  }
+}
+
+.currencyBadge {
+  display: inline-flex;
+
+  min-width: 42px;
+  height: 26px;
+
+  align-items: center;
+  justify-content: center;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+
+  color: #1d4ed8;
+  background: #eff6ff;
+
+  font-size: 9px;
+}
+
+.metaRow {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+
+  padding: 8px 13px;
+
+  border-bottom: 1px solid #edf1f5;
+
+  color: #94a3b8;
+  background: #fbfdff;
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.rows {
+  padding: 4px 0;
+}
+
+.row {
+  display: flex;
+
+  min-height: 32px;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 0 13px;
+
+  span {
+    color: #64748b;
+
+    font-size: 9px;
+    font-weight: 650;
+  }
+
+  strong {
+    color: #334155;
+
+    font-size: 10px;
+    font-weight: 850;
+
+    font-variant-numeric: tabular-nums;
+
+    white-space: nowrap;
+  }
+}
+
+.taxGroup {
+  margin: 3px 8px;
+
+  padding: 2px 0;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+
+  background: #f8fafc;
+}
+
+.grandTotal {
+  display: flex;
+
+  min-height: 58px;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 0 13px;
+
+  color: #ffffff;
+  background: #163e72;
+
+  span {
+    font-size: 10px;
+    font-weight: 850;
+  }
+
+  strong {
+    font-size: 18px;
+    font-weight: 950;
+
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.collection {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  border-bottom: 1px solid #e2e8f0;
+
+  > div {
+    display: flex;
+
+    min-height: 48px;
+
+    flex-direction: column;
+    justify-content: center;
+
+    gap: 2px;
+
+    padding: 0 12px;
+
+    &:first-child {
+      border-right: 1px solid #e2e8f0;
+    }
+  }
+
+  span {
+    color: #94a3b8;
+
+    font-size: 8px;
+    font-weight: 750;
+  }
+
+  strong {
+    color: #334155;
+
+    font-size: 11px;
+    font-weight: 900;
+  }
+}
+
+.status {
+  padding: 8px 12px;
+
+  color: #475569;
+  background: #f8fafc;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  text-align: center;
+}

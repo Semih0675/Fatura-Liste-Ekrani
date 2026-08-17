@@ -53,6 +53,30 @@ export interface InvoiceCustomer {
 }
 
 /* =========================================================
+   SELLER / COMPANY
+   ========================================================= */
+
+export interface InvoiceCompany {
+  title: string;
+  taxNumber: string;
+  taxOffice: string;
+
+  mersisNumber: string;
+  tradeRegistryNumber: string;
+
+  phone: string;
+  email: string;
+  website: string;
+
+  address: string;
+  district: string;
+  city: string;
+  country: string;
+
+  logoUrl: string;
+}
+
+/* =========================================================
    DOCUMENT
    ========================================================= */
 
@@ -109,6 +133,7 @@ export interface InvoiceItem {
 
   productId: string;
   productName: string;
+  productCode?: string;
 
   description: string;
 
@@ -137,12 +162,16 @@ export interface InvoicePaymentInfo {
   method: InvoicePaymentMethod;
 
   accountName: string;
-
   bankName: string;
-
   iban: string;
 
   paymentDescription: string;
+
+  /** Tahsil edilen tutar. Eski kayıtlarla uyumluluk için opsiyonel. */
+  collectedAmount?: number;
+
+  /** YYYY-MM-DD formatında tahsilat tarihi. */
+  collectionDate?: string;
 }
 
 /* =========================================================
@@ -150,29 +179,35 @@ export interface InvoicePaymentInfo {
    ========================================================= */
 
 export interface InvoiceAdditionalInfo {
-  /*
-   * Faturada müşteriye gösterilecek açıklama.
-   */
+  /** Faturada müşteriye gösterilecek açıklama. */
   note: string;
 
-  /*
-   * Sadece şirket içi kullanım için not.
-   */
+  /** Sadece şirket içi kullanım için not. */
   privateNote: string;
 }
 
 /* =========================================================
-   TOTALS
+   TAX / TOTALS
    ========================================================= */
+
+export interface InvoiceVatBreakdown {
+  rate: number;
+  taxableAmount: number;
+  vatAmount: number;
+}
 
 export interface InvoiceTotals {
   subtotal: number;
-
   totalDiscount: number;
 
-  totalVat: number;
+  /** Eski kayıtlarda olmayabileceği için opsiyonel tutulur. */
+  netSubtotal?: number;
 
+  totalVat: number;
   grandTotal: number;
+
+  /** KDV oranlarına göre matrah ve vergi dökümü. */
+  vatBreakdown?: InvoiceVatBreakdown[];
 }
 
 /* =========================================================
@@ -182,44 +217,27 @@ export interface InvoiceTotals {
 export interface Invoice {
   id: number;
 
-  /*
-   * Liste ekranında kullanılan ana alanlar.
-   */
   invoiceNumber: string;
-
   customerName: string;
 
   issueDate: string;
-
   dueDate: string;
 
   amount: number;
 
   type: InvoiceType;
-
   status: InvoiceStatus;
 
-  /*
-   * Detaylı fatura bilgileri.
-   */
   customer?: InvoiceCustomer;
+  company?: InvoiceCompany;
 
   document?: InvoiceDocument;
-
   sourceDocuments?: InvoiceSourceDocument[];
 
   items?: InvoiceItem[];
-
   totals?: InvoiceTotals;
 
-  /*
-   * Ödeme / banka bilgileri.
-   */
   payment?: InvoicePaymentInfo;
-
-  /*
-   * Fatura ve dahili notlar.
-   */
   additionalInfo?: InvoiceAdditionalInfo;
 }
 
@@ -242,7 +260,6 @@ export type SortDirection = 'ascending' | 'descending';
 
 export interface InvoiceSortConfig {
   key: InvoiceSortKey;
-
   direction: SortDirection;
 }
 
@@ -254,15 +271,12 @@ export interface InvoiceFilterValues {
   searchTerm: string;
 
   type: InvoiceType | null;
-
   statuses: InvoiceStatus[];
 
   issueDateFrom: string | null;
-
   issueDateTo: string | null;
 
   minAmount: number | null;
-
   maxAmount: number | null;
 }
 
@@ -278,6 +292,5 @@ export type InvoicePageSize = 10 | 25 | 50;
 
 export interface InvoicePaginationState {
   currentPage: number;
-
   pageSize: InvoicePageSize;
 }

@@ -1,6 +1,8 @@
 .overlay {
   position: fixed;
+
   z-index: 2000;
+
   inset: 0;
 
   display: grid;
@@ -18,6 +20,7 @@
   display: flex;
 
   width: min(1180px, 100%);
+
   max-height: calc(100vh - 48px);
 
   flex-direction: column;
@@ -40,13 +43,15 @@
   align-items: center;
   justify-content: space-between;
 
+  gap: 12px;
+
   padding: 0 16px;
 
   border-bottom: 1px solid #d9e2ec;
 
   background: #ffffff;
 
-  > div {
+  > div:first-child {
     display: flex;
 
     flex-direction: column;
@@ -69,29 +74,69 @@
     font-size: 13px;
     font-weight: 900;
   }
+}
 
-  button {
-    display: grid;
+.headerActions {
+  display: flex;
 
-    width: 32px;
-    height: 32px;
+  align-items: center;
 
-    place-items: center;
+  gap: 7px;
+}
 
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
+.printButton,
+.closeButton,
+.modalFooter button {
+  min-height: 34px;
 
-    color: #64748b;
-    background: #ffffff;
+  padding: 0 11px;
 
-    font-size: 21px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
 
-    cursor: pointer;
+  color: #334155;
+  background: #ffffff;
 
-    &:hover {
-      color: #dc2626;
-      background: #fef2f2;
-    }
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  &:hover {
+    background: #f8fafc;
+  }
+}
+
+.printButton,
+.footerPrintButton {
+  border-color: #2563eb !important;
+
+  color: #ffffff !important;
+
+  background: #2563eb !important;
+
+  &:hover {
+    background: #1d4ed8 !important;
+  }
+}
+
+.closeButton {
+  display: grid;
+
+  width: 34px;
+
+  padding: 0;
+
+  place-items: center;
+
+  color: #64748b;
+
+  font-size: 20px;
+
+  &:hover {
+    color: #dc2626;
+    background: #fef2f2;
   }
 }
 
@@ -103,11 +148,13 @@
 
 .invoice {
   width: min(920px, 100%);
-  min-height: 900px;
+
+  min-height: 1080px;
 
   box-sizing: border-box;
 
   margin: 0 auto;
+
   padding: 36px;
 
   color: #1e293b;
@@ -132,35 +179,26 @@
 .company {
   display: flex;
 
-  align-items: center;
+  min-width: 0;
+
+  align-items: flex-start;
 
   gap: 12px;
-
-  h1 {
-    margin: 0;
-
-    color: #163e72;
-
-    font-size: 20px;
-  }
-
-  p {
-    margin: 3px 0 0;
-
-    color: #64748b;
-
-    font-size: 10px;
-  }
 }
 
 .logo {
   display: grid;
 
-  width: 44px;
-  height: 44px;
+  width: 52px;
+  height: 52px;
+
+  flex-shrink: 0;
+
+  overflow: hidden;
 
   place-items: center;
 
+  border: 1px solid #dbe4ef;
   border-radius: 8px;
 
   color: #ffffff;
@@ -168,31 +206,79 @@
 
   font-size: 20px;
   font-weight: 900;
+
+  img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    background: #ffffff;
+  }
+}
+
+.companyText {
+  min-width: 0;
+
+  h1 {
+    margin: 0 0 4px;
+
+    color: #163e72;
+
+    font-size: 19px;
+  }
+
+  p {
+    max-width: 480px;
+
+    margin: 2px 0;
+
+    color: #64748b;
+
+    font-size: 9px;
+
+    line-height: 1.45;
+  }
 }
 
 .documentTitle {
+  display: flex;
+
+  flex-shrink: 0;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 3px;
+
   text-align: right;
 
   h2 {
-    margin: 0 0 5px;
+    margin: 0;
 
     color: #163e72;
 
     font-size: 17px;
   }
 
-  span {
-    color: #64748b;
+  strong {
+    color: #334155;
 
-    font-size: 11px;
-    font-weight: 800;
+    font-size: 12px;
+  }
+
+  span {
+    color: #94a3b8;
+
+    font-size: 8px;
   }
 }
 
 .infoGrid {
   display: grid;
 
-  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-columns: minmax(0, 1fr) 300px;
 
   gap: 32px;
 
@@ -200,6 +286,13 @@
 }
 
 .customerBox {
+  > span {
+    color: #64748b;
+
+    font-size: 9px;
+    font-weight: 900;
+  }
+
   strong {
     display: block;
 
@@ -210,19 +303,13 @@
     font-size: 14px;
   }
 
-  > span {
-    color: #64748b;
-
-    font-size: 9px;
-    font-weight: 900;
-  }
-
   p {
     margin: 3px 0;
 
     color: #64748b;
 
-    font-size: 10px;
+    font-size: 9px;
+
     line-height: 1.5;
   }
 }
@@ -252,14 +339,28 @@
   span {
     color: #64748b;
 
-    font-size: 9px;
+    font-size: 8px;
   }
 
   strong {
+    max-width: 180px;
+
+    overflow: hidden;
+
     color: #334155;
 
-    font-size: 10px;
+    font-size: 9px;
+
+    text-align: right;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
   }
+}
+
+.ettnValue {
+  font-size: 7px !important;
 }
 
 .itemsTableWrapper {
@@ -275,11 +376,11 @@
 
   th,
   td {
-    padding: 8px 6px;
+    padding: 7px 5px;
 
     border: 1px solid #dbe3ec;
 
-    font-size: 9px;
+    font-size: 8px;
   }
 
   th {
@@ -291,15 +392,23 @@
     text-align: left;
   }
 
-  td:nth-last-child(-n + 4) {
+  td:nth-last-child(-n + 5) {
     text-align: right;
   }
+}
+
+.emptyItems {
+  padding: 24px !important;
+
+  color: #94a3b8;
+
+  text-align: center !important;
 }
 
 .bottomArea {
   display: grid;
 
-  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-columns: minmax(0, 1fr) 330px;
 
   gap: 30px;
 
@@ -307,6 +416,14 @@
 }
 
 .notes {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 14px;
+}
+
+.noteBlock {
   strong {
     display: block;
 
@@ -314,7 +431,7 @@
 
     color: #334155;
 
-    font-size: 10px;
+    font-size: 9px;
   }
 
   p {
@@ -322,7 +439,8 @@
 
     color: #64748b;
 
-    font-size: 9px;
+    font-size: 8px;
+
     line-height: 1.5;
   }
 }
@@ -333,14 +451,14 @@
   > div {
     display: flex;
 
-    min-height: 36px;
+    min-height: 34px;
 
     align-items: center;
     justify-content: space-between;
 
     gap: 12px;
 
-    padding: 0 10px;
+    padding: 0 9px;
 
     border-bottom: 1px solid #e2e8f0;
 
@@ -352,22 +470,29 @@
   span {
     color: #64748b;
 
-    font-size: 9px;
+    font-size: 8px;
   }
 
   strong {
     color: #334155;
 
-    font-size: 10px;
+    font-size: 9px;
 
     font-variant-numeric: tabular-nums;
+
+    text-align: right;
   }
+}
+
+.taxSummaryRow {
+  background: #f8fafc;
 }
 
 .grandTotal {
   min-height: 48px !important;
 
   color: #ffffff !important;
+
   background: #163e72;
 
   span,
@@ -376,7 +501,34 @@
   }
 
   strong {
-    font-size: 14px;
+    font-size: 13px;
+  }
+}
+
+.collectionRow {
+  background: #fbfdff;
+}
+
+.invoiceFooter {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 36px;
+
+  padding-top: 10px;
+
+  border-top: 1px solid #e2e8f0;
+
+  color: #94a3b8;
+
+  font-size: 7px;
+
+  strong {
+    color: #64748b;
   }
 }
 
@@ -388,33 +540,13 @@
   align-items: center;
   justify-content: flex-end;
 
+  gap: 8px;
+
   padding: 0 16px;
 
   border-top: 1px solid #d9e2ec;
 
   background: #ffffff;
-
-  button {
-    min-height: 36px;
-
-    padding: 0 13px;
-
-    border: 1px solid #cbd5e1;
-    border-radius: 6px;
-
-    color: #334155;
-    background: #ffffff;
-
-    font: inherit;
-    font-size: 10px;
-    font-weight: 800;
-
-    cursor: pointer;
-
-    &:hover {
-      background: #f8fafc;
-    }
-  }
 }
 
 @media (max-width: 700px) {
@@ -440,6 +572,81 @@
   }
 
   .documentTitle {
+    align-items: flex-start;
+
     text-align: left;
+  }
+
+  .modalHeader {
+    align-items: flex-start;
+
+    padding-block: 10px;
+  }
+}
+
+@media print {
+  :global(body) {
+    margin: 0 !important;
+
+    background: #ffffff !important;
+  }
+
+  :global(body *) {
+    visibility: hidden !important;
+  }
+
+  .overlay,
+  .overlay * {
+    visibility: visible !important;
+  }
+
+  .overlay {
+    position: absolute;
+
+    inset: 0;
+
+    display: block;
+
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  .modal {
+    width: 100%;
+
+    max-height: none;
+
+    overflow: visible;
+
+    border: 0;
+    border-radius: 0;
+
+    background: #ffffff;
+
+    box-shadow: none;
+  }
+
+  .modalHeader,
+  .modalFooter {
+    display: none !important;
+  }
+
+  .previewArea {
+    overflow: visible;
+
+    padding: 0;
+  }
+
+  .invoice {
+    width: 210mm;
+
+    min-height: 297mm;
+
+    margin: 0;
+
+    padding: 14mm;
+
+    box-shadow: none;
   }
 }
