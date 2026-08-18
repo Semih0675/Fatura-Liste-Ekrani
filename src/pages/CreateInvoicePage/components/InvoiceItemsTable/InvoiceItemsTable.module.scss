@@ -147,7 +147,6 @@
   background: #ffffff;
 
   scrollbar-color: #94a3b8 #eef2f7;
-
   scrollbar-width: thin;
 
   &::-webkit-scrollbar {
@@ -182,7 +181,6 @@
     box-sizing: border-box;
 
     border-right: 1px solid #e3e9f1;
-
     border-bottom: 1px solid #e3e9f1;
 
     vertical-align: middle;
@@ -401,7 +399,6 @@
   display: grid;
 
   grid-template-columns: 21px 24px;
-
   grid-template-rows: repeat(2, 24px);
 
   align-items: center;
@@ -518,7 +515,14 @@
   font-weight: 700;
 
   text-overflow: ellipsis;
+
   white-space: nowrap;
+}
+
+.productMetaWarning {
+  color: #b45309;
+
+  font-weight: 850;
 }
 
 .currencyCell {
@@ -597,26 +601,6 @@
   outline-offset: 2px;
 }
 
-@media (max-width: 1100px) {
-}
-
-@media (max-width: 900px) {
-  .footer {
-    min-height: auto;
-
-    flex-direction: column;
-  }
-
-  .footerInformation,
-  .summaryContainer {
-    width: 100%;
-  }
-
-  .summaryContainer {
-    justify-content: flex-end;
-  }
-}
-
 @media (max-width: 700px) {
   .header {
     align-items: stretch;
@@ -638,19 +622,5 @@
   .currencyHeaderBadge,
   .addLineButton {
     flex: 1;
-  }
-
-  .footer {
-    gap: 12px;
-
-    padding: 12px;
-  }
-
-  .summaryContainer {
-    flex-direction: column;
-  }
-
-  .currencySummary {
-    width: 100%;
   }
 }

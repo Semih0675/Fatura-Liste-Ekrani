@@ -1,0 +1,327 @@
+.overlay {
+    position: fixed;
+
+    z-index: 2600;
+
+    inset: 0;
+
+    display: grid;
+
+    place-items: center;
+
+    padding: 24px;
+
+    background: rgb(15 23 42 / 55%);
+
+    backdrop-filter: blur(4px);
+}
+
+.modal {
+    display: flex;
+
+    width: min(880px, 100%);
+
+    max-height: calc(100vh - 48px);
+
+    flex-direction: column;
+
+    overflow: hidden;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+
+    background: #f8fafc;
+
+    box-shadow:
+        0 24px 70px rgb(2 6 23 / 30%);
+}
+
+.header {
+    display: flex;
+
+    align-items: flex-start;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 18px 20px;
+
+    border-bottom: 1px solid #dce4ee;
+
+    background: #ffffff;
+
+    >div {
+        display: flex;
+
+        flex-direction: column;
+
+        gap: 2px;
+    }
+
+    span {
+        color: #2563eb;
+
+        font-size: 9px;
+        font-weight: 900;
+
+        letter-spacing: 0.08em;
+    }
+
+    h2 {
+        margin: 0;
+
+        color: #172033;
+
+        font-size: 19px;
+        font-weight: 900;
+    }
+
+    p {
+        margin: 2px 0 0;
+
+        color: #64748b;
+
+        font-size: 10px;
+    }
+}
+
+.closeButton {
+    display: grid;
+
+    width: 34px;
+    height: 34px;
+
+    place-items: center;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+
+    color: #64748b;
+    background: #ffffff;
+
+    font-size: 20px;
+
+    cursor: pointer;
+}
+
+.body {
+    display: flex;
+
+    flex: 1;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+    overflow-y: auto;
+
+    padding: 16px;
+}
+
+.error {
+    padding: 10px;
+
+    border: 1px solid #fecaca;
+    border-radius: 7px;
+
+    color: #b91c1c;
+    background: #fef2f2;
+
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.section {
+    overflow: hidden;
+
+    border: 1px solid #d9e2ec;
+    border-radius: 9px;
+
+    background: #ffffff;
+}
+
+.sectionHeader {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 2px;
+
+    padding: 11px 13px;
+
+    border-bottom: 1px solid #e2e8f0;
+
+    background: #fbfdff;
+
+    strong {
+        color: #334155;
+
+        font-size: 11px;
+        font-weight: 900;
+    }
+
+    span {
+        color: #94a3b8;
+
+        font-size: 8px;
+    }
+}
+
+.grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+
+    gap: 10px;
+
+    padding: 13px;
+}
+
+.field {
+    display: flex;
+
+    min-width: 0;
+
+    flex-direction: column;
+
+    gap: 5px;
+
+    >span {
+        color: #526176;
+
+        font-size: 9px;
+        font-weight: 800;
+    }
+
+    input,
+    select,
+    textarea {
+        width: 100%;
+
+        box-sizing: border-box;
+
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+
+        outline: none;
+
+        color: #1e293b;
+        background: #ffffff;
+
+        font: inherit;
+        font-size: 10px;
+
+        &:focus {
+            border-color: #2563eb;
+
+            box-shadow:
+                0 0 0 2px rgb(37 99 235 / 10%);
+        }
+    }
+
+    input,
+    select {
+        height: 36px;
+
+        padding: 0 9px;
+    }
+
+    textarea {
+        padding: 8px 9px;
+
+        resize: vertical;
+    }
+}
+
+.checkField {
+    display: flex;
+
+    min-height: 36px;
+
+    align-items: center;
+
+    align-self: end;
+
+    gap: 8px;
+
+    padding: 0 10px;
+
+    border: 1px solid #dbe4ef;
+    border-radius: 6px;
+
+    color: #334155;
+    background: #f8fafc;
+
+    font-size: 9px;
+    font-weight: 800;
+
+    input {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+.span2 {
+    grid-column: span 2;
+}
+
+.footer {
+    display: flex;
+
+    min-height: 66px;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 8px;
+
+    padding: 0 18px;
+
+    border-top: 1px solid #d9e2ec;
+
+    background: #ffffff;
+}
+
+.cancelButton,
+.saveButton {
+    min-height: 38px;
+
+    padding: 0 14px;
+
+    border-radius: 7px;
+
+    font: inherit;
+    font-size: 10px;
+    font-weight: 850;
+
+    cursor: pointer;
+}
+
+.cancelButton {
+    border: 1px solid #cbd5e1;
+
+    color: #475569;
+    background: #ffffff;
+}
+
+.saveButton {
+    border: 1px solid #1d4ed8;
+
+    color: #ffffff;
+    background: #2563eb;
+}
+
+@media (max-width: 650px) {
+    .overlay {
+        padding: 8px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .span2 {
+        grid-column: auto;
+    }
+}
