@@ -1,136 +1,20 @@
 import { useMemo, useState } from 'react';
+
 import { useTranslation } from 'react-i18next';
 
 import type { InvoiceCustomer } from '../../../../models/invoice';
+
+import { useAppSelector } from '../../../../store/hooks';
 
 import styles from './CustomerAddressCard.module.scss';
 
 interface CustomerAddressCardProps {
   initialCustomer?: InvoiceCustomer;
+
   initialCustomerName?: string;
+
   onCustomerChange?: (customer: InvoiceCustomer) => void;
 }
-
-interface KnownCustomer {
-  customer: InvoiceCustomer;
-  isEInvoiceTaxpayer: boolean;
-}
-
-const knownCustomers: KnownCustomer[] = [
-  {
-    isEInvoiceTaxpayer: true,
-
-    customer: {
-      id: 'customer-1',
-
-      name: 'Yılmaz Ticaret A.Ş.',
-      titleName: 'Yılmaz Ticaret Anonim Şirketi',
-
-      taxNumber: '1234567890',
-      taxOfficeCode: '006252',
-      taxOfficeName: 'Çankaya Vergi Dairesi',
-
-      phone: '0312 555 10 10',
-      email: 'muhasebe@yilmazticaret.com',
-
-      address: {
-        addressName: 'Merkez Ofis',
-
-        country: 'Türkiye',
-        city: 'Ankara',
-        district: 'Çankaya',
-
-        neighborhood: 'Kavaklıdere',
-        avenue: 'Atatürk Bulvarı',
-        street: '',
-
-        buildingNumber: '125',
-        apartmentNumber: '8',
-
-        postalCode: '06680',
-        addressCode: '',
-
-        additionalDescription: 'Merkez bina, 3. kat',
-      },
-    },
-  },
-
-  {
-    isEInvoiceTaxpayer: true,
-
-    customer: {
-      id: 'customer-2',
-
-      name: 'Demir İnşaat Ltd. Şti.',
-      titleName: 'Demir İnşaat Sanayi ve Ticaret Limited Şirketi',
-
-      taxNumber: '9876543210',
-      taxOfficeCode: '034204',
-      taxOfficeName: 'Maslak Vergi Dairesi',
-
-      phone: '0212 555 20 20',
-      email: 'finans@demirinsaat.com',
-
-      address: {
-        addressName: 'Genel Müdürlük',
-
-        country: 'Türkiye',
-        city: 'İstanbul',
-        district: 'Sarıyer',
-
-        neighborhood: 'Maslak',
-        avenue: 'Büyükdere Caddesi',
-        street: '',
-
-        buildingNumber: '201',
-        apartmentNumber: '14',
-
-        postalCode: '34398',
-        addressCode: '',
-
-        additionalDescription: '',
-      },
-    },
-  },
-
-  {
-    isEInvoiceTaxpayer: false,
-
-    customer: {
-      id: 'customer-3',
-
-      name: 'Aksa Gıda San. A.Ş.',
-      titleName: 'Aksa Gıda Sanayi Anonim Şirketi',
-
-      taxNumber: '1122334455',
-      taxOfficeCode: '035102',
-      taxOfficeName: 'Konak Vergi Dairesi',
-
-      phone: '0232 555 30 30',
-      email: 'muhasebe@aksagida.com',
-
-      address: {
-        addressName: 'İzmir Şube',
-
-        country: 'Türkiye',
-        city: 'İzmir',
-        district: 'Konak',
-
-        neighborhood: 'Alsancak',
-        avenue: 'Kıbrıs Şehitleri Caddesi',
-        street: '',
-
-        buildingNumber: '55',
-        apartmentNumber: '3',
-
-        postalCode: '35220',
-        addressCode: '',
-
-        additionalDescription: '',
-      },
-    },
-  },
-];
 
 const knownCities = [
   'Adana',
@@ -146,6 +30,7 @@ const knownCities = [
 
 function createInitialCustomer(
   initialCustomer?: InvoiceCustomer,
+
   initialCustomerName = '',
 ): InvoiceCustomer {
   const customerName = initialCustomer?.name ?? initialCustomerName;
@@ -197,10 +82,14 @@ function createInitialCustomer(
 
 export function CustomerAddressCard({
   initialCustomer,
+
   initialCustomerName = '',
+
   onCustomerChange,
 }: CustomerAddressCardProps) {
   const { t } = useTranslation();
+
+  const knownCustomers = useAppSelector((state) => state.customers.items);
 
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -209,8 +98,10 @@ export function CustomerAddressCard({
   );
 
   const selectedKnownCustomer = useMemo(() => {
-    return knownCustomers.find((knownCustomer) => knownCustomer.customer.name === customer.name);
-  }, [customer.name]);
+    return knownCustomers.find(
+      (knownCustomer) => knownCustomer.id === customer.id || knownCustomer.name === customer.name,
+    );
+  }, [customer.id, customer.name, knownCustomers]);
 
   function handleToggle() {
     setIsExpanded((current) => !current);
@@ -225,6 +116,7 @@ export function CustomerAddressCard({
   function updateCustomer(changes: Partial<InvoiceCustomer>) {
     const updated: InvoiceCustomer = {
       ...customer,
+
       ...changes,
     };
 
@@ -237,6 +129,7 @@ export function CustomerAddressCard({
 
       address: {
         ...customer.address,
+
         ...changes,
       },
     };
@@ -245,25 +138,37 @@ export function CustomerAddressCard({
   }
 
   function handleCustomerNameChange(value: string) {
-    const knownCustomer = knownCustomers.find((item) => item.customer.name === value);
+    const knownCustomer = knownCustomers.find((item) => item.name === value);
 
     if (knownCustomer) {
       applyCustomer({
-        ...knownCustomer.customer,
+        id: knownCustomer.id,
+
+        name: knownCustomer.name,
+
+        titleName: knownCustomer.titleName,
+
+        taxNumber: knownCustomer.taxNumber,
+
+        taxOfficeCode: knownCustomer.taxOfficeCode,
+
+        taxOfficeName: knownCustomer.taxOfficeName,
+
+        phone: knownCustomer.phone,
+
+        email: knownCustomer.email,
 
         address: {
-          ...knownCustomer.customer.address,
+          ...knownCustomer.address,
         },
       });
 
       return;
     }
 
-    /*
-     * Kullanıcı serbest şekilde yeni
-     * bir cari adı da yazabilir.
-     */
     updateCustomer({
+      id: '',
+
       name: value,
 
       titleName: customer.titleName || value,
@@ -272,10 +177,6 @@ export function CustomerAddressCard({
 
   return (
     <section className={`${styles.panel} ${isExpanded ? styles.panelOpen : ''}`}>
-      {/* ===============================================
-          TAB
-          =============================================== */}
-
       <div className={styles.tabs}>
         <button
           type="button"
@@ -289,10 +190,6 @@ export function CustomerAddressCard({
           {customer.name ? <span className={styles.customerStatusDot} aria-hidden="true" /> : null}
         </button>
       </div>
-
-      {/* ===============================================
-          TOGGLE
-          =============================================== */}
 
       <button
         type="button"
@@ -317,10 +214,6 @@ export function CustomerAddressCard({
         </span>
       </button>
 
-      {/* ===============================================
-          COMPACT CUSTOMER AREA
-          =============================================== */}
-
       <div className={styles.previewGrid}>
         <label className={styles.field}>
           <span>
@@ -340,8 +233,8 @@ export function CustomerAddressCard({
           />
 
           <datalist id="invoice-customer-options">
-            {knownCustomers.map(({ customer }) => (
-              <option key={customer.id} value={customer.name} />
+            {knownCustomers.map((knownCustomer) => (
+              <option key={knownCustomer.id} value={knownCustomer.name} />
             ))}
           </datalist>
         </label>
@@ -367,10 +260,6 @@ export function CustomerAddressCard({
           />
         </label>
       </div>
-
-      {/* ===============================================
-          COMPACT SUMMARY
-          =============================================== */}
 
       {customer.taxNumber || customer.phone || customer.email ? (
         <div className={styles.customerSummary}>
@@ -406,17 +295,9 @@ export function CustomerAddressCard({
         </div>
       ) : null}
 
-      {/* ===============================================
-          FLOATING DETAILS
-          =============================================== */}
-
       <div className={`${styles.expandable} ${isExpanded ? styles.expandableOpen : ''}`}>
         <div className={styles.expandableInner}>
           <div className={styles.detailsGrid}>
-            {/* =========================================
-                TAX
-                ========================================= */}
-
             <div className={`${styles.sectionTitle} ${styles.fullWidth}`}>
               <span>Vergi Bilgileri</span>
 
@@ -424,11 +305,7 @@ export function CustomerAddressCard({
             </div>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.taxNumber', {
-                  defaultValue: 'VKN / TCKN',
-                })}
-              </span>
+              <span>VKN / TCKN</span>
 
               <input
                 type="text"
@@ -440,30 +317,17 @@ export function CustomerAddressCard({
                     taxNumber: event.target.value.replace(/\D/g, ''),
                   })
                 }
-                placeholder="Vergi / T.C. kimlik numarası"
               />
             </label>
 
             <div className={styles.lookupButtons}>
-              <button type="button">
-                {t('customerAddress.declaration', {
-                  defaultValue: 'Mükellef Sorgula',
-                })}
-              </button>
+              <button type="button">Mükellef Sorgula</button>
 
-              <button type="button">
-                {t('customerAddress.freeQuery', {
-                  defaultValue: 'VKN Sorgula',
-                })}
-              </button>
+              <button type="button">VKN Sorgula</button>
             </div>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.taxOfficeCode', {
-                  defaultValue: 'Vergi Dairesi Kodu',
-                })}
-              </span>
+              <span>Vergi Dairesi Kodu</span>
 
               <input
                 type="text"
@@ -473,16 +337,11 @@ export function CustomerAddressCard({
                     taxOfficeCode: event.target.value,
                   })
                 }
-                placeholder="Vergi dairesi kodu"
               />
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.taxOfficeName', {
-                  defaultValue: 'Vergi Dairesi',
-                })}
-              </span>
+              <span>Vergi Dairesi</span>
 
               <input
                 type="text"
@@ -492,13 +351,8 @@ export function CustomerAddressCard({
                     taxOfficeName: event.target.value,
                   })
                 }
-                placeholder="Vergi dairesi adı"
               />
             </label>
-
-            {/* =========================================
-                CONTACT
-                ========================================= */}
 
             <div className={`${styles.sectionTitle} ${styles.fullWidth}`}>
               <span>İletişim Bilgileri</span>
@@ -517,7 +371,6 @@ export function CustomerAddressCard({
                     phone: event.target.value,
                   })
                 }
-                placeholder="0 (5xx) xxx xx xx"
               />
             </label>
 
@@ -532,30 +385,17 @@ export function CustomerAddressCard({
                     email: event.target.value,
                   })
                 }
-                placeholder="muhasebe@firma.com"
               />
             </label>
 
-            {/* =========================================
-                ADDRESS
-                ========================================= */}
-
             <div className={`${styles.sectionTitle} ${styles.fullWidth}`}>
-              <span>
-                {t('customerAddress.addressInformation', {
-                  defaultValue: 'Fatura Adresi',
-                })}
-              </span>
+              <span>Fatura Adresi</span>
 
               <small>Faturada kullanılacak adres</small>
             </div>
 
             <label className={`${styles.field} ${styles.fullWidth}`}>
-              <span>
-                {t('customerAddress.addressName', {
-                  defaultValue: 'Adres Tanımı',
-                })}
-              </span>
+              <span>Adres Tanımı</span>
 
               <input
                 type="text"
@@ -565,16 +405,11 @@ export function CustomerAddressCard({
                     addressName: event.target.value,
                   })
                 }
-                placeholder="Örn: Merkez Ofis"
               />
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.country', {
-                  defaultValue: 'Ülke',
-                })}
-              </span>
+              <span>Ülke</span>
 
               <select
                 value={customer.address.country}
@@ -589,11 +424,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.city', {
-                  defaultValue: 'İl',
-                })}
-              </span>
+              <span>İl</span>
 
               <input
                 type="text"
@@ -604,7 +435,6 @@ export function CustomerAddressCard({
                     city: event.target.value,
                   })
                 }
-                placeholder="İl seçin veya yazın"
               />
 
               <datalist id="invoice-city-options">
@@ -615,11 +445,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.district', {
-                  defaultValue: 'İlçe',
-                })}
-              </span>
+              <span>İlçe</span>
 
               <input
                 type="text"
@@ -629,16 +455,11 @@ export function CustomerAddressCard({
                     district: event.target.value,
                   })
                 }
-                placeholder="İlçe"
               />
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.neighborhood', {
-                  defaultValue: 'Mahalle',
-                })}
-              </span>
+              <span>Mahalle</span>
 
               <input
                 type="text"
@@ -648,16 +469,11 @@ export function CustomerAddressCard({
                     neighborhood: event.target.value,
                   })
                 }
-                placeholder="Mahalle"
               />
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.avenue', {
-                  defaultValue: 'Cadde',
-                })}
-              </span>
+              <span>Cadde</span>
 
               <input
                 type="text"
@@ -667,16 +483,11 @@ export function CustomerAddressCard({
                     avenue: event.target.value,
                   })
                 }
-                placeholder="Cadde"
               />
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.street', {
-                  defaultValue: 'Sokak',
-                })}
-              </span>
+              <span>Sokak</span>
 
               <input
                 type="text"
@@ -686,16 +497,11 @@ export function CustomerAddressCard({
                     street: event.target.value,
                   })
                 }
-                placeholder="Sokak"
               />
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.buildingNumber', {
-                  defaultValue: 'Bina No',
-                })}
-              </span>
+              <span>Bina No</span>
 
               <input
                 type="text"
@@ -709,11 +515,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.apartmentNumber', {
-                  defaultValue: 'Daire No',
-                })}
-              </span>
+              <span>Daire No</span>
 
               <input
                 type="text"
@@ -727,11 +529,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.postalCode', {
-                  defaultValue: 'Posta Kodu',
-                })}
-              </span>
+              <span>Posta Kodu</span>
 
               <input
                 type="text"
@@ -746,11 +544,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={styles.field}>
-              <span>
-                {t('customerAddress.addressCode', {
-                  defaultValue: 'Adres Kodu',
-                })}
-              </span>
+              <span>Adres Kodu</span>
 
               <input
                 type="text"
@@ -764,11 +558,7 @@ export function CustomerAddressCard({
             </label>
 
             <label className={`${styles.field} ${styles.fullWidth}`}>
-              <span>
-                {t('customerAddress.additionalDescription', {
-                  defaultValue: 'Adres Açıklaması',
-                })}
-              </span>
+              <span>Adres Açıklaması</span>
 
               <textarea
                 rows={3}
@@ -778,7 +568,6 @@ export function CustomerAddressCard({
                     additionalDescription: event.target.value,
                   })
                 }
-                placeholder="Kat, blok, tarif veya ek adres bilgisi..."
               />
             </label>
           </div>

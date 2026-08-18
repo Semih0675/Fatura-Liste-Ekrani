@@ -9,10 +9,7 @@ import type {
   InvoiceItemUnit,
 } from '../../../../models/invoice';
 
-import {
-  calculateInvoiceLine,
-  calculateInvoiceTotals,
-} from '../../../../utils/invoiceCalculations';
+import { calculateInvoiceLine } from '../../../../utils/invoiceCalculations';
 
 import styles from './InvoiceItemsTable.module.scss';
 
@@ -269,17 +266,11 @@ export function InvoiceItemsTable({
     [currency, rows],
   );
 
-  const totals = useMemo(() => calculateInvoiceTotals(invoiceItems), [invoiceItems]);
-
   useEffect(() => {
     onItemsChange?.(invoiceItems);
   }, [invoiceItems, onItemsChange]);
 
-  function updateRow(
-    id: string,
-
-    changes: Partial<InvoiceItemRow>,
-  ) {
+  function updateRow(id: string, changes: Partial<InvoiceItemRow>) {
     setRows((currentRows) =>
       currentRows.map((row) =>
         row.id === id
@@ -713,68 +704,6 @@ export function InvoiceItemsTable({
             })}
           </tbody>
         </table>
-      </div>
-
-      <div className={styles.footer}>
-        <div className={styles.footerInformation}>
-          <strong>Fatura Özeti</strong>
-
-          <span>
-            {rows.length} kalem • Tek belge para birimi: {currency}
-          </span>
-
-          <span>Para birimi, Belge Genel Bilgileri alanından değiştirilir.</span>
-        </div>
-
-        <div className={styles.summaryContainer}>
-          <div className={styles.currencySummary}>
-            <div className={styles.summaryRow}>
-              <span>Mal / Hizmet Toplamı</span>
-
-              <strong>{formatCurrency(totals.subtotal)}</strong>
-            </div>
-
-            <div className={styles.summaryRow}>
-              <span>Toplam İskonto</span>
-
-              <strong>-{formatCurrency(totals.totalDiscount)}</strong>
-            </div>
-
-            <div className={styles.summaryRow}>
-              <span>KDV Matrahı</span>
-
-              <strong>{formatCurrency(totals.netSubtotal ?? 0)}</strong>
-            </div>
-
-            {(totals.vatBreakdown ?? []).map((vat) => (
-              <div key={vat.rate} className={styles.vatGroup}>
-                <div className={styles.summaryRow}>
-                  <span>%{vat.rate} KDV Matrahı</span>
-
-                  <strong>{formatCurrency(vat.taxableAmount)}</strong>
-                </div>
-
-                <div className={styles.summaryRow}>
-                  <span>%{vat.rate} Hesaplanan KDV</span>
-
-                  <strong>{formatCurrency(vat.vatAmount)}</strong>
-                </div>
-              </div>
-            ))}
-
-            <div className={styles.summaryRow}>
-              <span>Toplam KDV</span>
-
-              <strong>{formatCurrency(totals.totalVat)}</strong>
-            </div>
-
-            <div className={styles.grandTotalRow}>
-              <span>Ödenecek Tutar</span>
-
-              <strong>{formatCurrency(totals.grandTotal)}</strong>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );
