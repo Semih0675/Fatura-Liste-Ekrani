@@ -1,185 +1,657 @@
 .sidebar {
   position: fixed;
+
+  z-index: 1200;
+
   top: 0;
   bottom: 0;
   left: 0;
-  z-index: 1000;
+
   display: flex;
+
   width: 240px;
-  box-sizing: border-box;
+
   flex-direction: column;
-  padding: 18px 12px;
+
+  overflow: visible;
+
+  border-right: 1px solid rgb(255 255 255 / 8%);
+
   color: #ffffff;
-  background: linear-gradient(180deg, #173f70 0%, #102f55 55%, #0b2747 100%);
-  box-shadow: 7px 0 24px rgb(15 23 42 / 13%);
-  transition:
-    width 220ms ease,
-    padding 220ms ease;
+
+  background:
+    linear-gradient(180deg,
+      #102f55 0%,
+      #123760 48%,
+      #102d50 100%);
+
+  box-shadow:
+    5px 0 22px rgb(15 23 42 / 12%);
+
+  transition: width 220ms ease;
 }
 
-.collapsed {
+/* =========================================================
+   COLLAPSED
+   ========================================================= */
+
+.sidebarCollapsed {
   width: 76px;
-  padding-inline: 10px;
+
+  .brandText,
+  .menuLabel,
+  .sectionLabel,
+  .version,
+  .newInvoiceButton strong {
+    display: none;
+  }
+
+  .brand {
+    justify-content: center;
+
+    padding-inline: 12px;
+  }
+
+  .brandButton {
+    justify-content: center;
+  }
+
+  /*
+   * Kapalı durumdaki genişlet butonu.
+   * Açık durumdaki butonla aynı şekil ve ölçüde.
+   */
+  .collapseButton {
+    position: absolute;
+
+    z-index: 30;
+
+    top: 24px;
+    right: -14px;
+
+    display: grid;
+
+    width: 28px;
+    height: 28px;
+
+    flex-shrink: 0;
+
+    place-items: center;
+
+    padding: 0;
+
+    transform: none;
+
+    border: 1px solid rgb(255 255 255 / 14%);
+    border-radius: 7px;
+
+    color: rgb(255 255 255 / 72%);
+    background: #163f6d;
+
+    font: inherit;
+
+    font-size: 18px;
+    font-weight: 800;
+
+    line-height: 1;
+
+    box-shadow:
+      0 4px 12px rgb(15 23 42 / 20%);
+
+    cursor: pointer;
+
+    transition:
+      color 140ms ease,
+      background-color 140ms ease,
+      border-color 140ms ease,
+      box-shadow 140ms ease,
+      transform 140ms ease;
+
+    &:hover {
+      border-color: rgb(255 255 255 / 24%);
+
+      color: #ffffff;
+      background: #2563eb;
+
+      box-shadow:
+        0 6px 14px rgb(37 99 235 / 24%);
+    }
+
+    &:active {
+      transform: scale(0.94);
+    }
+  }
+
+  .quickArea {
+    padding-inline: 0;
+  }
+
+  .newInvoiceButton {
+    width: 44px;
+
+    padding: 0;
+
+    justify-content: center;
+
+    span {
+      font-size: 22px;
+    }
+  }
+
+  .menuItem {
+    width: 48px;
+
+    margin-inline: auto;
+
+    padding: 0;
+
+    justify-content: center;
+  }
+
+  .bottomArea {
+    padding-inline: 6px;
+  }
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 48px;
-  gap: 8px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid rgb(255 255 255 / 12%);
-}
+/* =========================================================
+   BRAND
+   ========================================================= */
 
 .brand {
+  position: relative;
+
   display: flex;
-  min-width: 0;
+
+  min-height: 76px;
+
   align-items: center;
+  justify-content: space-between;
+
+  gap: 8px;
+
+  padding: 0 14px;
+
+  border-bottom: 1px solid rgb(255 255 255 / 9%);
+}
+
+.brandButton {
+  display: flex;
+
+  min-width: 0;
+
+  align-items: center;
+
   gap: 10px;
+
+  padding: 0;
+
+  border: 0;
+
+  color: inherit;
+  background: transparent;
+
+  cursor: pointer;
 }
 
 .logo {
   display: grid;
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
+
+  width: 40px;
+  height: 40px;
+
+  flex-shrink: 0;
+
   place-items: center;
-  border-radius: 11px;
-  color: #173f70;
+
+  border-radius: 10px;
+
+  color: #123760;
   background: #ffffff;
-  box-shadow: 0 5px 14px rgb(0 0 0 / 15%);
+
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 950;
+
+  box-shadow:
+    0 6px 16px rgb(0 0 0 / 15%);
 }
 
 .brandText {
   display: flex;
+
   min-width: 0;
+
   flex-direction: column;
-  gap: 2px;
+
+  align-items: flex-start;
 
   strong {
-    overflow: hidden;
+    color: #ffffff;
+
     font-size: 14px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-weight: 900;
   }
 
-  span {
-    color: rgb(255 255 255 / 62%);
-    font-size: 10px;
-    white-space: nowrap;
+  small {
+    margin-top: 1px;
+
+    color: rgb(255 255 255 / 58%);
+
+    font-size: 8px;
   }
 }
 
-.toggleButton {
+/* =========================================================
+   COLLAPSE / EXPAND BUTTON
+   ========================================================= */
+
+.collapseButton {
   display: grid;
+
   width: 28px;
   height: 28px;
-  flex: 0 0 28px;
-  padding: 0;
+
+  flex-shrink: 0;
+
   place-items: center;
-  border: 1px solid rgb(255 255 255 / 18%);
-  border-radius: 50%;
-  color: #ffffff;
-  background: rgb(255 255 255 / 8%);
-  font-size: 22px;
+
+  padding: 0;
+
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 7px;
+
+  color: rgb(255 255 255 / 72%);
+  background: rgb(255 255 255 / 6%);
+
+  font: inherit;
+
+  font-size: 18px;
+  font-weight: 800;
+
   line-height: 1;
+
   cursor: pointer;
+
   transition:
-    background 150ms ease,
-    transform 150ms ease;
+    color 140ms ease,
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
 
   &:hover {
-    background: rgb(255 255 255 / 16%);
-    transform: scale(1.06);
+    border-color: rgb(255 255 255 / 24%);
+
+    color: #ffffff;
+    background: rgb(255 255 255 / 12%);
+  }
+
+  &:active {
+    transform: scale(0.94);
   }
 }
 
-.collapsed .header {
-  flex-direction: column;
+/* =========================================================
+   QUICK ACTION
+   ========================================================= */
+
+.quickArea {
+  display: flex;
+
   justify-content: center;
+
+  padding: 14px 12px 8px;
 }
 
-.collapsed .toggleButton {
-  margin-top: 8px;
+.newInvoiceButton {
+  display: flex;
+
+  width: 100%;
+  min-height: 42px;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  padding: 0 12px;
+
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+
+  color: #ffffff;
+  background: #2563eb;
+
+  font: inherit;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px rgb(37 99 235 / 22%);
+
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease,
+    transform 140ms ease;
+
+  span {
+    font-size: 18px;
+
+    line-height: 1;
+  }
+
+  strong {
+    font-size: 10px;
+    font-weight: 900;
+
+    white-space: nowrap;
+  }
+
+  &:hover {
+    border-color: #60a5fa;
+
+    background: #1d4ed8;
+
+    box-shadow:
+      0 8px 20px rgb(37 99 235 / 30%);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
 }
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
 
 .navigation {
   display: flex;
+
   flex: 1;
+
   flex-direction: column;
-  gap: 8px;
-  padding-top: 22px;
+
+  gap: 3px;
+
+  overflow-y: auto;
+  overflow-x: visible;
+
+  padding: 12px 10px;
+
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 16%) transparent;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+
+    background: rgb(255 255 255 / 16%);
+  }
 }
 
-.navigationLink {
+.sectionLabel {
+  margin: 7px 8px 5px;
+
+  color: rgb(255 255 255 / 38%);
+
+  font-size: 7px;
+  font-weight: 900;
+
+  letter-spacing: 0.13em;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   MENU ITEM
+   ========================================================= */
+
+.menuItem {
   position: relative;
+
   display: flex;
-  min-height: 46px;
-  box-sizing: border-box;
+
+  width: 100%;
+  min-height: 42px;
+
   align-items: center;
-  gap: 12px;
-  padding: 0 13px;
-  border-radius: 11px;
-  color: rgb(255 255 255 / 74%);
-  font-size: 13px;
-  font-weight: 700;
-  text-decoration: none;
+
+  gap: 10px;
+
+  padding: 0 11px;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  color: rgb(255 255 255 / 72%);
+
+  background: transparent;
+
+  font: inherit;
+
+  cursor: pointer;
+
   transition:
-    color 160ms ease,
-    background 160ms ease,
-    transform 160ms ease;
+    background-color 130ms ease,
+    color 130ms ease,
+    border-color 130ms ease,
+    box-shadow 130ms ease,
+    transform 130ms ease;
 
   &:hover {
     color: #ffffff;
-    background: rgb(255 255 255 / 10%);
-    transform: translateX(2px);
+
+    background: rgb(255 255 255 / 7%);
+  }
+
+  &:active {
+    transform: translateY(1px);
   }
 }
 
-.activeLink {
-  color: #173f70;
-  background: #ffffff;
-  box-shadow: 0 8px 20px rgb(0 0 0 / 14%);
+.activeMenuItem {
+  border-color: rgb(147 197 253 / 20%);
 
-  &:hover {
-    color: #173f70;
-    background: #ffffff;
-    transform: none;
-  }
+  color: #ffffff;
+
+  background: rgb(37 99 235 / 32%);
+
+  box-shadow:
+    inset 3px 0 0 #60a5fa,
+    0 3px 10px rgb(0 0 0 / 8%);
 }
 
-.icon {
+.menuIcon {
   display: grid;
+
   width: 24px;
   height: 24px;
-  flex: 0 0 24px;
+
+  flex-shrink: 0;
+
   place-items: center;
-  font-size: 19px;
-  font-weight: 800;
+
+  font-size: 14px;
+  font-weight: 900;
+
+  line-height: 1;
 }
 
-.collapsed .navigationLink {
-  justify-content: center;
-  padding-inline: 0;
-}
+.menuLabel {
+  overflow: hidden;
 
-.footer {
-  padding: 14px 8px 4px;
-  border-top: 1px solid rgb(255 255 255 / 12%);
-  color: rgb(255 255 255 / 52%);
   font-size: 10px;
-  text-align: center;
+  font-weight: 800;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
 }
 
-@media (max-width: 700px) {
-  .sidebar {
-    width: 220px;
+/* =========================================================
+   BOTTOM
+   ========================================================= */
+
+.bottomArea {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 3px;
+
+  padding: 10px;
+
+  border-top: 1px solid rgb(255 255 255 / 8%);
+}
+
+.version {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 12px 8px 5px;
+
+  color: rgb(255 255 255 / 35%);
+
+  strong,
+  span {
+    font-size: 7px;
+  }
+}
+
+/* =========================================================
+   FOCUS
+   ========================================================= */
+
+.brandButton:focus-visible,
+.collapseButton:focus-visible,
+.newInvoiceButton:focus-visible,
+.menuItem:focus-visible {
+  outline: 2px solid #93c5fd;
+
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+  .sidebar,
+  .sidebarCollapsed {
+    width: 76px;
   }
 
-  .collapsed {
+  .brandText,
+  .menuLabel,
+  .sectionLabel,
+  .version,
+  .newInvoiceButton strong {
+    display: none;
+  }
+
+  .brand {
+    justify-content: center;
+
+    padding-inline: 12px;
+  }
+
+  .brandButton {
+    justify-content: center;
+  }
+
+  .quickArea {
+    padding-inline: 0;
+  }
+
+  .newInvoiceButton {
+    width: 44px;
+
+    padding: 0;
+
+    span {
+      font-size: 22px;
+    }
+  }
+
+  .menuItem {
+    width: 48px;
+
+    margin-inline: auto;
+
+    padding: 0;
+
+    justify-content: center;
+  }
+
+  /*
+   * Tablet boyutunda sidebar zaten zorunlu dar.
+   * Burada toggle butonuna gerek yok.
+   */
+  .collapseButton {
+    display: none;
+  }
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 520px) {
+
+  .sidebar,
+  .sidebarCollapsed {
     width: 64px;
+  }
+
+  .brand {
+    min-height: 68px;
+
+    padding-inline: 8px;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+
+    border-radius: 9px;
+
+    font-size: 16px;
+  }
+
+  .quickArea {
+    padding-top: 11px;
+  }
+
+  .newInvoiceButton {
+    width: 42px;
+    min-height: 40px;
+  }
+
+  .menuItem {
+    width: 44px;
+    min-height: 40px;
+  }
+
+  .menuIcon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .navigation {
+    padding-inline: 6px;
+  }
+
+  .bottomArea {
+    padding-inline: 6px;
   }
 }

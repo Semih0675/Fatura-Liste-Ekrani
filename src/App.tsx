@@ -6,6 +6,8 @@ import {
 
 import AppLayout from './layouts/AppLayout/AppLayout';
 
+import DashboardPage from './pages/DashboardPage/DashboardPage';
+
 import CreateInvoicePage from './pages/CreateInvoicePage/CreateInvoicePage';
 
 import CustomerListPage from './pages/CustomerListPage/CustomerListPage';
@@ -13,6 +15,12 @@ import CustomerListPage from './pages/CustomerListPage/CustomerListPage';
 import InvoiceListPage from './pages/InvoiceListPage/InvoiceListPage';
 
 import ProductListPage from './pages/ProductListPage/ProductListPage';
+
+import PaymentListPage from './pages/PaymentListPage/PaymentListPage';
+
+import ReportsPage from './pages/ReportsPage/ReportsPage';
+
+import CompanySettingsPage from './pages/CompanySettingsPage/CompanySettingsPage';
 
 export default function App() {
   return (
@@ -22,6 +30,13 @@ export default function App() {
           index
           element={
             <InvoiceListPage />
+          }
+        />
+
+        <Route
+          path="dashboard"
+          element={
+            <DashboardPage />
           }
         />
 
@@ -45,13 +60,34 @@ export default function App() {
             <ProductListPage />
           }
         />
+
+        <Route
+          path="payments"
+          element={
+            <PaymentListPage />
+          }
+        />
+
+        <Route
+          path="reports"
+          element={
+            <ReportsPage />
+          }
+        />
+
+        <Route
+          path="settings/company"
+          element={
+            <CompanySettingsPage />
+          }
+        />
       </Route>
 
       <Route
         path="*"
         element={
           <Navigate
-            to="/"
+            to="/dashboard"
             replace
           />
         }

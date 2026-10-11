@@ -1,78 +1,252 @@
-import { useTranslation } from 'react-i18next';
-import { NavLink } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
+
 import styles from './AppSidebar.module.scss';
 
 interface AppSidebarProps {
   isCollapsed: boolean;
+
   onToggle: () => void;
 }
 
-export function AppSidebar({ isCollapsed, onToggle }: AppSidebarProps) {
-  const { t } = useTranslation();
+interface MenuItem {
+  label: string;
+
+  path: string;
+
+  icon: string;
+
+  isActive: (pathname: string) => boolean;
+}
+
+const mainMenuItems: MenuItem[] = [
+  {
+    label: 'Dashboard',
+
+    path: '/dashboard',
+
+    icon: '▦',
+
+    isActive: (pathname) =>
+      pathname === '/dashboard',
+  },
+
+  {
+    label: 'Faturalar',
+
+    path: '/',
+
+    icon: '▤',
+
+    isActive: (pathname) =>
+      pathname === '/' ||
+      pathname.startsWith('/invoices'),
+  },
+
+  {
+    label: 'Cari Hesaplar',
+
+    path: '/customers',
+
+    icon: '◎',
+
+    isActive: (pathname) =>
+      pathname.startsWith('/customers'),
+  },
+
+  {
+    label: 'Ürün & Stok',
+
+    path: '/products',
+
+    icon: '◇',
+
+    isActive: (pathname) =>
+      pathname.startsWith('/products'),
+  },
+
+  {
+    label: 'Tahsilatlar',
+
+    path: '/payments',
+
+    icon: '₺',
+
+    isActive: (pathname) =>
+      pathname.startsWith('/payments'),
+  },
+
+  {
+    label: 'Raporlar',
+
+    path: '/reports',
+
+    icon: '▥',
+
+    isActive: (pathname) =>
+      pathname.startsWith('/reports'),
+  },
+];
+
+export function AppSidebar({
+  isCollapsed,
+
+  onToggle,
+}: AppSidebarProps) {
+  const location = useLocation();
+
+  const navigate = useNavigate();
 
   return (
-    <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
-      <div className={styles.header}>
-        {!isCollapsed ? (
-          <div className={styles.brand}>
-            <span className={styles.logo}>P</span>
+    <aside
+      className={`${styles.sidebar} ${isCollapsed
+          ? styles.sidebarCollapsed
+          : ''
+        }`}
+    >
+      <div className={styles.brand}>
+        <button
+          type="button"
+          className={styles.brandButton}
+          onClick={() =>
+            navigate('/dashboard')
+          }
+        >
+          <span className={styles.logo}>
+            P
+          </span>
 
-            <div className={styles.brandText}>
-              <strong>PreAccounting</strong>
-              <span>{t('navigation.managementPanel')}</span>
-            </div>
-          </div>
-        ) : (
-          <span className={styles.logo}>P</span>
-        )}
+          <span className={styles.brandText}>
+            <strong>
+              PreAccounting
+            </strong>
+
+            <small>
+              Ön Muhasebe
+            </small>
+          </span>
+        </button>
 
         <button
           type="button"
-          className={styles.toggleButton}
+          className={styles.collapseButton}
           onClick={onToggle}
-          aria-label={isCollapsed ? t('navigation.expandMenu') : t('navigation.collapseMenu')}
-          title={isCollapsed ? t('navigation.expandMenu') : t('navigation.collapseMenu')}
+          title={
+            isCollapsed
+              ? 'Menüyü genişlet'
+              : 'Menüyü daralt'
+          }
         >
           {isCollapsed ? '›' : '‹'}
         </button>
       </div>
 
+      <div className={styles.quickArea}>
+        <button
+          type="button"
+          className={styles.newInvoiceButton}
+          onClick={() =>
+            navigate('/invoices/new')
+          }
+        >
+          <span>+</span>
+
+          <strong>
+            Yeni Fatura
+          </strong>
+        </button>
+      </div>
+
       <nav className={styles.navigation}>
-        <NavLink
-          to="/"
-          end
-          className={({ isActive }) =>
-            `${styles.navigationLink} ${isActive ? styles.activeLink : ''}`
-          }
-          title={isCollapsed ? t('navigation.invoiceList') : undefined}
-        >
-          <span className={styles.icon} aria-hidden="true">
-            ▤
-          </span>
+        <span className={styles.sectionLabel}>
+          YÖNETİM
+        </span>
 
-          {!isCollapsed ? <span>{t('navigation.invoiceList')}</span> : null}
-        </NavLink>
+        {mainMenuItems.map((item) => {
+          const active =
+            item.isActive(
+              location.pathname,
+            );
 
-        <NavLink
-          to="/invoices/new"
-          className={({ isActive }) =>
-            `${styles.navigationLink} ${isActive ? styles.activeLink : ''}`
-          }
-          title={isCollapsed ? t('navigation.createInvoice') : undefined}
-        >
-          <span className={styles.icon} aria-hidden="true">
-            ＋
-          </span>
+          return (
+            <button
+              key={item.path}
+              type="button"
+              className={`${styles.menuItem} ${active
+                  ? styles.activeMenuItem
+                  : ''
+                }`}
+              onClick={() =>
+                navigate(item.path)
+              }
+              title={
+                isCollapsed
+                  ? item.label
+                  : undefined
+              }
+              aria-current={
+                active
+                  ? 'page'
+                  : undefined
+              }
+            >
+              <span
+                className={styles.menuIcon}
+                aria-hidden="true"
+              >
+                {item.icon}
+              </span>
 
-          {!isCollapsed ? <span>{t('navigation.createInvoice')}</span> : null}
-        </NavLink>
+              <span
+                className={styles.menuLabel}
+              >
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
       </nav>
 
-      {!isCollapsed ? (
-        <div className={styles.footer}>
-          <span>{t('navigation.invoiceOperations')}</span>
+      <div className={styles.bottomArea}>
+        <span className={styles.sectionLabel}>
+          AYARLAR
+        </span>
+
+        <button
+          type="button"
+          className={`${styles.menuItem} ${location.pathname.startsWith(
+            '/settings',
+          )
+              ? styles.activeMenuItem
+              : ''
+            }`}
+          onClick={() =>
+            navigate('/settings/company')
+          }
+        >
+          <span
+            className={styles.menuIcon}
+          >
+            ⚙
+          </span>
+
+          <span
+            className={styles.menuLabel}
+          >
+            Firma Ayarları
+          </span>
+        </button>
+
+        <div className={styles.version}>
+          <strong>
+            PreAccounting
+          </strong>
+
+          <span>v1.0</span>
         </div>
-      ) : null}
+      </div>
     </aside>
   );
 }
